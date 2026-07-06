@@ -1,0 +1,14 @@
+# Benchmark outputs (regenerated every run)
+benchmark/results/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Temp / session artifacts
+*.tmp
+session-summary.md

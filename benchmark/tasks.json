@@ -1,0 +1,38 @@
+[
+  {
+    "id": "bugfix-stats",
+    "prompt": "Fix stats.py so that all tests in test_stats.py pass. Run the tests to confirm. Do not modify test_stats.py.",
+    "check": "python test_stats.py",
+    "setup": {
+      "stats.py": "def moving_average(values, window):\n    result = []\n    for i in range(len(values) - window):\n        chunk = values[i:i + window]\n        result.append(sum(chunk) / window)\n    return result\n",
+      "test_stats.py": "from stats import moving_average\n\ndef run():\n    assert moving_average([1, 2, 3, 4], 2) == [1.5, 2.5, 3.5]\n    assert moving_average([5], 1) == [5.0]\n    assert moving_average([], 3) == []\n    assert moving_average([1, 2], 5) == []\n    try:\n        moving_average([1, 2, 3], 0)\n        raise AssertionError(\"expected ValueError for window=0\")\n    except ValueError:\n        pass\n    print(\"OK\")\n\nif __name__ == \"__main__\":\n    run()\n"
+    }
+  },
+  {
+    "id": "impl-duration",
+    "prompt": "Create duration.py with a function parse_duration(text) that converts strings like 1h30m15s into total seconds (int). Rules: units must appear in h, m, s order, each at most once, at least one unit required, values are non-negative integers; any invalid input raises ValueError. All tests in test_duration.py must pass. Run them to confirm. Do not modify the test file.",
+    "check": "python test_duration.py",
+    "setup": {
+      "test_duration.py": "from duration import parse_duration\n\ndef run():\n    assert parse_duration(\"1h30m15s\") == 5415\n    assert parse_duration(\"90m\") == 5400\n    assert parse_duration(\"2h\") == 7200\n    assert parse_duration(\"45s\") == 45\n    assert parse_duration(\"1h1s\") == 3601\n    for bad in [\"\", \"abc\", \"1x\", \"h\", \"-5m\", \"1m1h\"]:\n        try:\n            parse_duration(bad)\n            raise AssertionError(\"expected ValueError for \" + repr(bad))\n        except ValueError:\n            pass\n    print(\"OK\")\n\nif __name__ == \"__main__\":\n    run()\n"
+    }
+  },
+  {
+    "id": "refactor-callsites",
+    "prompt": "Modify format_price in fmt.py to accept an optional currency parameter: USD (default) uses the $ symbol, EUR uses the euro symbol, and any other currency raises ValueError. Keep report.py and invoice.py working. All tests in test_fmt.py must pass. Run them to confirm. Do not modify the test file.",
+    "check": "python test_fmt.py",
+    "setup": {
+      "fmt.py": "def format_price(amount):\n    return \"$%.2f\" % amount\n",
+      "report.py": "from fmt import format_price\n\ndef daily_report(total):\n    return \"Daily total: \" + format_price(total)\n",
+      "invoice.py": "from fmt import format_price\n\ndef invoice_line(item, amount):\n    return item + \" ... \" + format_price(amount)\n",
+      "test_fmt.py": "from fmt import format_price\nfrom report import daily_report\nfrom invoice import invoice_line\n\ndef run():\n    assert format_price(10) == \"$10.00\"\n    assert format_price(10, \"EUR\") == \"\\u20ac10.00\"\n    assert format_price(0.5, \"USD\") == \"$0.50\"\n    try:\n        format_price(1, \"GBP\")\n        raise AssertionError(\"expected ValueError for GBP\")\n    except ValueError:\n        pass\n    assert daily_report(99.9) == \"Daily total: $99.90\"\n    assert invoice_line(\"Widget\", 3) == \"Widget ... $3.00\"\n    print(\"OK\")\n\nif __name__ == \"__main__\":\n    run()\n"
+    }
+  },
+  {
+    "id": "csv-parser",
+    "prompt": "Create csvlite.py with a function parse_csv(text) that parses CSV text into a list of records (each record is a list of field strings). Implement ALL of these rules exactly:\n1. Fields are separated by commas; records are separated by LF or CRLF.\n2. A field may be enclosed in double quotes; a quoted field may contain commas, LF and CRLF.\n3. Inside a quoted field, a doubled double-quote is a literal double-quote character.\n4. Empty input returns an empty list. A single trailing newline at the very end of the input is ignored (it produces no empty record). An empty line anywhere else is a record containing one empty string.\n5. Raise ValueError for each of: a double quote appearing inside an unquoted field, any character other than a comma or record separator immediately after a closing quote, and an unterminated quoted field.\n6. Do not use the csv module; implement the parser manually.\nThe visible tests in test_csv_basic.py must pass; run them to confirm. Your solution will additionally be graded against hidden tests that check every rule above.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\test_csv_hidden.py' .\\test_csv_hidden.py; python test_csv_hidden.py",
+    "setup": {
+      "test_csv_basic.py": "from csvlite import parse_csv\n\ndef run():\n    assert parse_csv(\"a,b,c\") == [[\"a\", \"b\", \"c\"]]\n    assert parse_csv(\"a,b\\n1,2\") == [[\"a\", \"b\"], [\"1\", \"2\"]]\n    assert parse_csv('\"a,b\",c') == [[\"a,b\", \"c\"]]\n    assert parse_csv(\"\") == []\n    print(\"OK\")\n\nif __name__ == \"__main__\":\n    run()\n"
+    }
+  }
+]
