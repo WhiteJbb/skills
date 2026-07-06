@@ -99,10 +99,15 @@ foreach ($task in $tasks) {
         $prompt = $task.prompt
       }
 
-      $cliArgs = @("-p", "--output-format", "json", "--model", $Model,
+      $cliArgs = @("-p", "--model", $Model,
                    "--permission-mode", "bypassPermissions",
-                   "--disallowedTools", "Skill",
                    "--max-turns", "$MaxTurns")
+      if ($mode -eq "auto") {
+        # Skill tool stays available; stream events so we can detect Skill invocations
+        $cliArgs += @("--output-format", "stream-json", "--verbose")
+      } else {
+        $cliArgs += @("--output-format", "json", "--disallowedTools", "Skill")
+      }
 
       Write-Host ("[{0}/{1}] {2} | {3} | run {4} ..." -f $done, $total, $task.id, $mode, $r)
 
@@ -113,9 +118,26 @@ foreach ($task in $tasks) {
       Pop-Location
 
       $rawText = ($raw | Out-String).Trim()
-      [System.IO.File]::WriteAllText((Join-Path $work "claude-output.json"), $rawText, (New-Object System.Text.UTF8Encoding($false)))
       $json = $null
-      try { $json = $rawText | ConvertFrom-Json } catch { Write-Warning "JSON parse failed: $($task.id)/$mode/run$r" }
+      $skillsUsed = @()
+      if ($mode -eq "auto") {
+        [System.IO.File]::WriteAllText((Join-Path $work "claude-stream.jsonl"), $rawText, (New-Object System.Text.UTF8Encoding($false)))
+        foreach ($line in @($raw)) {
+          $obj = $null
+          try { $obj = "$line" | ConvertFrom-Json } catch { continue }
+          if ($null -eq $obj) { continue }
+          if ($obj.type -eq "assistant" -and $obj.message.content) {
+            foreach ($c in @($obj.message.content)) {
+              if ($c.type -eq "tool_use" -and $c.name -eq "Skill") { $skillsUsed += "$($c.input.skill)" }
+            }
+          }
+          if ($obj.type -eq "result") { $json = $obj }
+        }
+        if ($null -eq $json) { Write-Warning "no result event: $($task.id)/$mode/run$r" }
+      } else {
+        [System.IO.File]::WriteAllText((Join-Path $work "claude-output.json"), $rawText, (New-Object System.Text.UTF8Encoding($false)))
+        try { $json = $rawText | ConvertFrom-Json } catch { Write-Warning "JSON parse failed: $($task.id)/$mode/run$r" }
+      }
 
       $passed = $null
       if ($task.check) {
@@ -145,9 +167,14 @@ foreach ($task in $tasks) {
         }
       }
 
+      $fired = $null
+      if ($mode -eq "auto") { $fired = ($skillsUsed.Count -gt 0) }
+
       $rec = [PSCustomObject]@{
         task = $task.id; mode = $mode; run = $r; model = $Model
         passed = $passed
+        skill_fired = $fired
+        skills_used = ($skillsUsed -join ",")
         wall_s = [Math]::Round($sw.Elapsed.TotalSeconds, 1)
         api_s = $apiS
         turns = $turns
@@ -164,7 +191,11 @@ foreach ($task in $tasks) {
       $passLabel = "n/a"
       if ($passed -eq $true) { $passLabel = "PASS" }
       if ($passed -eq $false) { $passLabel = "FAIL" }
-      Write-Host ("    -> {0} | {1}s | {2} turns | out {3} tok | `${4}" -f $passLabel, $rec.wall_s, $turns, $outTok, $cost)
+      $fireLabel = ""
+      if ($mode -eq "auto") {
+        if ($fired) { $fireLabel = " | skill fired: $($skillsUsed -join ',')" } else { $fireLabel = " | skill NOT fired" }
+      }
+      Write-Host ("    -> {0} | {1}s | {2} turns | out {3} tok | `${4}{5}" -f $passLabel, $rec.wall_s, $turns, $outTok, $cost, $fireLabel)
     }
   }
 }
@@ -176,9 +207,15 @@ $summary = $records | Group-Object task, mode | ForEach-Object {
   if ($checked.Count -gt 0) {
     $passRate = [Math]::Round((@($checked | Where-Object { $_.passed }).Count / $checked.Count) * 100, 0)
   }
+  $autoRuns = @($g | Where-Object { $null -ne $_.skill_fired })
+  $firePct = $null
+  if ($autoRuns.Count -gt 0) {
+    $firePct = [Math]::Round((@($autoRuns | Where-Object { $_.skill_fired }).Count / $autoRuns.Count) * 100, 0)
+  }
   [PSCustomObject]@{
     task = $g[0].task; mode = $g[0].mode; runs = $g.Count
     pass_pct = $passRate
+    fire_pct = $firePct
     avg_wall_s = AvgOf $g "wall_s"
     avg_api_s = AvgOf $g "api_s"
     avg_turns = AvgOf $g "turns"

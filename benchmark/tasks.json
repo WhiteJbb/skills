@@ -34,5 +34,13 @@
     "setup": {
       "test_csv_basic.py": "from csvlite import parse_csv\n\ndef run():\n    assert parse_csv(\"a,b,c\") == [[\"a\", \"b\", \"c\"]]\n    assert parse_csv(\"a,b\\n1,2\") == [[\"a\", \"b\"], [\"1\", \"2\"]]\n    assert parse_csv('\"a,b\",c') == [[\"a,b\", \"c\"]]\n    assert parse_csv(\"\") == []\n    print(\"OK\")\n\nif __name__ == \"__main__\":\n    run()\n"
     }
+  },
+  {
+    "id": "expr-eval",
+    "prompt": "Create calc.py with a function evaluate(expr) that evaluates an arithmetic expression string and returns a float. Implement ALL of these rules exactly:\n1. Numbers: integer or decimal digit sequences like 3 or 3.14. A decimal point must have digits on both sides ('5.' and '.5' are invalid). Whitespace anywhere is ignored.\n2. Binary operators + - * / ^ and parentheses. Precedence from low to high: +,- then *,/ then unary minus, then ^. Therefore -2^2 = -(2^2) = -4.0, and 2*-3 = -6.0.\n3. ^ is right-associative: 2^3^2 = 2^(3^2) = 512.0. An exponent may itself be signed: 2^-3 = 0.125.\n4. Unary minus may be repeated: --5 = 5.0, 2--3 = 5.0.\n5. The result is always a Python float.\n6. Raise ValueError for every invalid input: empty or whitespace-only input, invalid characters, invalid numbers, adjacent values with no operator (like '1 2'), unbalanced or empty parentheses, and missing operands (like '2+', '*2', '2*/3', '2^').\n7. Division by zero raises ValueError, including a zero base raised to a negative power (0^-1).\n8. Do not use eval, exec, or the ast module - write a real tokenizer and parser.\nThe visible tests in test_calc_basic.py must pass; run them to confirm. Your solution will additionally be graded against hidden tests covering every rule above.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\test_calc_hidden.py' .\\test_calc_hidden.py; python test_calc_hidden.py",
+    "setup": {
+      "test_calc_basic.py": "from calc import evaluate\n\ndef run():\n    assert evaluate(\"1+2\") == 3\n    assert evaluate(\"2*3+1\") == 7\n    assert evaluate(\"(1+2)*3\") == 9\n    assert evaluate(\"10/4\") == 2.5\n    try:\n        evaluate(\"2+\")\n        raise AssertionError(\"expected ValueError\")\n    except ValueError:\n        pass\n    print(\"OK\")\n\nif __name__ == \"__main__\":\n    run()\n"
+    }
   }
 ]
