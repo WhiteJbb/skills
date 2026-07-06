@@ -1,0 +1,11 @@
+﻿{
+    "model":  "claude-haiku-4-5-20251001",
+    "skill":  "sonnet-boost",
+    "runs":  1,
+    "modes":  [
+                  "baseline",
+                  "skill",
+                  "auto"
+              ],
+    "max_turns":  40
+}

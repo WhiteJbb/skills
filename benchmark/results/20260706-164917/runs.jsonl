@@ -1,0 +1,2 @@
+﻿{"task":"expr-eval","mode":"baseline","run":1,"model":"claude-haiku-4-5-20251001","passed":false,"skill_fired":null,"skills_used":"","wall_s":271.1,"api_s":269.1,"turns":10,"in_tokens":72,"out_tokens":21644,"cache_read":413882,"cache_write":28835,"cost_usd":0.2083312,"is_error":false}
+{"task":"expr-eval","mode":"skill","run":1,"model":"claude-haiku-4-5-20251001","passed":true,"skill_fired":null,"skills_used":"","wall_s":242.4,"api_s":241.6,"turns":24,"in_tokens":170,"out_tokens":32559,"cache_read":1137377,"cache_write":43060,"cost_usd":0.36426069999999994,"is_error":false}

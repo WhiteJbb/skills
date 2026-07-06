@@ -18,7 +18,7 @@ All user-facing responses in Korean. Code, identifiers, comments, commit message
 
 ## Token discipline (applies throughout)
 - Read only the needed line ranges. Never re-read files already in context.
-- Delegate broad exploration to an Explore subagent; take conclusions only.
+- Exploration touching 4+ files or unfamiliar structure: delegate to an Explore subagent; take back a structured map (path → role → key symbols), never raw file dumps.
 - No long code quotes in responses — reference file:line.
 - One line per list/plan item. Minimal narration between steps.
 - Verify with the cheapest check that catches the mistake (typecheck → targeted test → full suite).
@@ -47,7 +47,8 @@ Ideas not on the list do not get done, even if they come up mid-task.
 1. Return to the step-1 list; check each item against actual executed results. Mark unverified items UNVERIFIED — never silently skip.
 2. Re-read the diff: all call sites of changed signatures updated? debug prints or dead code left? out-of-scope changes mixed in?
 3. Run tests; if none, execute the changed path once.
-4. Final report, 3 lines (in Korean): contract check results / what was executed and verified / what is unverified or uncertain. Never hide failures or skips.
+4. Multi-file or risky diff (public API, data handling, concurrency): spawn ONE fresh-context subagent given ONLY the contract + diff (none of your reasoning), instructed to refute "this diff is correct and complete". Fix real findings and re-verify; dismiss false positives with a one-line reason.
+5. Final report, 3 lines (in Korean): contract check results / what was executed and verified / what is unverified or uncertain. Never hide failures or skips.
 
 ## Never
 Assume an API exists · retry without reading the error · repeat 3+ times without a hypothesis · edit beyond the request · claim done without executing · omit unverified items from the report

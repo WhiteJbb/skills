@@ -1,5 +1,8 @@
-# Benchmark outputs (regenerated every run)
-benchmark/results/
+# Benchmark outputs: track per-run evidence (config/records/summary), ignore workspaces
+benchmark/results/*/*
+!benchmark/results/*/config.json
+!benchmark/results/*/runs.jsonl
+!benchmark/results/*/summary.csv
 
 # Python
 __pycache__/

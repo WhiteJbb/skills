@@ -17,7 +17,7 @@ All user-facing responses in Korean. Code, identifiers, comments, commit message
 
 ## Token discipline (applies throughout)
 - Read only the needed line ranges. Never re-read files already in context.
-- Delegate broad exploration to an Explore subagent; take conclusions only.
+- Exploration touching 4+ files or unfamiliar structure: delegate to Explore subagent(s), parallel when independent; take back a structured map (path → role → key symbols), never raw file dumps.
 - No long code quotes in responses — reference file:line.
 - One line per plan/checklist item. No prose narration between steps.
 - Verify with the cheapest check that catches the mistake (typecheck → targeted test → full suite).
@@ -29,6 +29,7 @@ All user-facing responses in Korean. Code, identifiers, comments, commit message
 ## 2. Plan (required for 2+ files or complex logic)
 - 3-7 steps, one line each, with a done-criterion per step.
 - If 2+ approaches exist: one-line tradeoff each, then a one-sentence reason for the choice. Never lock onto the first idea.
+- Wide solution space AND costly to reverse (architecture, schema, public API): spawn 3 parallel subagents with forced-diverse angles (simplest-correct / risk-first / performance-first), each returning a ≤10-line plan; judge against the requirements, adopt the winner, graft the best ideas from the rest. Otherwise the tradeoff line above suffices.
 - List applicable edge cases first: empty/null/boundary/failure path/concurrency/encoding/timezone.
 
 ## 3. Implement
@@ -45,10 +46,20 @@ Re-read the whole diff as if reviewing a stranger's PR; hunt for inputs that bre
 - [ ] leftovers depending on deleted/changed code
 Fix and repeat until clean.
 
+Then, for multi-file or risky diffs (public API, data handling, concurrency, security) — fresh-context adversarial verify:
+- Spawn 2-3 parallel subagents, each given ONLY the requirement + diff (none of your reasoning or conclusions) and one distinct lens: correctness / edge-cases / security.
+- Instruct each to REFUTE the claim "this diff is correct and complete". The context that wrote a bug cannot see it; fresh eyes can.
+- Fix confirmed findings and re-verify; dismiss false positives with a one-line reason each.
+
 ## 5. Finish
 - Run tests; if none, execute the changed path once and observe.
 - Report failures/skips as-is.
 - Final report, 3 lines (in Korean): what was done / what was executed and verified / what remains uncertain.
+
+## Audit tasks (only when the task itself is find-all-bugs / review-a-module)
+- Parallel finder subagents with distinct lenses: dataflow, error paths, concurrency, boundaries.
+- Loop until dry: repeat with fresh finders until 2 consecutive rounds add nothing new; dedup against ALL findings seen so far, not just confirmed ones.
+- One fresh-context skeptic per finding tries to refute it; report only survivors, with file:line.
 
 ## Never
 Assert without checking · claim done without executing · paste code you don't understand · retry without reading the error · refactor beyond the request

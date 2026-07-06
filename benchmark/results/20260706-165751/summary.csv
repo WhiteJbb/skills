@@ -1,0 +1,2 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_out_tok","avg_cache_read","avg_cost_usd"
+"expr-eval","baseline","1","100",,"152","151.2","6","14652","263118","0.75"

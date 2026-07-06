@@ -1,0 +1,1 @@
+﻿{"task":"csv-parser","mode":"auto","run":1,"model":"claude-sonnet-5","passed":true,"skill_fired":true,"skills_used":"sonnet-boost","wall_s":141.1,"api_s":141.4,"turns":9,"in_tokens":3554,"out_tokens":12257,"cache_read":313905,"cache_write":52925,"cost_usd":1.0112254999999999,"is_error":false}

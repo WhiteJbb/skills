@@ -1,0 +1,2 @@
+﻿"task","mode","runs","pass_pct","avg_wall_s","avg_api_s","avg_turns","avg_out_tok","avg_cache_read","avg_cost_usd"
+"bugfix-stats","baseline","1","100","23","20.8","6","1172","143928","0.48"

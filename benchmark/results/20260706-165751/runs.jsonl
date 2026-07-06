@@ -1,0 +1,1 @@
+﻿{"task":"expr-eval","mode":"baseline","run":1,"model":"claude-sonnet-5","passed":true,"skill_fired":null,"skills_used":"","wall_s":152,"api_s":151.2,"turns":6,"in_tokens":1445,"out_tokens":14652,"cache_read":263118,"cache_write":24026,"cost_usd":0.7463099999999999,"is_error":false}

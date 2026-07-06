@@ -1,0 +1,2 @@
+﻿{"task":"csv-parser","mode":"baseline","run":1,"model":"claude-sonnet-5","passed":true,"wall_s":446.6,"api_s":444.4,"turns":6,"in_tokens":1447,"out_tokens":42234,"cache_read":266283,"cache_write":18665,"cost_usd":1.3836995,"is_error":false}
+{"task":"csv-parser","mode":"skill","run":1,"model":"claude-sonnet-5","passed":true,"wall_s":154,"api_s":153,"turns":7,"in_tokens":1447,"out_tokens":14264,"cache_read":292671,"cache_write":23337,"cost_usd":0.7452055,"is_error":false}

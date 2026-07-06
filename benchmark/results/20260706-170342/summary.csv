@@ -1,0 +1,4 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_out_tok","avg_cache_read","avg_cost_usd"
+"csv-parser","auto","1","100","100","303","302.9","9","22522","230096","0.98"
+"csv-parser","baseline","1","100",,"236.4","235","6","18410","132639","0.97"
+"csv-parser","skill","1","100",,"207.1","206","5","16224","111649","0.69"

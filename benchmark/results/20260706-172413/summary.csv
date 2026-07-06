@@ -1,0 +1,6 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_out_tok","avg_cache_read","avg_cost_usd"
+"bugfix-stats","skill","1","100",,"25.3","24.2","6","1600","179700","0.25"
+"csv-parser","skill","1","100",,"386.7","383.9","8","15199","346192","1.65"
+"expr-eval","skill","1","100",,"256.7","255.1","10","12401","449841","1.21"
+"impl-duration","skill","1","100",,"48.2","47.3","5","3220","180137","0.3"
+"refactor-callsites","skill","1","100",,"23","21.8","8","1313","180042","0.24"

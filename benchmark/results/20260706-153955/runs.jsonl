@@ -1,0 +1,1 @@
+﻿{"task":"bugfix-stats","mode":"baseline","run":1,"model":"claude-sonnet-5","passed":true,"wall_s":23,"api_s":20.8,"turns":6,"in_tokens":1443,"out_tokens":1172,"cache_read":143928,"cache_write":37564,"cost_usd":0.48473,"is_error":false}
