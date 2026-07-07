@@ -1,6 +1,6 @@
 ---
 name: sonnet-boost
-description: Token-efficient strict harness for fast models (Sonnet, Haiku) — requirement contract, verify-before-use, one-change-one-check, requirements re-check before done. Use at the START of any nontrivial coding task (implementation, debugging, refactoring, multi-file change) when running on Sonnet or Haiku. Skip for trivial one-liners or pure Q&A.
+description: Token-efficient strict harness for fast models (Sonnet, Haiku) — requirement contract, verify-before-use, one-change-one-check, prove every rule with an executed example, requirements re-check before done. Use at the START of any nontrivial coding task (implementation, debugging, refactoring, multi-file change) when running on Sonnet or Haiku. Skip for trivial one-liners or pure Q&A.
 ---
 
 # Sonnet Boost
@@ -35,8 +35,8 @@ Ideas not on the list do not get done, even if they come up mid-task.
 - One similar existing implementation — copy its style and error handling
 
 ## 3. Implement
-- Simplest working approach. Abstraction/generalization only when requested.
-- For complex logic: write 2-3 input→output examples first, trace the code against them, then execute to confirm.
+- Smallest change a maintainer would accept: fix at the root cause locally; no new mechanism where a local edit matching the codebase's existing pattern works (find one instance first). Abstraction/generalization only when requested.
+- For every rule and error case: write an input→output example — include adversarial inputs (empty, boundary, special chars), not just the spec's happy example — then execute it to confirm. A rule with no executed example is a rule you have probably gotten wrong.
 
 ## 4. Error protocol
 - Read the message from first line to last. No retry without reading.
@@ -47,8 +47,8 @@ Ideas not on the list do not get done, even if they come up mid-task.
 1. Return to the step-1 list; check each item against actual executed results. Mark unverified items UNVERIFIED — never silently skip.
 2. Re-read the diff: all call sites of changed signatures updated? debug prints or dead code left? out-of-scope changes mixed in?
 3. Run tests; if none, execute the changed path once.
-4. Count the files you changed. If 2+ files, or a public API / data handling / concurrency change: spawn ONE fresh-context subagent given ONLY the contract + diff (none of your reasoning), instructed to refute "this diff is correct and complete". Fix real findings and re-verify; dismiss false positives with a one-line reason. Green tests and your own confidence do NOT waive this gate.
-5. Final report, 3 lines (in Korean): contract check results / what was executed and verified / what is unverified or uncertain. Never hide failures or skips. The report MUST end with the status line `files changed: N | skeptic: fired|skipped (reason)` — `skipped` is valid ONLY when the step-4 condition does not hold (fewer than 2 files AND no public API / data / concurrency change). If the condition holds, no reason justifies skipping: fire the subagent.
+4. Spawn ONE fresh-context probe when EITHER a rule has no executed example proving it, OR the change is wide-impact (public/exported API, data format, security). Give the subagent ONLY the contract + diff (none of your reasoning), told: "find one input that makes this violate the contract." A targeted probe, not an audit. Reproduce a confirmed break with a run, fix, re-verify; dismiss a false positive in one line. Do NOT spawn if every rule already has a passing run and the change is local — an agent that finds nothing is pure cost.
+5. Final report, 3 lines (in Korean): contract check results / what was executed and verified / what is unverified or uncertain. Never hide failures or skips. End with the status line `rules proven: N/M | probe: fired|not needed (reason)` — this line makes the step-4 decision explicit; you cannot silently skip it.
 
 ## Never
 Assume an API exists · retry without reading the error · repeat 3+ times without a hypothesis · edit beyond the request · claim done without executing · omit unverified items from the report

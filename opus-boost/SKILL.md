@@ -1,6 +1,6 @@
 ---
 name: opus-boost
-description: Token-efficient quality harness enforcing understand → plan → small-step implementation → adversarial self-review → end-to-end verification. Use at the START of any nontrivial coding task (implementation, debugging, refactoring, multi-file change) when running on Opus. If on Sonnet/Haiku use sonnet-boost instead. Skip for trivial one-liners or pure Q&A.
+description: Token-efficient quality harness — understand → plan → small-step implementation → prove every spec rule with an executed example → targeted fresh-eyes probe only on wide-impact or residual uncertainty. Use at the START of any nontrivial coding task (implementation, debugging, refactoring, multi-file change) when running on Opus. If on Sonnet/Haiku use sonnet-boost instead. Skip for trivial one-liners or pure Q&A.
 ---
 
 # Opus Boost
@@ -35,31 +35,27 @@ All user-facing responses in Korean. Code, identifiers, comments, commit message
 ## 3. Implement
 - One step → immediate cheapest verification → next. Never batch-verify.
 - On error: read the full message, find the root cause. No symptom patching (try/catch wrap, extra condition).
-- Search for existing utils before writing new ones. Follow existing style and patterns.
+- Prefer the smallest change a maintainer would accept: fix at the root cause locally; do not invent a new mechanism or abstraction where a local edit in the codebase's existing pattern suffices (find one instance of that pattern first). Search for existing utils before writing new ones; follow existing style.
 
-## 4. Self-review (mandatory before claiming done)
-Re-read the whole diff as if reviewing a stranger's PR; hunt for inputs that break it:
-- [ ] off-by-one, empty collection, boundary values
-- [ ] null/undefined inflow paths
-- [ ] resource leaks on error paths, swallowed exceptions
-- [ ] every call site of any changed signature (confirm via Grep)
-- [ ] leftovers depending on deleted/changed code
-Fix and repeat until clean.
+## 4. Verify by construction (before claiming done)
+Prove each rule with a run; do not inspect for it. Verification is executed examples, not re-reading.
+- For every requirement, edge case, and error condition, construct a concrete input you actually run (assert, REPL call, throwaway script) — include adversarial inputs (empty, boundary, special chars like `<`/`&`/quotes), not just the spec's happy example. A rule you cannot demonstrate with a run is a rule you have probably gotten wrong.
+- Cheap static sweep alongside: off-by-one / empty / boundary; null inflow; swallowed exceptions on error paths; every call site of a changed signature (Grep); leftovers of deleted code.
+- Fix, then re-run the whole set — not just the failed case.
 
-Then fresh-context adversarial verify. MANDATORY whenever ANY of these holds — count, don't judge: (a) the diff touches 2+ files, (b) a public/exported signature changed, (c) data handling, concurrency, or security is involved. Green tests and your own confidence do NOT waive this gate:
-- Spawn 2-3 parallel subagents, each given ONLY the requirement + diff (none of your reasoning or conclusions) and one distinct lens: correctness / edge-cases / security.
-- Instruct each to REFUTE the claim "this diff is correct and complete". The context that wrote a bug cannot see it; fresh eyes can.
-- Fix confirmed findings and re-verify; dismiss false positives with a one-line reason each.
+Fresh eyes ONLY on residual uncertainty or wide blast radius — not on file count. Spawn when EITHER you still cannot demonstrate some rule with a run, OR the change is wide-impact (public/exported API, data format, security):
+- ONE fresh-context subagent, given only the requirement + diff (none of your reasoning), told: "find one input that makes this violate the spec." A targeted probe, not an open-ended audit. The context that wrote a bug cannot see it; fresh eyes can.
+- Reproduce a confirmed break with a run, fix, re-verify; dismiss a false positive in one line. Do not spawn if every rule already has a passing run and the change is local — an agent that finds nothing is pure cost.
 
 ## 5. Finish
 - Run tests; if none, execute the changed path once and observe.
 - Report failures/skips as-is.
-- Final report, 3 lines (in Korean): what was done / what was executed and verified / what remains uncertain.
+- Final report, 3 lines (in Korean): what was done / what was executed and verified / what remains uncertain. End with the status line `rules proven: N/M | probe: fired|not needed`.
 
 ## Audit tasks (only when the task itself is find-all-bugs / review-a-module)
 - Parallel finder subagents with distinct lenses: dataflow, error paths, concurrency, boundaries.
 - Loop until dry: repeat with fresh finders until 2 consecutive rounds add nothing new; dedup against ALL findings seen so far, not just confirmed ones.
-- One fresh-context skeptic per finding tries to refute it; report only survivors, with file:line.
+- Confirm each finding with a concrete input that triggers it (a run, not a subagent per finding); report only reproduced ones, with file:line.
 
 ## Never
 Assert without checking · claim done without executing · paste code you don't understand · retry without reading the error · refactor beyond the request

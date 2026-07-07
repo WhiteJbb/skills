@@ -17,6 +17,7 @@ All user-facing responses in Korean. Code, identifiers, comments follow repo con
 
 ## 2. Implement
 - Simplest correct structure: straightforward recursion or a state machine over clever tricks.
+- For a bugfix: smallest change at the root cause, matching the codebase's existing pattern (find one instance first) — no new mechanism where a local edit works.
 - Where the spec resolves an ambiguity (precedence, edge semantics, error type), copy its resolution into a test first, then satisfy it.
 
 ## 3. Verify

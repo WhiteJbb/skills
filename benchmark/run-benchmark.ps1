@@ -185,6 +185,16 @@ foreach ($task in $tasks) {
         }
       }
 
+      # honesty metric: skill reports emit `rules proven: N/M | probe: fired|not needed`
+      $rulesProven = $null; $rulesTotal = $null; $probeDecision = $null
+      if ($json.result) {
+        $ans = [string]$json.result
+        $m = [regex]::Match($ans, 'rules proven:\s*(\d+)\s*/\s*(\d+)')
+        if ($m.Success) { $rulesProven = [int]$m.Groups[1].Value; $rulesTotal = [int]$m.Groups[2].Value }
+        $mp = [regex]::Match($ans, 'probe:\s*(fired|not needed|skipped)', 'IgnoreCase')
+        if ($mp.Success) { $probeDecision = $mp.Groups[1].Value.ToLower() }
+      }
+
       $fired = $null
       if ($mode -eq "auto") { $fired = ($skillsUsed.Count -gt 0) }
 
@@ -195,6 +205,9 @@ foreach ($task in $tasks) {
         skills_used = ($skillsUsed -join ",")
         agents_spawned = $agentsSpawned
         tools_used = $toolsUsed
+        rules_proven = $rulesProven
+        rules_total = $rulesTotal
+        probe_decision = $probeDecision
         wall_s = [Math]::Round($sw.Elapsed.TotalSeconds, 1)
         api_s = $apiS
         turns = $turns
