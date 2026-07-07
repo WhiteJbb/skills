@@ -1,6 +1,6 @@
 ---
 name: design-boost
-description: Fable-grade visual design harness — forces a subject-grounded design plan, a token system, and an anti-generic check BEFORE any UI code, then a critique pass before done. Use at the START of any task with a visual surface (web page, landing, dashboard, artifact, component, redesign, slides) on any model, most valuable on Sonnet/Opus/Haiku. Skip for pure logic tasks with no visual surface.
+description: Fable-grade visual design harness — forces a subject-grounded design plan, a token system, and an anti-generic check BEFORE any UI code, then a critique pass before done. Use at the START of any task with a visual surface (web page, landing, dashboard, artifact, component, redesign, slides) when running on Sonnet or Haiku; measured on Sonnet as equal to Anthropic's frontend-design skill with zero mobile overflows. On Opus use it only for utilitarian surfaces (dashboards/tools) — for editorial pages Opus does better with the essay-style frontend-design skill or its own judgment. Skip for pure logic tasks with no visual surface.
 ---
 
 # Design Boost

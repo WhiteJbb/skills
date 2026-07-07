@@ -747,6 +747,50 @@ Fable baseline 생성 메트릭 (`results\design-20260707-165325\`):
 - **쌍대 심사의 상대성 확인**: 같은 Fable 조석 앱이 design-boost와 붙을 땐 "제네릭 다크 템플릿"으로 지고, Sonnet baseline과 붙을 땐 "생물발광 심해 미학, 진짜 주제 특정적"으로 이겼다 — 쌍대 판정은 절대 평가가 아니라 상대 평가다.
 - **Fable 심사자의 약한 자기선호 신호**: Fable-judge는 자기 산출물을 5/6, Opus-judge는 4/6 선택. n이 작아 단정 불가, 방향만 기록.
 
+### 5라운드: Opus 생성 (같은 날)
+
+브리프 2개(tide-app 에디토리얼 + seller-dashboard 유틸리티, auto 제외 축소 구성) × 3-arm, 생성 `claude-opus-4-8`, 심사 동일(쌍대 × Opus 4.8 + Fable).
+
+| arm | 승 (12판) | clear 승 | 모바일 오버플로 |
+|---|---|---|---|
+| frontend-design | 7 | 6 | 1 |
+| design-boost | 3 | 3 | 0 |
+| baseline | 2 | 2 | 0 |
+
+심사자별 판정 (base=baseline, db=design-boost, fd=frontend-design):
+
+| 과제 | 쌍 | Opus 4.8 판정 | Fable 판정 | 일치 |
+|---|---|---|---|---|
+| tide-app | base vs db | **db** (clear) | **base** (clear) | **X** |
+| tide-app | base vs fd | **fd** (clear) | **base** (clear) | **X** |
+| tide-app | db vs fd | fd (clear) | fd (clear) | O |
+| seller-dashboard | base vs db | db (clear) | db (clear) | O |
+| seller-dashboard | base vs fd | fd (clear) | fd (clear) | O |
+| seller-dashboard | db vs fd | fd (slight) | fd (clear) | O |
+
+생성 메트릭:
+
+| 과제 | arm | 오버플로 | 턴 | 출력 토큰 | 비용(환산) |
+|---|---|---|---|---|---|
+| tide-app | baseline | — | 7 | 49.5k | $2.14 |
+| tide-app | design-boost | — | 10 | 33.4k | $1.83 |
+| tide-app | frontend-design | **O** | 13 | 26.6k | $1.42 |
+| seller-dashboard | baseline | — | 2 | 10.0k | $0.41 |
+| seller-dashboard | design-boost | — | 6 | 25.1k | $1.23 |
+| seller-dashboard | frontend-design | — | 5 | 30.5k | $1.35 |
+
+관찰:
+
+- **Opus에서는 서열이 바뀐다: frontend-design 7 > design-boost 3 > baseline 2.** Sonnet 3라운드(db 8 ≈ fd 9 ≫ base 0)와 대조적. 코딩 벤치의 "스킬 효과는 모델의 낭비에 비례" 법칙의 디자인판 — Opus baseline은 이미 주제 특정적·데이터 풍부·모바일 재구성까지 해낸다 (심사평: "data-rich tide/swell interface … genuinely restructured 390px layout").
+- **Opus + design-boost의 실패 모드는 Sonnet과 정반대.** Sonnet은 규칙이 소심함·디폴트를 고쳐줬지만, Opus는 규칙을 과잉 준수해 "분위기에 볼드니스를 몰빵한 콘텐츠 빈약 포스터"(심사평: "atmospheric light-ray poster, content-thin, mobile essentially the desktop shrunken")를 냈다. 시그니처/리스크 강제가 Opus의 자체 판단을 방해 — 실험 11(아키텍처 과제에서 boost가 Opus 문서 깊이를 깎음)과 같은 패턴.
+- **유틸리티 경로 이득은 Opus에서도 성립**: 대시보드에서 design-boost가 baseline을 심사자 만장일치 clear로 이겼다. 단 frontend-design에는 패배 — Opus는 에세이형 가이드에서 더 좋은 판단을 스스로 뽑아낸다.
+- **baseline의 2승은 전부 Fable 심사자 발** (tide-app 두 쌍 모두 불일치). Fable은 baseline의 데이터 밀도·모바일 재구성을, Opus 심사자는 스킬 arm의 개성을 높이 샀다. 일치율 67%로 하락 — Opus 산출물들은 품질이 붙어 있어 취향 영역이 넓다.
+- 오버플로 1건(fd tide-app)은 Fable 심사자가 독립적으로 같은 결함("mobile text clipped at the left edge")을 지적 — 프로브와 심사의 교차 확인.
+- 캡처 사고 1건: Opus design-boost tide 페이지의 무한 rAF 앰비언트 캔버스가 virtual-time 캡처를 행시킴 — 페이지가 `prefers-reduced-motion`을 준수한 덕분에(`if(!reduce)`) `--force-prefers-reduced-motion` 플래그로 수동 복구. 하네스 개선 후보: 캡처 실패 시 reduced-motion 폴백 재시도.
+- 원시 데이터: `results\design-20260707-164159\`
+
+**디자인 벤치 종합 결론 (1~5라운드)**: design-boost는 **Sonnet용 처방**이다 — Sonnet에서 공식 스킬과 동급(8:9) + 오버플로 0 + auto 발동 3/3 + Fable 격차 절반 축소(1:5→2:4). Opus에서는 baseline이 이미 강하고 에세이형 frontend-design이 더 낫다(7:3) — Opus에게는 규칙 강제보다 원칙 서술이 맞는다. 코딩(실험 1~8)에서 확립된 "스킬 = 모델별 처방"이 판단형 도메인에서도 재확인됐다.
+
 ## 다른 프로젝트에서 벤치마크하기
 
 실제 프로젝트를 대상으로 하려면 과제에 `source`를 지정한다. 실행(run)마다 프로젝트가 격리된 작업 폴더로 **복사**되므로 원본은 절대 수정되지 않고, baseline/skill 모드가 항상 동일한 초기 상태에서 출발한다.

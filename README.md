@@ -111,6 +111,7 @@ cd benchmark
 - **단, 규율·마감은 이식된다(실험 9·12) — 도메인 스킬의 존재 이유**: 8개 비코딩 도메인의 Fable 기준 블라인드 심사에서 도메인 스킬은 **4승 4무 0패**(Sonnet). 우위는 정답성이 아니라 Fable식 마감(결론 우선 구조·결산 라인·confounder 신중함·커버리지 완결)에서 나오고, 심사 사유를 되먹여 스킬 결함 3개(산출물 파일 안 메타 누출, 문장형 슬라이드 제목, 아티팩트 언어 규칙)를 수정·재검증했다. summary-boost는 다이어트로 baseline보다 싸졌다(−86%).
 - **design-boost는 블라인드 쌍대 심사(심사자: Opus 4.8 + Fable, 일치율 88%)에서 baseline 전패(0/11)를 만들었고, Anthropic 공식 frontend-design 스킬과 동급** (직접 대결 3:3; 유틸리티 대시보드에서는 두 심사자 모두 design-boost 승). 객관 모바일 오버플로 판정 3/3 통과는 design-boost 유일, auto 발동 3/3 (2026-07-07, benchmark/README.md 디자인 3라운드).
 - **Fable 기준 대조**: Sonnet baseline은 Fable에 1:5로 완패, design-boost 적용 시 2:4로 축소 — 그 2승은 조석 앱에서 **심사자 만장일치 clear로 Fable 산출물을 꺾은 것** (Fable도 디폴트를 밟은 브리프에서 스킬의 디폴트 차단이 통함). 남은 격차의 원인(유틸리티에서도 주제 디테일)은 스킬에 역반영 (디자인 4라운드).
+- **Opus 생성에서는 디자인 서열 역전**: frontend-design 7 > design-boost 3 > baseline 2 (일치율 67%). Opus baseline은 이미 주제·데이터·모바일을 해내고, design-boost의 시그니처/리스크 강제가 오히려 "콘텐츠 빈약 분위기 포스터"를 유도 — 유틸리티(대시보드)에서만 baseline 대비 만장일치 승. **design-boost = Sonnet용 처방** 확정; Opus에는 에세이형(frontend-design)이 맞다 (디자인 5라운드).
 
 ## 저장소 구조
 
