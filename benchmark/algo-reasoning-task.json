@@ -1,0 +1,10 @@
+[
+  {
+    "id": "max-points",
+    "prompt": "Create solution.py with a function max_points(nums) that returns the maximum score obtainable from this game. nums is a list of integers, each >= 1 (it may be empty). Rules: repeat until the list is empty — choose any value v that is currently present; add to your score v multiplied by the number of copies of v currently present; then remove from the list every element whose value is one of v-2, v-1, v, v+1, v+2 (these deleted elements score nothing). Return the maximum total score achievable over all choices of moves; an empty list scores 0. Implement it efficiently (do not simply brute-force all 2^n subsets — inputs may have many elements). The visible tests in test_maxpoints_basic.py must pass; run them to confirm. Do not modify the test file. Your solution will additionally be graded against hidden tests that compare your output to an independent reference on many inputs, including cases where values are exactly 2 apart.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\test_maxpoints_hidden.py' .\\test_maxpoints_hidden.py; python test_maxpoints_hidden.py",
+    "setup": {
+      "test_maxpoints_basic.py": "from solution import max_points\n\ndef run():\n    assert max_points([]) == 0\n    assert max_points([5]) == 5\n    assert max_points([2, 2, 2]) == 6\n    assert max_points([1, 10]) == 11\n    print(\"OK\")\n\nif __name__ == \"__main__\":\n    run()\n"
+    }
+  }
+]

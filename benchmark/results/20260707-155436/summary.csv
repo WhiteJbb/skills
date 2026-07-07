@@ -1,0 +1,3 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_agents","avg_out_tok","avg_cache_read","avg_cost_usd"
+"max-points","baseline","1","100",,"97.7","93","7","0","6642","173556","0.58"
+"max-points","skill","1","100",,"142.4","140.7","6","0","9432","145762","0.48"
