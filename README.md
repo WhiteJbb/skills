@@ -12,13 +12,40 @@
 | `sonnet-boost` | Sonnet, Haiku | 요구사항 계약서 · 사용 전 검증 · 하나 바꾸고 즉시 확인 · 완료 전 계약 재검사. 위험한 diff에는 스켑틱 1개 fresh-context 검증 | 태스크 시작 |
 | `haiku-boost` | Haiku | 검증 우선: 구현 **전에** 스펙의 모든 규칙을 자체 assert로 변환, 가설 기반 수리, 같은 실패 3회면 패치 대신 재작성. 단일 에이전트 유지 | 태스크 시작 (객관 채점 가능한 과제) |
 | `fresh-eyes-done-gate` | 전 모델 | done 선언 직전, 작업 컨텍스트가 전혀 없는 서브에이전트에게 요구사항 원문 + diff + 검증 목록**만** 주고 빠진 것/깨진 것을 찾게 하는 최종 게이트 | 태스크 종료 |
-| `design-boost` | 전 모델 (Fable 미만에서 가장 효과적) | 코드 작성 **전에** 주제 기반 디자인 플랜(토큰·타이포·시그니처)을 강제하고, "AI 디폴트 룩" 체크리스트로 제네릭 디자인을 차단, 완료 전 비평 패스. 수치 플로어(스케일 비율·행길이·대비)가 담긴 DESIGN-SYSTEM.md 템플릿 동봉 | UI/비주얼 태스크 시작 |
+| `design-boost` | 전 모델 (Fable 미만에서 가장 효과적) | 코드 작성 **전에** treatment 판별(유틸리티/에디토리얼)과 주제 기반 디자인 플랜(토큰·타이포·시그니처)을 강제하고, "AI 디폴트 룩" 체크리스트로 제네릭 디자인을 차단, 완료 전 비평 패스(스퀸트 테스트·결함 스캔). 수치 플로어(스케일 비율·행길이·대비·색 비중 60-70%·모션 마이크로스펙)와 차트 규칙이 담긴 DESIGN-SYSTEM.md 템플릿 동봉. 출처: Anthropic frontend-design/artifact-design/dataviz/pptx 스킬 증류 + OSS(MIT: Dammyjay93/interface-design, rohitg00/awesome-claude-design 등) 아이디어 재구성 | UI/비주얼 태스크 시작 |
+
+## 도메인 스킬 (Opus/Sonnet 튜닝)
+
+Fable의 작업 방식 — **선(先)계약 → 근거 기반 검증(기억 금지) → 판단이 아닌 셀 수 있는 게이트 → fresh-eyes/누락 스윕 → 상태 라인으로 실측치 강제** — 를 8개 비코딩 도메인에 이식한 스킬군. Sonnet의 "게이트 합리화 우회"를 막기 위해 모든 게이트를 카운트 가능한 조건(K/N)으로 만들고, Opus의 "한 번 읽고 기억으로 쓰기"를 막기 위해 쓰는 시점 재조회(re-lookup at write time)를 강제한다.
+
+| 스킬 | 작업 | 핵심 게이트 (Fable 방식의 이식) |
+|---|---|---|
+| `summary-boost` | 문서 요약 | 클레임 인벤토리(분모 N) → 커버리지 K/N · 숫자/인용 쓰는 시점 재조회 · 누락 스윕(중간부·각주·반론·부정어) |
+| `code-review-boost` | 코드 리뷰 | 콜사이트 선독 · 6개 결함 렌즈 각각 별도 패스 · 발견마다 트리거 입력으로 CONFIRMED/PLAUSIBLE 판정 · 2라운드 무발견까지 반복 |
+| `report-boost` | 보고서 작성 | 목차 전 한 문장 논지 계약 · 클레임 태깅(DATA/SOURCE/ASSUMPTION) · 논지에 기여 없는 섹션 컷 · 결론 우선 · fresh-context 논지 검증 |
+| `slides-boost` | PPT 생성 | 슬라이드 전 주장형 헤드라인 스토리라인 · 헤드라인만 읽어도 논증 성립(headline test) · 1슬라이드 1아이디어 · 고아 슬라이드 컷 |
+| `research-boost` | 연구 분석 | 하위질문 분해(증거 우선) · 클레임 등급(O/S/I/A) · 반증 탐색 의무(steelman) · 인과 주장 전 경쟁 설명 2+ 배제 |
+| `data-boost` | 데이터 분석 | 분석 전 프로파일링 실행 · 모든 보고 숫자는 실행한 코드가 출력 · 조인/필터마다 행수 검증 · 패턴 주장은 계산으로 입증 · 전체 재실행 |
+| `translate-boost` | 번역 | 번역 전 문체+용어집 고정 · 자연성 패스(원문 없이)와 충실성 패스(원문 대조) 분리 · 세그먼트 N/N · 용어 일관성 K/K |
+| `persona-boost` | 역할 정의 | 첫 응답 전 역할 헌장(전문성 한계·구체적 보이스 스펙·지식 경계) · 자기사실 원장으로 모순 차단 · 응답마다 generic-voice 체크 |
 
 공통 설계 원칙:
 
 - 규칙 본문은 압축 영어(토큰 절약), 사용자 응답은 한국어.
 - 멀티에이전트 조항은 전부 **조건부 게이트** — 작은 태스크에서는 발동하지 않아 토큰 효율을 해치지 않는다.
 - **fresh-context 원칙**: 검증자는 작성자의 추론·결론을 받지 않는다. 버그를 만든 컨텍스트는 그 버그를 보지 못하기 때문에, 자기 리뷰가 아니라 깨끗한 눈이 필요하다.
+
+## 실험 변형 (리포 보존, 미설치)
+
+아래 3개는 벤치마크 실험용 변형으로 **`install.ps1`이 설치하지 않는다**(활성 `~\.claude\skills\`에 없음). 실측 결과 **순비용·무이득**으로 판명돼 비활성 상태로 리포에만 보존한다 — 재현·기록 목적. 자세한 근거는 [benchmark/README.md](benchmark/README.md)의 실험 6후속·7·8.
+
+| 변형 | 실험 | 실측 판정 |
+|---|---|---|
+| `sonnet-boost-partition` | 실험 7 | 파티션 커버리지를 전 과제 강제 → 명시 스펙 과제에선 점수 불변·토큰 +30~88%. 스윕은 발견/audit 경로에만 값을 함(현행 sonnet-boost가 이미 그렇게 함) |
+| `opus-boost-crosscheck` | 실험 8 | 독립 브루트포스 교차검증 강제 → Opus baseline이 이미 정확해 고칠 오류 0, 순 토큰비용 |
+| `sonnet-boost-crosscheck` | 실험 8 | 동일 — Sonnet·Haiku baseline도 함정 과제를 맞혀 헤드룸 0 |
+
+**핵심 교훈**: 현 모델(Haiku 4.5까지)은 객관 채점 가능한 코딩을 baseline으로 맞히므로, 스킬의 추가 기계는 그런 과제에선 순비용이다. 값을 하는 곳은 base 모델이 진짜 실패하는 좁은 구간뿐 — 약한 모델의 규칙 누락(실험 2), 실패가 의심 못 한 엣지/버그인 발견 과제(실험 6). 활성 스킬은 그 구간만 노린다.
 
 ## 설치
 
@@ -52,6 +79,12 @@ sonnet-boost/          SKILL.md — Sonnet/Haiku용 하네스
 haiku-boost/           SKILL.md — Haiku용 검증 우선 하네스
 fresh-eyes-done-gate/  SKILL.md — 모델 공통 최종 게이트
 design-boost/          SKILL.md + DESIGN-SYSTEM.md — Fable급 디자인 하네스 + 토큰/수치 템플릿
-benchmark/             A/B 하네스 — run-benchmark.ps1, tasks.json, hidden/(숨김 테스트), results/
-install.ps1            정션 설치 스크립트
+summary-boost/ code-review-boost/ report-boost/ slides-boost/
+research-boost/ data-boost/ translate-boost/ persona-boost/
+                       SKILL.md — Opus/Sonnet용 도메인 하네스 8종 (위 표 참고)
+sonnet-boost-partition/ opus-boost-crosscheck/ sonnet-boost-crosscheck/
+                       SKILL.md — 실험 변형 (미설치, 순비용 판정 — 위 "실험 변형" 절 참고)
+benchmark/             A/B 하네스 — run-benchmark.ps1, tasks.json, gate-tasks*.json,
+                       oss-tasks.json, algo-reasoning-task.json, hidden/(숨김 테스트), results/
+install.ps1            정션 설치 스크립트 (활성 스킬만; 실험 변형 제외)
 ```
