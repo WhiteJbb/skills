@@ -1,0 +1,2 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_agents","avg_out_tok","avg_cache_read","avg_cost_usd"
+"audit-seeded-bugs-v2","skill","1","100",,"83.6","81.6","17","0","6056","602511","0.67"

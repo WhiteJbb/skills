@@ -1,0 +1,9 @@
+﻿{
+    "model":  "claude-opus-4-8",
+    "skill":  "opus-boost",
+    "runs":  1,
+    "modes":  [
+                  "skill"
+              ],
+    "max_turns":  80
+}
