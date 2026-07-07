@@ -1,0 +1,10 @@
+[
+  {
+    "id": "tide-app",
+    "prompt": "Build a landing page for 'Mulmoe', a tide and swell forecast app for surfers on Jeju island, Korea. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page."
+  },
+  {
+    "id": "type-foundry",
+    "prompt": "Build the homepage for 'Hwalja House', a 40-year-old family-run type foundry in Seoul that still hand-casts Hangul metal type and sells digital revivals of its classic faces. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page."
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "multiref-signature-v2",
+    "source": "fixtures/multiref-signature-v2",
+    "prompt": "In this project, save(data) in storage.py is used by several modules. Change its signature to save(data, *, format) where format is a REQUIRED keyword-only parameter with no default value. Rules: format=\"json\" must keep exactly the current serialization behavior; format=\"csv\" must treat data as a list of rows (each row a list of values), convert every value with str(), join values with \",\" and rows with \"\\n\" (an empty list of rows returns \"\"); any other format value must raise ValueError. Every existing call path in the project must keep producing exactly the same output as before, no matter how the function is referenced. The visible tests in test_storage_basic.py must pass; run them to confirm. Do not modify the test file. Your solution will additionally be graded against hidden tests that check the new signature, the csv and error rules, and every call path in the project.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\test_multiref2_hidden.py' .\\test_multiref2_hidden.py; python test_multiref2_hidden.py"
+  },
+  {
+    "id": "audit-seeded-bugs-v2",
+    "source": "fixtures/audit-seeded-bugs-v2",
+    "prompt": "The small event-analytics library in this folder (events.py, windows.py, stats.py, report.py) contains several seeded bugs. The docstring of each function and method is the specification of its intended behavior. Audit the whole library, find ALL the bugs, and fix them. Do not add features, do not refactor code that already matches its docstring, and do not change any docstring. Report the list of bugs you found, one line each with the file and a short description. Your fixes will be graded by hidden tests that check every seeded bug and also that previously-correct behavior still behaves the same.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\test_audit2_hidden.py' .\\test_audit2_hidden.py; python test_audit2_hidden.py"
+  }
+]

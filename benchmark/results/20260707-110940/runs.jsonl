@@ -1,0 +1,1 @@
+﻿{"task":"audit-seeded-bugs","mode":"skill","run":1,"model":"claude-sonnet-5","passed":true,"skill_fired":null,"skills_used":"","agents_spawned":0,"tools_used":"Bash:2,Edit:5,Read:3","wall_s":86.1,"api_s":83.7,"turns":11,"in_tokens":1742,"out_tokens":7227,"cache_read":373657,"cache_write":19237,"cost_usd":0.5702395,"is_error":false}

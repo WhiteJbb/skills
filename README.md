@@ -12,6 +12,7 @@
 | `sonnet-boost` | Sonnet, Haiku | 요구사항 계약서 · 사용 전 검증 · 하나 바꾸고 즉시 확인 · 완료 전 계약 재검사. 위험한 diff에는 스켑틱 1개 fresh-context 검증 | 태스크 시작 |
 | `haiku-boost` | Haiku | 검증 우선: 구현 **전에** 스펙의 모든 규칙을 자체 assert로 변환, 가설 기반 수리, 같은 실패 3회면 패치 대신 재작성. 단일 에이전트 유지 | 태스크 시작 (객관 채점 가능한 과제) |
 | `fresh-eyes-done-gate` | 전 모델 | done 선언 직전, 작업 컨텍스트가 전혀 없는 서브에이전트에게 요구사항 원문 + diff + 검증 목록**만** 주고 빠진 것/깨진 것을 찾게 하는 최종 게이트 | 태스크 종료 |
+| `design-boost` | 전 모델 (Fable 미만에서 가장 효과적) | 코드 작성 **전에** 주제 기반 디자인 플랜(토큰·타이포·시그니처)을 강제하고, "AI 디폴트 룩" 체크리스트로 제네릭 디자인을 차단, 완료 전 비평 패스. 수치 플로어(스케일 비율·행길이·대비)가 담긴 DESIGN-SYSTEM.md 템플릿 동봉 | UI/비주얼 태스크 시작 |
 
 공통 설계 원칙:
 
@@ -50,6 +51,7 @@ opus-boost/            SKILL.md — Opus용 하네스
 sonnet-boost/          SKILL.md — Sonnet/Haiku용 하네스
 haiku-boost/           SKILL.md — Haiku용 검증 우선 하네스
 fresh-eyes-done-gate/  SKILL.md — 모델 공통 최종 게이트
+design-boost/          SKILL.md + DESIGN-SYSTEM.md — Fable급 디자인 하네스 + 토큰/수치 템플릿
 benchmark/             A/B 하네스 — run-benchmark.ps1, tasks.json, hidden/(숨김 테스트), results/
 install.ps1            정션 설치 스크립트
 ```

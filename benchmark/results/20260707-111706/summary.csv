@@ -1,0 +1,5 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_agents","avg_out_tok","avg_cache_read","avg_cost_usd"
+"audit-seeded-bugs-v2","baseline","1","0",,"218.3","217","22","0","18291","842069","1.22"
+"audit-seeded-bugs-v2","skill","1","0",,"145.9","144.4","17","0","14957","255873","0.81"
+"multiref-signature-v2","baseline","1","100",,"56.4","54.7","22","0","4087","347741","0.44"
+"multiref-signature-v2","skill","1","100",,"195.1","192","24","1","8598","454795","0.89"

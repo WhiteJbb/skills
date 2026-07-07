@@ -4,6 +4,9 @@ benchmark/results/*/*
 !benchmark/results/*/runs.jsonl
 !benchmark/results/*/summary.csv
 
+# Pinned OSS checkouts for oss-tasks.json (recreate with benchmark\setup-oss.ps1)
+benchmark/oss/
+
 # Python
 __pycache__/
 *.py[cod]

@@ -46,7 +46,7 @@ Re-read the whole diff as if reviewing a stranger's PR; hunt for inputs that bre
 - [ ] leftovers depending on deleted/changed code
 Fix and repeat until clean.
 
-Then, for multi-file or risky diffs (public API, data handling, concurrency, security) — fresh-context adversarial verify:
+Then fresh-context adversarial verify. MANDATORY whenever ANY of these holds — count, don't judge: (a) the diff touches 2+ files, (b) a public/exported signature changed, (c) data handling, concurrency, or security is involved. Green tests and your own confidence do NOT waive this gate:
 - Spawn 2-3 parallel subagents, each given ONLY the requirement + diff (none of your reasoning or conclusions) and one distinct lens: correctness / edge-cases / security.
 - Instruct each to REFUTE the claim "this diff is correct and complete". The context that wrote a bug cannot see it; fresh eyes can.
 - Fix confirmed findings and re-verify; dismiss false positives with a one-line reason each.

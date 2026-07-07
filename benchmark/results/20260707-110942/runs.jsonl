@@ -1,0 +1,1 @@
+﻿{"task":"multiref-signature","mode":"skill","run":1,"model":"claude-opus-4-8","passed":true,"skill_fired":null,"skills_used":"","agents_spawned":2,"tools_used":"Agent:2,Bash:2,Edit:5,Glob:2,Grep:3,Read:6","wall_s":158,"api_s":170.8,"turns":21,"in_tokens":2638,"out_tokens":6526,"cache_read":257246,"cache_write":15403,"cost_usd":0.5140047499999999,"is_error":false}

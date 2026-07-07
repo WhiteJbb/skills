@@ -9,6 +9,7 @@ Usage:
   .\run-benchmark.ps1 -Runs 3                                # 3 runs per task/mode (recommended)
   .\run-benchmark.ps1 -Model claude-opus-4-8 -Skill opus-boost
   .\run-benchmark.ps1 -Modes baseline                        # baseline only
+  .\run-benchmark.ps1 -TasksFile .\gate-tasks.json           # gate-verification tasks
 #>
 param(
   [string]$Model = "claude-sonnet-5",
@@ -99,14 +100,16 @@ foreach ($task in $tasks) {
         $prompt = $task.prompt
       }
 
+      # All modes stream events so we can count tool calls (Skill invocations,
+      # subagent spawns). Subagent tool is named Task in CLI 2.1.x; "Agent" kept
+      # as an alternate for version drift.
       $cliArgs = @("-p", "--model", $Model,
                    "--permission-mode", "bypassPermissions",
-                   "--max-turns", "$MaxTurns")
-      if ($mode -eq "auto") {
-        # Skill tool stays available; stream events so we can detect Skill invocations
-        $cliArgs += @("--output-format", "stream-json", "--verbose")
-      } else {
-        $cliArgs += @("--output-format", "json", "--disallowedTools", "Skill")
+                   "--max-turns", "$MaxTurns",
+                   "--output-format", "stream-json", "--verbose")
+      if ($mode -ne "auto") {
+        # keep installed skills from auto-loading; skill mode injects the body itself
+        $cliArgs += @("--disallowedTools", "Skill")
       }
 
       Write-Host ("[{0}/{1}] {2} | {3} | run {4} ..." -f $done, $total, $task.id, $mode, $r)
@@ -118,35 +121,50 @@ foreach ($task in $tasks) {
       Pop-Location
 
       $rawText = ($raw | Out-String).Trim()
+      [System.IO.File]::WriteAllText((Join-Path $work "claude-stream.jsonl"), $rawText, (New-Object System.Text.UTF8Encoding($false)))
       $json = $null
       $skillsUsed = @()
-      if ($mode -eq "auto") {
-        [System.IO.File]::WriteAllText((Join-Path $work "claude-stream.jsonl"), $rawText, (New-Object System.Text.UTF8Encoding($false)))
-        foreach ($line in @($raw)) {
-          $obj = $null
-          try { $obj = "$line" | ConvertFrom-Json } catch { continue }
-          if ($null -eq $obj) { continue }
-          if ($obj.type -eq "assistant" -and $obj.message.content) {
-            foreach ($c in @($obj.message.content)) {
-              if ($c.type -eq "tool_use" -and $c.name -eq "Skill") { $skillsUsed += "$($c.input.skill)" }
-            }
+      $toolCounts = @{}
+      foreach ($line in @($raw)) {
+        $obj = $null
+        try { $obj = "$line" | ConvertFrom-Json } catch { continue }
+        if ($null -eq $obj) { continue }
+        # count main-loop tool calls only; events emitted inside a subagent carry parent_tool_use_id
+        if ($obj.type -eq "assistant" -and $obj.message.content -and (-not $obj.parent_tool_use_id)) {
+          foreach ($c in @($obj.message.content)) {
+            if ($c.type -ne "tool_use") { continue }
+            $n = "$($c.name)"
+            if ($toolCounts.ContainsKey($n)) { $toolCounts[$n]++ } else { $toolCounts[$n] = 1 }
+            if ($n -eq "Skill") { $skillsUsed += "$($c.input.skill)" }
           }
-          if ($obj.type -eq "result") { $json = $obj }
         }
-        if ($null -eq $json) { Write-Warning "no result event: $($task.id)/$mode/run$r" }
-      } else {
-        [System.IO.File]::WriteAllText((Join-Path $work "claude-output.json"), $rawText, (New-Object System.Text.UTF8Encoding($false)))
-        try { $json = $rawText | ConvertFrom-Json } catch { Write-Warning "JSON parse failed: $($task.id)/$mode/run$r" }
+        if ($obj.type -eq "result") { $json = $obj }
       }
+      if ($null -eq $json) { Write-Warning "no result event: $($task.id)/$mode/run$r" }
+
+      $agentsSpawned = 0
+      foreach ($n in @("Task", "Agent")) {
+        if ($toolCounts.ContainsKey($n)) { $agentsSpawned += $toolCounts[$n] }
+      }
+      $toolsUsed = (@($toolCounts.GetEnumerator() | Sort-Object Key | ForEach-Object { "$($_.Key):$($_.Value)" }) -join ",")
 
       $passed = $null
       if ($task.check) {
         Push-Location $work
+        $eap = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        $checkOut = ""
         try {
-          Invoke-Expression $task.check | Out-Null
+          $checkOut = (Invoke-Expression $task.check 2>&1 | Out-String)
           $passed = ($LASTEXITCODE -eq 0)
-        } catch { $passed = $false }
+        } catch {
+          $passed = $false
+          $checkOut = $checkOut + "`n[check exception] $_"
+        }
+        $ErrorActionPreference = $eap
         Pop-Location
+        # keep the grader stdout (e.g. per-bug PASS/FAIL lines) for post-hoc analysis
+        [System.IO.File]::WriteAllText((Join-Path $work "check-output.txt"), $checkOut.Trim(), (New-Object System.Text.UTF8Encoding($false)))
       }
 
       $apiS = $null; $turns = $null; $cost = $null; $isErr = $null
@@ -175,6 +193,8 @@ foreach ($task in $tasks) {
         passed = $passed
         skill_fired = $fired
         skills_used = ($skillsUsed -join ",")
+        agents_spawned = $agentsSpawned
+        tools_used = $toolsUsed
         wall_s = [Math]::Round($sw.Elapsed.TotalSeconds, 1)
         api_s = $apiS
         turns = $turns
@@ -195,7 +215,7 @@ foreach ($task in $tasks) {
       if ($mode -eq "auto") {
         if ($fired) { $fireLabel = " | skill fired: $($skillsUsed -join ',')" } else { $fireLabel = " | skill NOT fired" }
       }
-      Write-Host ("    -> {0} | {1}s | {2} turns | out {3} tok | `${4}{5}" -f $passLabel, $rec.wall_s, $turns, $outTok, $cost, $fireLabel)
+      Write-Host ("    -> {0} | {1}s | {2} turns | out {3} tok | agents {4} | `${5}{6}" -f $passLabel, $rec.wall_s, $turns, $outTok, $agentsSpawned, $cost, $fireLabel)
     }
   }
 }
@@ -219,6 +239,7 @@ $summary = $records | Group-Object task, mode | ForEach-Object {
     avg_wall_s = AvgOf $g "wall_s"
     avg_api_s = AvgOf $g "api_s"
     avg_turns = AvgOf $g "turns"
+    avg_agents = AvgOf $g "agents_spawned"
     avg_out_tok = AvgOf $g "out_tokens"
     avg_cache_read = AvgOf $g "cache_read"
     avg_cost_usd = AvgOf $g "cost_usd"

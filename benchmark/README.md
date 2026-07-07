@@ -31,7 +31,8 @@ cd benchmark
 - **baseline 모드**: 과제 프롬프트만 전달. `--disallowedTools Skill`로 설치된 스킬의 자동 로드를 차단해 순수 기본 성능을 측정.
 - **skill 모드**: `~\.claude\skills\<이름>\SKILL.md`의 규칙 본문을 프롬프트 앞에 주입. 스킬이 로드된 상태와 같은 토큰 부하로 A/B 비교.
 - **auto 모드**: 주입도 차단도 없이 Skill 도구를 열어 두고, 이벤트 스트림에서 Skill 호출을 감지해 **모델이 스스로 스킬을 발동하는지**(`fire_pct`)를 측정. 규칙이 좋아도 실전에서 안 불리면 무용지물이므로, 스킬 description의 트리거 품질을 검증하는 모드다. `-Modes auto` 또는 `-Modes baseline,skill,auto`로 실행.
-- 과제마다 격리된 작업 폴더가 생성되고, 완료 후 `check` 명령(테스트)의 종료 코드로 PASS/FAIL 판정.
+- 모든 모드가 `stream-json`으로 실행되어 메인 루프의 도구 호출이 `runs.jsonl`에 기록된다: `agents_spawned`(서브에이전트 `Task` 호출 수 — 멀티에이전트 게이트 발동 판정), `tools_used`(도구별 호출 수). 서브에이전트 내부 이벤트(`parent_tool_use_id` 있음)는 제외.
+- 과제마다 격리된 작업 폴더가 생성되고, 완료 후 `check` 명령(테스트)의 종료 코드로 PASS/FAIL 판정. `check`의 출력은 `check-output.txt`로 저장된다(버그별 채점 등 사후 집계용).
 
 ## 결과 해석
 
@@ -41,12 +42,13 @@ cd benchmark
 |---|---|
 | `summary.csv` | 과제×모드별 평균 — 통과율, 시간, 턴, 토큰, 비용 |
 | `runs.jsonl` | 실행 1회당 원시 기록 |
-| `<과제>_<모드>_run<N>\` | 작업 폴더 (생성된 코드, `ANSWER.md`, `claude-output.json`) |
+| `<과제>_<모드>_run<N>\` | 작업 폴더 (생성된 코드, `ANSWER.md`, `claude-stream.jsonl`, `check-output.txt`) |
 
 주요 지표:
 
 - `pass_pct` — **품질**. 스킬의 존재 이유. 이게 오르면 나머지 비용은 트레이드오프.
 - `fire_pct` — auto 모드에서 스킬이 자동 발동된 비율. 낮으면 스킬 description을 손봐야 한다는 신호 (규칙 내용의 문제가 아님). 어떤 스킬이 불렸는지는 `runs.jsonl`의 `skills_used`에 기록.
+- `avg_agents` / `agents_spawned` — 서브에이전트 호출 수. 멀티에이전트 게이트 발동 판정 기준: 해당 런에서 `agents_spawned ≥ 1`.
 - `avg_out_tok` / `avg_cost_usd` — 토큰 사용량과 비용. `cost_usd`는 구독 로그인 시 실제 청구액이 아니라 **API 환산 추정치**다.
 - `avg_wall_s` / `avg_api_s` — 응답 속도. wall은 체감 시간, api는 순수 모델 시간.
 - `avg_turns` — 도구 호출 횟수. 스킬 모드에서 검증 단계만큼 늘어나는 게 정상. baseline보다 크게 줄었다면 삽질(재시도 루프)이 줄었다는 신호.
@@ -165,9 +167,134 @@ opus-boost/sonnet-boost에 Fable식 멀티에이전트 패턴을 **조건부 게
 - **한계: 이 실험은 "게이트가 조용해야 할 때 조용함"만 증명한다.** 발동해야 할 상황(진짜 multi-file diff, 넓은 해법 공간, 감사형 과제)이 과제셋에 없어 게이트의 이득은 미검증. 발동 검증용 과제 추가가 다음 단계 — 설계는 [gate-verification-plan.md](gate-verification-plan.md) 참고.
 - 원시 데이터: `results\20260706-172413\` (Sonnet), `results\20260706-173633\` (Opus)
 
+### 실험 5: 게이트 발동 검증 1차 스크리닝 (2026-07-07)
+
+[gate-verification-plan.md](gate-verification-plan.md)의 실행 — gate-tasks.json 2과제 × 2모델 × baseline/skill, 셀당 1회. 게이트 발동 판정은 `agents_spawned ≥ 1`.
+
+| 모델 | 과제 | 모드 | 통과 | agents | 시간(초) | 출력 토큰 | 비용(환산) |
+|---|---|---|---|---|---|---|---|
+| Sonnet 5 | multiref-signature | baseline | PASS | 0 | 41.8 | 2,561 | $0.62 |
+| Sonnet 5 | multiref-signature | skill | PASS | **1** | 109.5 | 5,490 | $0.84 |
+| Sonnet 5 | audit-seeded-bugs | baseline | PASS (5/5) | 0 | 73.1 | 6,006 | $0.54 |
+| Sonnet 5 | audit-seeded-bugs | skill | PASS (5/5) | 0 | 93.8 | 7,401 | $0.78 |
+| Opus 4.8 | multiref-signature | baseline | PASS | 0 | 75.8 | 3,402 | $0.51 |
+| Opus 4.8 | multiref-signature | skill | PASS | 0 | 81.3 | 4,530 | $0.33 |
+| Opus 4.8 | audit-seeded-bugs | baseline | PASS (5/5) | 0 | 81.6 | 6,049 | $0.42 |
+| Opus 4.8 | audit-seeded-bugs | skill | PASS (5/5) | **2** | 181.1 | 11,453 | $1.12 |
+
+관찰:
+
+- **게이트는 발동한다 — 단 모델×과제가 엇갈린다.** sonnet-boost done gate 4번은 multiref에서 문언 그대로 발동 — 스트림에 기록된 스켑틱 프롬프트가 규칙 그대로다("NO prior context … REFUTE 'this diff is correct and complete'" + 계약 + diff). opus-boost Audit 섹션은 audit 과제에서 발동 — 렌즈가 다른 병렬 finder 2개(spec-lens / edge-case-lens). 반대편 셀은 침묵: Opus는 5파일·공개 API diff인데도 §4 fresh-context 검증을 건너뛰었고, Sonnet은 3파일 audit diff에서 done gate 4번을 건너뛰었다.
+- **pass 격차 미검출 (8/8 PASS).** 두 모델 baseline이 함정 포함 만점 — multiref는 Grep 습관으로 legacy 호출 지점을 잡았고(계획서가 예고한 시나리오), audit 버그 5개는 149줄 모듈에서 전부 발견됐다(check-output.txt 기준 baseline도 5/5). 이득 검증에는 함정 난이도 상향이 필요하다.
+- **발동 비용**: Sonnet multiref 스켑틱 1개 = 토큰 2.1배·시간 2.6배·+$0.22. Opus audit finder 2개 = 토큰 1.9배·시간 2.2배·+$0.70. (주의: 두 매트릭스를 동시 실행해서 wall 시간은 상호 간섭 가능성 있음)
+- opus-boost audit 발동은 **부분 준수**: finder는 떴지만 loop-until-dry(2라운드 연속 무발견까지)와 발견당 스켑틱 반박은 총 agents 2라 수행되지 않은 것으로 보인다.
+- 이 CLI 버전(2.1.181+)에서 서브에이전트 도구 이벤트 이름이 `Agent`로 기록됐다 — 전날 스트림의 init 이벤트는 `Task`였으므로 두 이름을 모두 세는 하네스 설계가 유효했다.
+- **판정** (계획서 기준표 적용): 미발동 셀 2개 → 해당 스킬 문언 수정 후 재시도. 발동 셀 2개는 "발동 + 격차 없음 + 비용 증가"지만, baseline이 천장(100%)이라 격차 자체가 검출 불가능한 난이도였으므로 게이트 제거 판단은 함정 난이도 상향 후로 보류.
+- 원시 데이터: `results\20260707-105414\` (Sonnet), `results\20260707-105513\` (Opus)
+
+### 실험 5 후속: 게이트 문언 수정 반복 + 난이도 상향 v2 (같은 날)
+
+**1) 문언 수정 반복** — 미발동 셀만 v1 과제로 재실행하며 문언을 고쳐 나감:
+
+| 셀 | 게이트 문언 | agents |
+|---|---|---|
+| Opus × multiref | 원판 "for multi-file or risky diffs" | 0 |
+| Opus × multiref | "MANDATORY whenever ANY of: 2+ files / public signature / … — **count, don't judge**" | **2** |
+| Sonnet × audit | 원판 "Multi-file or risky diff" | 0 |
+| Sonnet × audit | + "MANDATORY … Green tests do not waive" | 0 |
+| Sonnet × audit | + **회계 라인 강제**: 보고 끝에 `files changed: N \| skeptic: fired\|skipped (reason)` 의무 | **1** |
+
+- **Opus는 객관 조건 명시("세라, 판단하지 말라")로 충분**했다. **Sonnet은 MANDATORY·면제불가 문구를 붙여도 확신이 서면 조용히 스킵**했고, 발동/스킵을 최종 보고에 한 줄로 의무 신고하게 하자 발동했다. 이후 v2에서 조건 성립인데도 `skipped (사유)`로 신고하고 우회하는 사례가 1회 나와 "조건 성립 시 skipped는 규칙 위반, 어떤 사유로도 정당화 불가"를 추가한 것이 최종판.
+- 게이트 문언 설계 교훈: **판단 재량 어휘(risky, 필요시)는 실행 확률을 낮추고, 셀 수 있는 조건 + 명시적 신고 의무가 실행을 강제한다.**
+
+**2) 난이도 상향 v2** (`gate-tasks-v2.json`) — baseline 천장을 깨기 위한 함정 강화:
+
+- `multiref-signature-v2` — 호출 경로 6곳으로 증가, 그중 3곳은 `save(` grep으로 안 잡히는 간접 참조: 별칭 import(`save as persist`), 동적 해석(`getattr`), 콜백 레지스트리(함수 객체 등록 — wrapping 없이는 수정 불가 구조).
+- `audit-seeded-bugs-v2` — 4파일 240줄 이벤트 분석기에 미묘한 버그 7개: 들여쓰기 조기 return, `reverse=True` 타이브레이크 반전, 레코드별 예외 삼킴, 클래스 공유 기본 인자, 빈 리스트 percentile 크래시, 슬라이스 최신 이벤트 누락(`[-n:-1]`), snapshot aliasing.
+
+| 모델 | 과제 | 모드 | 통과 | agents | 시간(초) | 출력 토큰 | 비용(환산) |
+|---|---|---|---|---|---|---|---|
+| Sonnet 5 | multiref-v2 | baseline | PASS | 0 | 56.4 | 4,087 | $0.44 |
+| Sonnet 5 | multiref-v2 | skill | PASS | **1** | 195.1 | 8,598 | $0.89 |
+| Sonnet 5 | audit-v2 | baseline | PASS (7/7) | 0 | 64.5 | 5,541 | $0.53 |
+| Sonnet 5 | audit-v2 | skill | PASS (7/7) | **1** | 259.4 | 9,030 | $1.50 |
+| Opus 4.8 | multiref-v2 | baseline | PASS | 0 | 111.4 | 7,374 | $0.45 |
+| Opus 4.8 | multiref-v2 | skill | PASS | **1** | 180.6 | 9,178 | $0.61 |
+| Opus 4.8 | audit-v2 | baseline | PASS (7/7) | 0 | 180.6 | 10,939 | $0.67 |
+| Opus 4.8 | audit-v2 | skill | PASS (7/7) | **3** | 383.5 | 21,656 | $1.81 |
+
+관찰:
+
+- **발동 4/4** (최종 문언 기준, skill 셀 전부) — 실험 5의 목표였던 "게이트가 발동하는가"는 검증 완료. 단 opus-boost §4는 "2-3개 병렬"인데 multiref-v2에서 1개만 띄움(개수는 부분 준수).
+- **pass 격차는 v2 난이도에서도 미검출** — 유효 런 16/16 PASS. 간접 참조 6경로도, 미묘한 버그 7종도 두 모델 baseline이 전부 처리했다. Sonnet 5/Opus 4.8급에게 수백 줄 규모의 자기완결 과제로는 게이트가 잡을 잔여 결함이 남지 않는다.
+- **스펙 버그 사고 (벤치마크 설계 교훈)**: 최초 Sonnet audit-v2 두 런은 버그 7/7을 다 찾고도 FAIL이었다 — docstring이 "nearest-rank"로 **잘못 라벨**된 p95를 교과서 정의로 정직하게 "수리"해 BASELINE(기존 동작 보존) 검사에 걸린 것. 꼼꼼할수록 손해 보는 불공정 과제라 무효 처리하고, docstring에 정확한 인덱스 공식을 못박아 재실행했다(위 표가 재실행 수치). 흥미롭게도 **Opus는 같은 모호 스펙에서도 공식을 건드리지 않고** 통과 — 과잉 수정 성향의 모델 차이.
+- **판정**: 결과는 "발동 + 격차 없음 + 비용 1.6~2.1배"로 계획서 기준표상 "조건 축소/제거 검토"에 해당하나, baseline 천장이 두 차례(v1·v2) 이어진 만큼 이 난이도 대역에서는 격차 검출 자체가 불가능하다고 보는 게 정확하다. 게이트 이득 입증은 (a) Haiku 등 약한 모델 조합, (b) 실제 대형 코드베이스 과제로 넘긴다. 현행 게이트는 비용이 유계(스켑틱/finder 1~3개)이고 실험 4 기준 오발동이 없으므로 **유지**.
+- 원시 데이터: `results\20260707-110940\`·`110942\`(문언 반복), `111244\`(회계 라인), `111706\`(v2 Sonnet — audit 두 런은 스펙 버그로 무효), `111711\`(v2 Opus), `113016\`(v2 Sonnet audit 재실행)
+
 ### 숨김 테스트 패턴
 
 쉬운 과제는 모델이 보이는 테스트를 통과할 때까지 고치면 되므로 pass_pct 변별력이 없다. `csv-parser`처럼 **스펙은 프롬프트에 전부 명시하되, 보이는 테스트는 기본 케이스만 주고 채점은 `hidden\`의 숨김 테스트로** 하면 "보이는 테스트만 통과시키는 성급함"과 "스펙 전항목 구현"의 차이가 통과율로 드러난다. 숨김 테스트는 `check`에서 작업 폴더로 복사해 실행한다 (tasks.json의 csv-parser 항목 참고).
+
+### 게이트 발동 검증 과제 (gate-tasks.json)
+
+강화판 멀티에이전트 게이트의 발동·이득 검증용 과제 2개 — [gate-verification-plan.md](gate-verification-plan.md)의 구현. 기본 tasks.json과 분리되어 있어 `-TasksFile`로 지정할 때만 실행된다.
+
+- `multiref-signature` — `storage.save`를 **기본값 없는 필수 keyword 파라미터**로 변경, 호출 지점 4곳(`fixtures\multiref-signature\`). `legacy\compat.py`는 보이는 테스트가 import하지 않는 조용한 호출 지점이라 성급한 런은 놓친다. 채점: `hidden\test_multiref_hidden.py` (새 시그니처 + csv/에러 규칙 + 호출 지점 4곳 전부).
+- `audit-seeded-bugs` — 로그 분석기 3파일(149줄)에 서로 다른 클래스의 버그 5개(off-by-one, 경계 비교, 삼킨 예외, 가변 기본 인자, 빈 입력 나눗셈)를 심은 감사 과제. 각 함수의 docstring이 스펙. 채점: `hidden\test_audit_hidden.py`가 버그별 PASS/FAIL 한 줄씩 + 정상 동작 보존(BASELINE) 검사를 출력하고 5/5 + BASELINE 통과 시에만 exit 0. 발견율(k/5)은 각 런의 `check-output.txt`에서 사후 집계.
+
+난이도 상향판 `gate-tasks-v2.json` (실험 5 후속에서 추가):
+
+- `multiref-signature-v2` (`fixtures\multiref-signature-v2\`) — 호출 경로 6곳, grep 불가 간접 참조 3종(별칭 import / getattr / 콜백 레지스트리). 채점: `hidden\test_multiref2_hidden.py`.
+- `audit-seeded-bugs-v2` (`fixtures\audit-seeded-bugs-v2\`) — 4파일 240줄, 미묘한 버그 7개. 채점: `hidden\test_audit2_hidden.py` (발견율 k/7). **주의**: docstring이 곧 스펙이므로 함수 계약을 서술할 때 모호한 용어를 쓰면 안 된다 — p95를 "nearest-rank"로 잘못 라벨했다가 정직한 auditor가 공식을 "수리"해 억울하게 FAIL한 사고가 있었다(실험 5 후속 참고). 계약은 정확한 공식/규칙으로 못박을 것.
+
+실행 (2모델 × 2모드 × 2과제 = 8회 호출; audit 과제는 서브에이전트만큼 한도 소모가 큼):
+
+```powershell
+.\run-benchmark.ps1 -TasksFile .\gate-tasks.json -Model claude-sonnet-5 -Skill sonnet-boost
+.\run-benchmark.ps1 -TasksFile .\gate-tasks.json -Model claude-opus-4-8 -Skill opus-boost
+# 난이도 상향판
+.\run-benchmark.ps1 -TasksFile .\gate-tasks-v2.json -Model claude-sonnet-5 -Skill sonnet-boost
+.\run-benchmark.ps1 -TasksFile .\gate-tasks-v2.json -Model claude-opus-4-8 -Skill opus-boost
+```
+
+게이트 발동 판정 = 해당 런의 `agents_spawned ≥ 1`. 결과 해석과 후속 행동은 계획 문서의 판정 기준 표 참고.
+
+### 실전 OSS 과제 (oss-tasks.json) — 대형 코드베이스 이월분
+
+실험 5의 결론("수백 줄 자기완결 과제로는 baseline 천장을 못 깬다")에 따라 실제 오픈소스에서 가져온 과제. **git 히스토리 회귀 방식**: 실제 버그픽스 커밋의 직전 상태를 고정하고, 픽스가 추가한 테스트를 숨김 채점기로 이식한다.
+
+- `md-ref-backtick` — [Python-Markdown](https://github.com/Python-Markdown/markdown) (src 8.3k LOC, 의존성 0). **이슈 #495 — 2016년부터 열려 있다가 2025-12에야 고쳐진 버그**: 지름길 참조 링크 라벨에 코드 스팬이 있으면(`` [`Text`] ``) 백틱 프로세서(우선순위 190)가 참조 프로세서(170)보다 먼저 소비해 링크가 안 된다. 근본 원인이 두 프로세서의 우선순위 상호작용이고 업스트림 픽스(`07dfa4e`)는 두 클래스에 걸친다. 크래시가 아닌 동작 버그라 traceback 힌트도 없다.
+- 고정 커밋: `fb6b27a`(픽스의 부모). 소스는 `oss\md-ref-backtick\`에 두며 **git에는 커밋하지 않는다**(.gitignore) — 다른 머신에서는 `.\setup-oss.ps1`로 재생성.
+- 채점: `hidden\test_oss_md_hidden.py` — 버그 케이스 3개(픽스 커밋의 실제 테스트에서 이식) + **회귀 그물 BASELINE 11개**(인라인 링크+코드, 브래킷 든 코드 스팬, 이중 백틱, 2단 참조 등 — 고정 커밋과 픽스 커밋 양쪽에서 실측으로 PASS 확인된 것만). 우선순위만 건드리는 순진한 수정이 회귀 그물에 걸리는 것 검증됨.
+- 환경 주의: 이 머신의 python엔 pip/pytest가 없어 **의존성 0 프로젝트만 가능**하다. 과제 프롬프트에도 "pytest 없음, 스니펫으로 직접 검증"을 명시함.
+
+```powershell
+.\setup-oss.ps1        # 최초 1회 (oss\ 재생성)
+.\run-benchmark.ps1 -TasksFile .\oss-tasks.json -Model claude-sonnet-5 -Skill sonnet-boost
+.\run-benchmark.ps1 -TasksFile .\oss-tasks.json -Model claude-opus-4-8 -Skill opus-boost
+```
+
+주시할 지표: pass 격차(부분 수정·회귀 유발이 나오는지), `agents_spawned`(멀티파일 픽스이므로 게이트 발동 대상), 그리고 **스켑틱 개입 후 diff가 추가 수정됐는지**(스트림에서 Agent 결과 이후 Edit 발생 여부 — 게이트가 실제 결함을 잡았는지의 가장 예민한 신호).
+
+## 디자인 벤치마크 (run-design-benchmark.ps1)
+
+`design-boost`용 별도 하네스. 디자인은 pass/fail 채점이 불가능하므로 **블라인드 LLM 심사** 방식을 쓴다.
+
+```powershell
+.\run-design-benchmark.ps1                                  # Sonnet 5, 3-arm 전부
+.\run-design-benchmark.ps1 -Arms baseline,design-boost      # 2-arm만
+.\run-design-benchmark.ps1 -Model claude-opus-4-8
+```
+
+작동 방식:
+
+1. **생성** — design-tasks.json의 브리프마다 3-arm 실행: `baseline`(브리프만) / `design-boost`(SKILL.md + DESIGN-SYSTEM.md 주입) / `frontend-design`(Anthropic 공식 스킬 주입). 각 에이전트는 파일 도구만 허용된 헤드리스 실행으로 self-contained `index.html`을 만든다.
+2. **스크린샷** — headless Edge로 데스크톱(1440px)·모바일(390px) PNG 캡처 (`--virtual-time-budget`으로 로드 애니메이션 완료 후 시점).
+3. **블라인드 심사** — arm 이름을 무작위 A/B/C로 치환한 스크린샷만 심사 에이전트(기본 Fable)에게 주고 5개 차원(distinctiveness / typography / layout / color / craft) 0-10 채점 + AI 티(ai_tells) 목록 + 순위를 JSON으로 받는다. 심사자는 어떤 arm이 어떤 라벨인지 모른다. 라벨↔arm 매핑은 `<과제>_judge\mapping.json`에 저장.
+
+결과: `results\design-<타임스탬프>\design-summary.csv` (arm별 점수·순위·생성 비용), `runs.jsonl` (생성 메트릭), 과제별 폴더에 index.html + 스크린샷 원본.
+
+주의: 심사자가 1명이라 편차가 있다 — 순위가 갈릴 때는 재심사(같은 스크린샷으로 스크립트의 judge 단계만 재실행)나 심사 모델 교체로 교차 확인. 심사자는 스크린샷만 보므로 인터랙션/모션 품질은 평가에서 빠진다.
 
 ## 다른 프로젝트에서 벤치마크하기
 

@@ -1,0 +1,10 @@
+﻿{
+    "model":  "claude-sonnet-5",
+    "judge":  "claude-fable-5",
+    "arms":  [
+                 "baseline",
+                 "design-boost",
+                 "frontend-design"
+             ],
+    "max_turns":  25
+}

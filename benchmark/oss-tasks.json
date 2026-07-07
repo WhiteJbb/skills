@@ -1,0 +1,8 @@
+[
+  {
+    "id": "md-ref-backtick",
+    "source": "oss/md-ref-backtick",
+    "prompt": "This folder contains the full source of the Python-Markdown library (importable as `markdown` from this directory). BUG REPORT: a shortcut reference link whose label contains inline code is not converted to a link. Reproduction:\n\n    import markdown\n    markdown.markdown(\"[`Text`]\\n\\n[`Text`]: http://example.com\")\n\nreturns '<p>[<code>Text</code>]</p>' but must return '<p><a href=\"http://example.com\"><code>Text</code></a></p>'. The same failure occurs when the code span is only part of the label, e.g. [some `Text`] or [`Text` after] with matching reference definitions. Find the root cause and fix it in the library source. Requirements: the reported cases must work, and ALL other behavior must stay exactly the same - inline links containing code spans, plain code spans (including brackets inside code and double-backtick spans), plain and two-part reference links must keep rendering as before. Note: pytest is NOT installed in this environment, so do not try to run the bundled test suite; verify your fix by running small python snippets with markdown.markdown() directly. Your fix will be graded by hidden tests covering the reported cases plus regression checks on surrounding behavior.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\test_oss_md_hidden.py' .\\test_oss_md_hidden.py; python test_oss_md_hidden.py"
+  }
+]

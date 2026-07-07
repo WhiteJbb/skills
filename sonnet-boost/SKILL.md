@@ -47,8 +47,8 @@ Ideas not on the list do not get done, even if they come up mid-task.
 1. Return to the step-1 list; check each item against actual executed results. Mark unverified items UNVERIFIED — never silently skip.
 2. Re-read the diff: all call sites of changed signatures updated? debug prints or dead code left? out-of-scope changes mixed in?
 3. Run tests; if none, execute the changed path once.
-4. Multi-file or risky diff (public API, data handling, concurrency): spawn ONE fresh-context subagent given ONLY the contract + diff (none of your reasoning), instructed to refute "this diff is correct and complete". Fix real findings and re-verify; dismiss false positives with a one-line reason.
-5. Final report, 3 lines (in Korean): contract check results / what was executed and verified / what is unverified or uncertain. Never hide failures or skips.
+4. Count the files you changed. If 2+ files, or a public API / data handling / concurrency change: spawn ONE fresh-context subagent given ONLY the contract + diff (none of your reasoning), instructed to refute "this diff is correct and complete". Fix real findings and re-verify; dismiss false positives with a one-line reason. Green tests and your own confidence do NOT waive this gate.
+5. Final report, 3 lines (in Korean): contract check results / what was executed and verified / what is unverified or uncertain. Never hide failures or skips. The report MUST end with the status line `files changed: N | skeptic: fired|skipped (reason)` — `skipped` is valid ONLY when the step-4 condition does not hold (fewer than 2 files AND no public API / data / concurrency change). If the condition holds, no reason justifies skipping: fire the subagent.
 
 ## Never
 Assume an API exists · retry without reading the error · repeat 3+ times without a hypothesis · edit beyond the request · claim done without executing · omit unverified items from the report
