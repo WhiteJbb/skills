@@ -1,0 +1,5 @@
+﻿{"task":"salon-scheduler","label":"fable-base","model":"claude-fable-5","skill":"","chars":10850,"wall_s":67.4,"turns":1,"out_tokens":4262,"cost_usd":0.34470900000000004}
+{"task":"salon-scheduler","label":"opus-base","model":"claude-opus-4-8","skill":"","chars":10380,"wall_s":65,"turns":1,"out_tokens":3843,"cost_usd":0.14923850000000002}
+{"task":"salon-scheduler","label":"opus-boost","model":"claude-opus-4-8","skill":"opus-boost","chars":4255,"wall_s":84.7,"turns":1,"out_tokens":4518,"cost_usd":0.1862625}
+{"task":"salon-scheduler","label":"sonnet-base","model":"claude-sonnet-5","skill":"","chars":4985,"wall_s":58.2,"turns":1,"out_tokens":4113,"cost_usd":0.390328}
+{"task":"salon-scheduler","label":"sonnet-boost","model":"claude-sonnet-5","skill":"sonnet-boost","chars":4467,"wall_s":56.9,"turns":1,"out_tokens":3805,"cost_usd":0.210528}
