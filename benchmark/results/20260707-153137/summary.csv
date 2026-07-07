@@ -1,0 +1,3 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_agents","avg_out_tok","avg_cache_read","avg_cost_usd"
+"rangestats","baseline","1","100",,"21.9","20.4","5","0","978","148471","0.49"
+"rangestats","skill","1","100",,"143.1","141.6","11","1","6195","452912","0.82"

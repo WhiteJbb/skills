@@ -1,0 +1,10 @@
+[
+  {
+    "id": "rangestats",
+    "prompt": "Create rangestats.py implementing six functions exactly to this spec.\n1. mean(xs): arithmetic mean of the list xs as a float. An empty list returns 0.0 (do not divide by zero).\n2. median(xs): the median of xs. Sort xs; if the length is odd, the median is the middle element as a float; if the length is EVEN, it is the average of the two middle elements as a float. xs is non-empty. Example: median([3,1,2]) == 2.0.\n3. mode(xs): the most frequent value in xs. If several values tie for most frequent, return the SMALLEST of the tied values. xs is non-empty. Example: mode([4,4,4,2]) == 4.\n4. pct(xs, p): the nearest-rank percentile value. Let n = len(xs); the index into sorted(xs) is ceil((p/100)*n) - 1, then clamped into [0, n-1]. Return that element. p is an integer 0..100 and xs is non-empty. Example: pct([10,20,30,40,50], 100) == 50 and pct([10,20,30,40,50], 0) == 10.\n5. safe_div(a, b): return a/b as a float, except when b == 0 return None (do not raise).\n6. first_or(xs, default): return the first element of xs, or default if xs is empty.\nThe visible tests in test_rangestats_basic.py must pass; run them to confirm. Do not modify the test file. Your solution will additionally be graded against hidden tests covering every rule above, including edge inputs (empty lists, zero divisor) and the even-length / tie / percentile-index rules.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\test_rangestats_hidden.py' .\\test_rangestats_hidden.py; python test_rangestats_hidden.py",
+    "setup": {
+      "test_rangestats_basic.py": "from rangestats import mean, median, mode, pct, safe_div, first_or\n\ndef run():\n    assert mean([2, 4]) == 3.0\n    assert median([3, 1, 2]) == 2.0\n    assert mode([4, 4, 4, 2]) == 4\n    assert pct([10, 20, 30, 40, 50], 100) == 50\n    assert safe_div(9.0, 2) == 4.5\n    assert first_or([7, 8], \"x\") == 7\n    print(\"OK\")\n\nif __name__ == \"__main__\":\n    run()\n"
+    }
+  }
+]
