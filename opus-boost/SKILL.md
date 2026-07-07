@@ -24,6 +24,7 @@ All user-facing responses in Korean. Code, identifiers, comments, commit message
 
 ## 1. Start
 - Restate the requirement in one sentence. If ambiguous, state the chosen interpretation.
+- A reported bug or spec rule names an input CLASS, not just its literal examples. Fixing `[`Text`]` means fixing the class (special chars, empty, boundary too) — declaring the rest "out of scope" is the #1 way these fixes fail.
 - Before editing, read: target code + all call sites (Grep) + one similar existing implementation.
 
 ## 2. Plan (required for 2+ files or complex logic)
@@ -43,9 +44,9 @@ Prove each rule with a run; do not inspect for it. Verification is executed exam
 - Cheap static sweep alongside: off-by-one / empty / boundary; null inflow; swallowed exceptions on error paths; every call site of a changed signature (Grep); leftovers of deleted code.
 - Fix, then re-run the whole set — not just the failed case.
 
-Fresh eyes ONLY on residual uncertainty or wide blast radius — not on file count. Spawn when EITHER you still cannot demonstrate some rule with a run, OR the change is wide-impact (public/exported API, data format, security):
-- ONE fresh-context subagent, given only the requirement + diff (none of your reasoning), told: "find one input that makes this violate the spec." A targeted probe, not an open-ended audit. The context that wrote a bug cannot see it; fresh eyes can.
-- Reproduce a confirmed break with a run, fix, re-verify; dismiss a false positive in one line. Do not spawn if every rule already has a passing run and the change is local — an agent that finds nothing is pure cost.
+Fresh eyes on a COUNTABLE condition — never on your own judgment of "impact" or "scope" (that judgment is the blind spot being checked; you will rationalize it away). Spawn ONE fresh-context probe if ANY hold: (a) a public/exported signature or behavior changed, (b) 2+ source files touched, (c) any rule lacks a passing executed example.
+- Give it only the requirement + diff (none of your reasoning), told: "find one input that makes this violate the spec — treat the reported bug as a whole input class (special chars / empty / boundary), not just its literal examples." ONE targeted probe, not a panel. The context that wrote a bug cannot see it.
+- A still-broken input in the same class as the reported bug is IN scope: reproduce it with a run and fix it, do not wave it off as a separate feature. Dismiss a genuine false-positive in one line.
 
 ## 5. Finish
 - Run tests; if none, execute the changed path once and observe.

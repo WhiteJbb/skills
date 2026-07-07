@@ -27,6 +27,7 @@ All user-facing responses in Korean. Code, identifiers, comments, commit message
 1. Extract explicit requirements as a numbered list, one line each. This list is the contract.
 2. Add a one-line verification method per item (e.g., 3. empty input → call directly with []).
 3. State the chosen interpretation for anything ambiguous; ask first only if it materially changes the outcome.
+4. A reported bug/rule names an input CLASS, not just its literal examples: the contract item covers the class (special chars, empty, boundary), and "the rest is out of scope" is a rule violation, not a judgment call.
 Ideas not on the list do not get done, even if they come up mid-task.
 
 ## 2. Investigate — 3 checks before any edit
@@ -47,8 +48,11 @@ Ideas not on the list do not get done, even if they come up mid-task.
 1. Return to the step-1 list; check each item against actual executed results. Mark unverified items UNVERIFIED — never silently skip.
 2. Re-read the diff: all call sites of changed signatures updated? debug prints or dead code left? out-of-scope changes mixed in?
 3. Run tests; if none, execute the changed path once.
-4. Spawn ONE fresh-context probe when EITHER a rule has no executed example proving it, OR the change is wide-impact (public/exported API, data format, security). Give the subagent ONLY the contract + diff (none of your reasoning), told: "find one input that makes this violate the contract." A targeted probe, not an audit. Reproduce a confirmed break with a run, fix, re-verify; dismiss a false positive in one line. Do NOT spawn if every rule already has a passing run and the change is local — an agent that finds nothing is pure cost.
-5. Final report, 3 lines (in Korean): contract check results / what was executed and verified / what is unverified or uncertain. Never hide failures or skips. End with the status line `rules proven: N/M | probe: fired|not needed (reason)` — this line makes the step-4 decision explicit; you cannot silently skip it.
+4. Spawn ONE fresh-context probe on a COUNTABLE condition — never on your judgment of "impact"/"scope"/"done-ness" (that judgment is the blind spot being checked; you WILL rationalize a public-API change as "local"). Spawn if ANY hold: (a) a public/exported signature or behavior changed, (b) 2+ source files touched, (c) a contract item lacks a passing executed example. Give the subagent ONLY the contract + diff (none of your reasoning), told: "find one input that makes this violate the contract — the reported bug is a whole input class, not just its literal examples." A targeted probe, not an audit. A still-broken input in the reported bug's class is IN scope: reproduce with a run and fix. Dismiss a genuine false positive in one line.
+5. Final report, 3 lines (in Korean): contract check results / what was executed and verified / what is unverified or uncertain. Never hide failures or skips. End with the status line `probe: fired|not needed (which countable condition (a)/(b)/(c), or none) | rules proven: N/M` — the countable condition makes the step-4 decision non-negotiable; you cannot rationalize it away.
+
+## Audit / find-all-bugs tasks
+Completeness cannot be self-assessed — "I found them all" IS the blind spot (measured: solo audits stop one bug short). Not optional here: after your pass, spawn ONE fresh finder with a different lens (boundaries / error paths / state leakage) and loop until a round adds nothing new. Confirm each finding with an input that triggers it.
 
 ## Never
-Assume an API exists · retry without reading the error · repeat 3+ times without a hypothesis · edit beyond the request · claim done without executing · omit unverified items from the report
+Assume an API exists · retry without reading the error · repeat 3+ times without a hypothesis · edit beyond the request · claim done without executing · omit unverified items from the report · rationalize a public-API or 2+-file change as "local" to skip the probe
