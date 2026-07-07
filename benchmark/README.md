@@ -427,6 +427,26 @@ v-next(2726720) skill을 gate-tasks-v2 + oss-tasks로 재측정(신판 skill만,
 - **다음 헤드룸 후보(미검증)**: 수십 페이지 문서(단일 패스 불가 → 인벤토리가 필수가 되는 구간), 요구사항 비명시 발견형 요약, Haiku. 코딩 실험과 같은 경계 가설.
 - 원시 데이터: `results\20260707-155722\`(Sonnet 요약, 스펙버그 셀)·`155725\`(Opus 번역)·`160350\`(Sonnet 번역)·`160353\`(Opus 요약)·`160843\`·`161526\`·`161936\`·`162321\`·`163015\`(Sonnet 요약 skill 반복 5런: 15/15→14/15→14/15→14/15→15/15).
 
+### 실험 9 후속: Fable 기준 대조 블라인드 심사 — "Fable 방식 이식"의 판단형 직접 검증 (2026-07-07)
+
+기계 채점은 "규칙 준수"만 보고 "Fable답게 됐는가"는 못 본다는 지적에 따라 기준을 교체: **Fable baseline 산출물을 REFERENCE로** 놓고, 실험 9의 baseline/skill 산출물을 익명 후보 X/Y로 심사자 2명(Opus 4.8, Fable)에게 블라인드 쌍대 심사. 4축 채점(요약: 선택/구조/충실성/간결성, 번역: 충실성/용어/자연성/형식, 각 0-10, REFERENCE=10 기준) + "어느 후보가 REFERENCE의 방식·품질에 가까운가"(closer + margin). 하네스: `judge-vs-reference.py` + `judge-cases.json`, 원장 `judgments.jsonl`. X/Y 배정은 케이스×심사자 해시로 결정(위치 편향 상쇄). Fable 기준 자체가 기계 채점 만점임을 먼저 확인(요약 15/15 @ 36.4k tok, 번역 18/18 @ **8.5k tok — 전 조합 최소**). 요약 skill 산출물은 최종판 스킬로 통일(Opus 셀 재생성, 15/15 @ 9.9k).
+
+| 케이스 | Opus 심사 | Fable 심사 | 합의 |
+|---|---|---|---|
+| 요약 × Sonnet | **skill (clear)** 37 vs 31/40 | **skill (clear)** 36 vs 30/40 | ✓ 만장일치 |
+| 요약 × Opus | baseline (slight) 35 vs 33 | baseline (slight) 36 vs 36 | ✓ |
+| 번역 × Sonnet | skill (slight) | baseline (slight) | ✗ 동률 |
+| 번역 × Opus | baseline (slight) | skill (slight) | ✗ 동률 |
+
+관찰:
+
+- **이식은 "모델의 원래 방식이 Fable과 먼 곳"에서 확인된다 — 요약 × Sonnet.** 심사자 2명 모두 clear로 skill: 결론 우선 구조 + 밀도 있는 사실 패킹이 REFERENCE와 일치("leads decision-first like the reference … packs the same facts more densely"), baseline은 문서 순서 + 섹션 헤더로 이탈. 스킬이 강제한 규칙(결론 우선, 폭 우선 패킹)이 정확히 그 차이를 만들었다 — **판단형 과제에서 스킬 이식이 심사로 확인된 첫 사례.**
+- **요약 × Opus는 baseline이 이미 Fable-adjacent** — 둘 다 근소하게 baseline. skill은 구조 개선("structural improvement")과 맞바꿔 보조 뉘앙스('unreplaced' 조건, 5년 가이던스 민감도, hedge-at-signing)를 절삭 — breadth-before-richness 정책이 예산 여유가 있는 Opus에서 과잉 절삭한 부작용(근소·n=1, 기록만 하고 스킬 수정은 보류).
+- **번역은 두 모델 다 이미 Fable급** — 4표 전부 slight, 2:2, 심사자 합의 0/2(진짜 동률 신호). 이식할 갭이 없다.
+- **심사가 기계 채점기의 사각지대 2개를 적발**: ① Sonnet baseline 번역의 의미 오역("does not count against the commitment"→"약정 위반으로 간주되지 않습니다" — SLA 계산 제외를 위반 면제로 뒤틈), ② Opus skill 번역의 용어집 외 드리프트(invoice→인보이스; REFERENCE·baseline은 청구서). **판단형 과제 채점은 기계(하한 보장) + 블라인드 심사(상층 품질) 2층이 맞다** — 실험 10이 "블라인드 심사 필요"로 남긴 항목의 실행이기도 하다.
+- **종합**: "Fable 방식이 잘 적용됐나"의 판단형 답 = **갭이 있는 조합(Sonnet×요약)에서는 만장일치 clear로 이식 확인, baseline이 이미 Fable-adjacent인 곳(Opus, 번역)에서는 중립~미세 역효과.** 실험 10의 효율축 결론(능력은 이식 불가)과 합치면: 스킬이 이식하는 것은 Fable의 *구조·규율*이고, 그것이 값을 하는 곳은 base 모델이 그 구조를 스스로 못 만드는 조합뿐이다.
+- 원시 데이터: `results\20260707-164018\`(Fable 요약)·`164020\`(Fable 번역)·`164023\`(Opus 요약 skill 최종판)·`judgments.jsonl`.
+
 ### 실험 10: Fable 직접 비교 — outcome 패리티는 이미 성립, 스킬은 효율에서 오히려 Fable에서 멀어진다 (2026-07-07)
 
 질문: "같은 과제를 Fable과 스킬 적용 Opus/Sonnet이 푼 걸 비교하면 Fable 방식이 잘 적용됐는지 알 수 있지 않나?" 실현 가능성 확인 — 하네스가 `claude-fable-5`를 헤드리스로 호출함. 실험 8의 함정 과제(max-points, ±2 트랩)에 Fable baseline을 추가해 전 모델과 비교.
@@ -452,6 +472,28 @@ v-next(2726720) skill을 gate-tasks-v2 + oss-tasks로 재측정(신판 skill만,
 - **종합 — "Fable 방식이 잘 적용됐는지"의 실측 답:** (a) outcome은 base가 이미 Fable급이라 스킬이 닫을 격차가 없고, (b) 효율/간결성에선 스킬이 오히려 Fable에서 멀어진다. 스킬이 값을 하는 건 base가 실패하는 좁은 구간뿐이고, 거기서도 Fable의 *효율*이 아니라 *정답*에만 근접한다. **Fable의 진짜 우위(효율적 정확 추론)는 프롬프트·규율로 이식되지 않는다.**
 - 한계: n=1, 단일 과제, 채점 밖 품질(견고성·가독성·정직성)은 미측정 — 그건 블라인드 심사 필요(주관적). 토큰은 objective 대리 지표.
 - 원시 데이터: `results\20260707-164420\`(Fable), 비교군은 실험 8.
+
+### 실험 11: 판단·아키텍처 과제 — 스킬은 Fable을 못 따라잡고 오히려 방해한다 (2026-07-07)
+
+질문: "정답이 하나가 아닌 설계·아키텍처·판단 과제를 같은 걸로 주면, 토큰을 더 쓰더라도 스킬 적용 Opus/Sonnet이 Fable을 따라잡는가?" pass/fail로 못 재므로 **블라인드 페어와이즈 심사**로 측정(`run-arch-benchmark.ps1`, `arch-tasks.json`). 과제: 200개 미용실 체인 예약 시스템 설계(데이터 모델·멀티서비스 실시간 가용성·동시 더블부킹 방지·15% 노쇼 정책과 리스크·트레이드오프). 후보 5개를 심사자 2명(Opus·Fable, 익명 X/Y·순서 랜덤)이 10페어 심사.
+
+| 후보 | 총 승 (2심사자) | Opus 심사자만(비편향) | 문서 길이 |
+|---|---|---|---|
+| **fable-base** | **8/8 (5 clear)** | **4/4 (전승)** | 10,850자 |
+| opus-base | 4 | 3 | 10,380자 |
+| sonnet-base | 4 | 2 | 4,985자 |
+| opus-boost | 4 | **1** | 4,255자 |
+| sonnet-boost | **0** | 0 | 4,467자 |
+
+관찰:
+
+- **Fable이 8전 8승, 전 매치업 석권.** 심사자 간 일치 70%지만 **Fable 매치업은 두 심사자 100% 일치** — 비편향 심사자(Opus, Fable 아님)도 Fable을 4/4로 1위. 자기편향 아님이 확인됨.
+- **스킬은 격차를 못 좁혔고 오히려 낮췄다.** 비편향 Opus 심사 기준 opus-boost는 1승으로 opus-base(3승)보다 **아래**, sonnet-boost는 0승으로 sonnet-base(2승)보다 **아래**. 판단 과제에서 스킬이 **역효과**.
+- **원인은 간결화 규율.** boosted 문서는 4.3k자로 baseline·Fable(10.4~10.9k자)의 절반 이하. 코딩 효율을 사주던 "간결 출력" 규칙이 판단 과제에선 **깊이를 깎아 품질을 떨어뜨린다.**
+- **Fable이 이긴 이유(심사 근거 일관됨) = 실패 인지 추론의 깊이.** 심사자들이 반복 지목: Fable만 동시 더블부킹의 미묘한 레이스를 정확히 진단("`FOR UPDATE`는 아직-삽입-안-된 행을 못 잠근다 → GiST exclusion constraint가 진짜 serializer"), 스타일리스트별 서비스 소요시간이 가용성 계산에 반영, 노쇼 정책을 EV 논리로 계층화하고 리스크/완화 표까지. 나머지는 "sound but thinner". 이건 프로세스가 아니라 **추론 능력**이다.
+- **종합 — "토큰 더 써서 Fable을 따라잡나"의 답: 아니오.** 정답 없는 판단 과제에서 Fable의 우위(정확·실패인지 추론의 깊이)는 스킬로 이식되지 않고, 코딩용 간결 규율은 오히려 그 깊이를 억눌러 **역효과**를 낸다. Fable의 진짜 강점은 규율로 복제 불가.
+- 한계: n=1 과제·1런, 심사자 일치 70%, Fable이 후보이자 심사자(익명화로 완화 + 비편향 Opus 심사자로 교차확인). 방향성은 견고.
+- 원시 데이터: `results\arch-20260707-165549\`.
 
 ### 숨김 테스트 패턴
 
@@ -618,6 +660,26 @@ v-next(2726720) skill을 gate-tasks-v2 + oss-tasks로 재측정(신판 skill만,
 - **객관 오버플로: design-boost만 3/3 통과.** §5 정적 규칙의 효과가 주입 경로에서 확인됨. frontend-design은 대시보드에서 오버플로 + 1892초/$8.10 폭주 — 에세이형 가이드는 유틸리티 과제에서 실행 편차가 크다.
 - **심사자 일치율 88% (7/8).** 유일한 불일치는 조석 앱의 스킬 간 대결(Opus→fd, Fable→db, 둘 다 clear) — 방향이 정반대인 clear라 이 쌍은 진짜 취향 영역. 쌍대+2심사자 체계가 "확실한 격차"와 "취향 차이"를 분리해 준다.
 - 원시 데이터: `results\design-20260707-150338\` (pairwise.jsonl에 심사 사유 전문)
+
+### 4라운드: Fable 기준 대조 (같은 날)
+
+이 스킬의 존재 이유가 "Sonnet을 Fable처럼"이므로, 진짜 성적표는 공식 스킬과의 비교가 아니라 **Fable 산출물과의 거리**다. 실험 9 후속과 같은 패턴: Fable baseline으로 같은 브리프 3개를 생성해 REFERENCE로 놓고, 3라운드 Sonnet 산출물과 교차 쌍대 심사.
+
+- 도구: [judge-pairs.ps1](judge-pairs.ps1) — 임의의 두 결과 폴더를 X/Y 익명 쌍대 심사하는 범용 스크립트 (쌍 명세: [fable-ref-pairs.json](fable-ref-pairs.json)).
+- 쌍 구성: 브리프 3개 × { Fable baseline vs Sonnet+design-boost (스킬이 격차를 얼마나 좁혔나), Fable baseline vs Sonnet baseline (원래 격차 크기) } × 심사자 2명(Opus 4.8 + Fable) = 12판.
+- 캐비앗: Fable이 생성자이자 심사자 — X/Y 블라인드지만 자기 스타일 인식 가능성이 있어 Opus 심사와의 일치율을 함께 본다. 더 엄격한 상한 비교는 Fable+frontend-design(실전 구성)인데, Fable baseline과 접전이면 그때 추가하는 게 경제적.
+
+Fable baseline 생성 메트릭 (`results\design-20260707-165325\`):
+
+| 브리프 | 턴 | 출력 토큰 | 비용(환산) | 모바일 오버플로 |
+|---|---|---|---|---|
+| tide-app | 4 | 23.8k | $2.36 | — |
+| type-foundry | 2 | 14.1k | $1.15 | **O** |
+| seller-dashboard | 2 | 9.9k | $0.86 | — |
+
+**Fable조차 객관 오버플로 프로브에 1/3 걸렸다** — 프로브 기준이 그만큼 깐깐하다는 뜻이자, Sonnet+design-boost의 3/3 통과가 값지다는 뜻.
+
+(심사 12판 진행 중 — 결과는 완료 후 아래에 추가)
 
 ## 다른 프로젝트에서 벤치마크하기
 

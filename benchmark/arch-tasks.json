@@ -1,0 +1,6 @@
+[
+  {
+    "id": "salon-scheduler",
+    "prompt": "You are the tech lead. Design the scheduling system for a chain of 200 hair salons. Requirements: customers book appointments online; each stylist has their own weekly schedule and a subset of skills (cut, color, perm, etc.); an appointment may combine multiple services of different durations performed back-to-back by one stylist; no-shows run about 15% and the business wants to mitigate the lost revenue; multiple customers may try to book the same slot at the same instant. Produce a concise but concrete design covering: (1) the data model, (2) how you compute a stylist's real-time availability including the multi-service case, (3) how you prevent double-booking under concurrent requests, (4) your policy for the 15% no-show problem and the risks it introduces, and (5) the two or three most important trade-offs you made and why. Do not ask questions; make and justify every decision. Output the design as markdown."
+  }
+]
