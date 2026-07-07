@@ -62,7 +62,7 @@ cd benchmark
 
 ## 스킬 효과 종합 (실측 기반)
 
-> 아래 실험 1~6 + 후속의 데이터를 압축한 결론. **객관 채점(테스트 통과)이 가능한 소~중형 코딩 과제**에 한함 — 판단형·디자인·대형 코드베이스는 미검증. 대부분 셀당 n=1이라 방향성 위주로 읽을 것. 통과율(품질) 격차가 실제로 측정된 곳은 두 군데뿐(Haiku expr-eval, OSS `&<>`)이며 나머지는 효율(토큰·시간) 지표다.
+> 아래 실험 1~11의 데이터를 압축한 결론. 대부분 셀당 n=1이라 방향성 위주로 읽을 것. 객관 채점(코딩)에서 통과율(품질) 격차가 실제로 측정된 곳은 두 군데뿐(Haiku expr-eval, OSS `&<>`)이며 나머지는 효율(토큰·시간) 지표다. **판단·아키텍처**는 실험 11에서, **디자인**은 별도 디자인 벤치에서 블라인드 심사로 측정. 대형 코드베이스는 여전히 미검증.
 
 **한 줄 결론: 효과는 "모델 × 과제 난이도"에 좌우된다. 스킬은 모델이 낭비하거나 실수하는 지점을 메우고, 그 지점이 없으면 비용만 든다.**
 
@@ -81,13 +81,16 @@ cd benchmark
 
 **v-next 재설계로 얻은 것 (실험 6 후속):** 멀티에이전트 패널을 "spec→실행예시 + 셀 수 있는 트리거의 단일 프로브"로 교체 → gate-v2 토큰 **48~76%↓** 하며 점수 유지(Sonnet multiref 8.6k→4.5k, Opus audit 21.7k→5.1k), OSS는 구판 3-패널(Opus 46k)을 단일 프로브(31k)로 대체해 동일 5/5. 재설계가 완전성을 해친 회귀 3셀은 원인 규명 후 복원(양 OSS 5/5, Sonnet audit 7/7). 그 과정에서 나온 **약한 모델용 설계 원칙 3가지**(전부 실측): ① 트리거는 모델 외부에서 셀 수 있어야 한다(판단은 blind spot이 뚫음) ② 강제 신고는 사실을 정직하게 만들지만 행동을 강제하진 못한다(Sonnet은 조건 참을 적고도 서브에이전트 거부) ③ 완전성 메커니즘은 모델이 이미 따르는 것(자기-실행 테스트)이어야 한다.
 
+**Fable 직접 비교 (실험 8·10·11):** 객관 채점 코딩(max-points, ±2 추론 함정)은 Fable·Opus·Sonnet·Haiku **전부 baseline 통과** — outcome 패리티 이미 성립. 단 Fable이 **최소 토큰(2.7k)으로 가장 간결**하고 스킬은 오히려 장황해져(9.5k) Fable에서 *멀어진다*. 정답 없는 **판단·아키텍처 과제(실험 11)**에선 블라인드 심사에서 **Fable이 8전 8승**(비편향 Opus 심사자 4/4), 스킬은 격차를 못 좁히고 **오히려 역효과**(sonnet-boost 0승 — 간결 규율이 추론 깊이를 깎음). **Fable의 진짜 우위(효율·판단 깊이)는 규율로 이식되지 않는다** — 스킬이 값을 하는 건 base가 실패하는 좁은 코딩 구간뿐이다.
+
 **언제 켜고 끌까 (실측 처방):**
 - Haiku로 어려운 스펙 구현 → **haiku-boost 켠다** (품질 반전, 유일하게 확실한 ON).
 - Sonnet으로 긴 작업 → **sonnet-boost 켠다** (품질이 아니라 토큰·시간을 산다; 쉬운 과제엔 소액 순비용).
 - Opus → 이득 온건. 규율·정직 보고가 목적이면 유지.
 - 멀티에이전트 게이트 → baseline이 실수할 만한 환경(약한 모델·대형 코드베이스)에서만 값을 한다. v-next는 그 비용을 단일 프로브로 낮췄다.
+- **판단·설계·아키텍처 → 끈다** (실험 11: Fable을 못 따라잡고, 간결 규율이 오히려 추론 깊이를 깎아 역효과).
 
-세부 근거는 아래 실험 1~6 로그. 원시 데이터는 각 실험의 `results\<타임스탬프>\`.
+세부 근거는 아래 실험 1~11 로그. 원시 데이터는 각 실험의 `results\<타임스탬프>\`, Fable 산출물은 `fable-reference/`.
 
 ## 실측 결과 (2026-07-06)
 
@@ -495,6 +498,30 @@ v-next(2726720) skill을 gate-tasks-v2 + oss-tasks로 재측정(신판 skill만,
 - 한계: n=1 과제·1런, 심사자 일치 70%, Fable이 후보이자 심사자(익명화로 완화 + 비편향 Opus 심사자로 교차확인). 방향성은 견고.
 - 원시 데이터: `results\arch-20260707-165549\`.
 
+### 실험 12: 나머지 도메인 스킬 6종의 Fable 기준 대조 — 심사 진단으로 개선까지 한 사이클 (2026-07-07)
+
+실험 9 후속의 방법론(Fable baseline 산출물 = REFERENCE, 익명 쌍대 블라인드 심사 ×2심사자)을 나머지 6종에 적용하고, **심사 사유를 스킬 결함 진단으로 되먹임**해 수정 → 패배 셀 재생성 → 재심사까지 완주. 과제 6개 신설: `domain-tasks-{review,report,slides,research,data,persona}.json` + 픽스처(리뷰는 audit-v2 재사용; data는 **시드된 심슨의 역설 CSV** — 전체 전환율은 상승하지만 세그먼트 내부는 전부 하락 + 중복 8행·널 6행, `fixtures\data-simpson\`). 대상 모델 Sonnet 5 (Opus 미측정). 심사 하네스 `judge-vs-reference.py`를 8종 kind별 4축 지원으로 확장.
+
+| 케이스 (×Sonnet) | 1차 판정 | 진단(심사 사유) | 수정 후 재심사 |
+|---|---|---|---|
+| review | **skill 2:0** | 둘 다 7버그 전부 발견(baseline도 천장) — skill이 커버리지·실행성 근소 우위 | — |
+| data | **skill 2:0** | **둘 다 심슨 함정 통과**(Sonnet baseline도!) — skill이 행수 결산·confounder 신중함으로 우위 | — |
+| persona | 1:1 | 동률 — 둘 다 보이스·경계·압박 정직성 우수 | — |
+| report | baseline 2:0 | **상태 라인이 메모 파일 안에 누출**("raw metadata footer") + 단계별 계획 약함 | baseline 2:0 slight — 푸터 지적 소멸, 잔여 차이는 실질(staged timeline·명시적 ask) → "ask+타임라인" 조항 추가(미재검증) |
+| slides | baseline 2:0 (**1 clear**) | **"완전한 문장 제목" 규칙이 역효과** — 제목=본문 중복, 초점 붕괴. Fable 기준은 짧은 제목+증거 본문 | **1:1 회복** — 제목을 ≤8단어 주장으로 증류하는 규칙으로 교체 |
+| research | baseline 2:0 | 평가서 파일 안 메타 푸터 + 미확립 항목 1개 누락 | **skill 2:0 반전** — 푸터 제거만으로 |
+
+종합 (요약·번역 포함 8도메인, 최종 스킬판): **skill 승 4 (summary clear·review·data·research) / 무 3 (translate·persona·slides) / 패 1 (report, slight)** — 심사자 투표 11:5. 반복 전 3승 2무 3패(clear 패 1) → clear 패배 0.
+
+관찰:
+
+- **최대 소득은 판정보다 진단 — 전 도메인 공통 결함 1개 발견.** 코딩 과제에선 상태 라인이 채팅으로 나가지만, 문서 과제에선 Sonnet이 **산출물 파일 안에** 메타 푸터를 넣는다(report·research 패배의 명시적 사유; review의 "lenses 메타 줄"도 동일). → 8종 전부에 "deliverable hygiene: 상태 라인·프로세스 노트는 채팅 응답에, 산출물 파일엔 절대 금지" 조항 추가. research가 이 수정 하나로 패→승 반전한 것이 실증.
+- **스킬 규칙이 Fable 방식과 어긋난 지점을 심사가 정확히 짚는다**: slides의 "완전한 문장 제목" 규칙(clear 패배) → Fable 기준처럼 "짧은 주장 제목(≤8단어) + 증거 본문"으로 교체하자 동률 회복. 규칙→행동→심사의 인과가 왕복으로 확인.
+- **data-boost 언어 규칙 결함**: "응답은 한국어"가 아티팩트에 적용돼 영어 데이터·브리프에 한국어 findings.md 생성(심사자는 감점 안 했으나 명백한 불일치) → 아티팩트는 요청/소스 언어, 채팅만 한국어로 분리.
+- **Sonnet baseline은 심슨 함정도 7버그 발견도 천장** — 발견형이라 기대했던 data·review에서도 baseline이 정답 도달. 실험 5~11의 "현 모델 baseline 천장"이 판단형에서도 유지. 다만 이 두 도메인에서 skill은 천장 위 여분(결산 라인·confounder 신중함·커버리지)으로 심사 우위 — 순수 정답성이 아니라 **Fable식 마감 품질**의 차이다.
+- 실험 11(아키텍처: 코딩식 간결 규율이 깊이를 깎아 역효과)과의 대비: 도메인 스킬엔 그 규율이 없어 역효과를 피했고, 도메인별 마감 규칙이 심사 우위를 만든다. **이식되는 것은 규율과 마감이지 추론 깊이가 아니다** — 두 실험의 공통 결론.
+- 한계: 셀당 n=1, 심사자 2명 중 1명이 Fable(자기편향 가능 — X/Y 익명·해시 배정으로 완화), report 최종 조항은 미재검증. 원시 데이터: `results\20260707-1703xx\`·`1713xx\`(v2), 심사 원장 `judgments.jsonl`, 케이스 `judge-cases-2~4b.json`.
+
 ### 숨김 테스트 패턴
 
 쉬운 과제는 모델이 보이는 테스트를 통과할 때까지 고치면 되므로 pass_pct 변별력이 없다. `csv-parser`처럼 **스펙은 프롬프트에 전부 명시하되, 보이는 테스트는 기본 케이스만 주고 채점은 `hidden\`의 숨김 테스트로** 하면 "보이는 테스트만 통과시키는 성급함"과 "스펙 전항목 구현"의 차이가 통과율로 드러난다. 숨김 테스트는 `check`에서 작업 폴더로 복사해 실행한다 (tasks.json의 csv-parser 항목 참고).
@@ -679,7 +706,26 @@ Fable baseline 생성 메트릭 (`results\design-20260707-165325\`):
 
 **Fable조차 객관 오버플로 프로브에 1/3 걸렸다** — 프로브 기준이 그만큼 깐깐하다는 뜻이자, Sonnet+design-boost의 3/3 통과가 값지다는 뜻.
 
-(심사 12판 진행 중 — 결과는 완료 후 아래에 추가)
+심사 결과 (12판, `results\crossjudge-*\pairwise.jsonl`):
+
+| 과제 | 쌍 | Opus 4.8 판정 | Fable 판정 | 일치 |
+|---|---|---|---|---|
+| tide-app | Fable ref vs Sonnet+db | **db (clear)** | **db (clear)** | O |
+| tide-app | Fable ref vs Sonnet base | ref (clear) | ref (clear) | O |
+| type-foundry | Fable ref vs Sonnet+db | ref (slight) | ref (clear) | O |
+| type-foundry | Fable ref vs Sonnet base | **base (slight)** | ref (clear) | **X** |
+| seller-dashboard | Fable ref vs Sonnet+db | ref (clear) | ref (clear) | O |
+| seller-dashboard | Fable ref vs Sonnet base | ref (clear) | ref (clear) | O |
+
+합산: **Fable ref vs Sonnet baseline = 5:1 / Fable ref vs Sonnet+design-boost = 4:2** (심사자 일치 5/6).
+
+관찰:
+
+- **격차는 좁혀졌지만 Fable 우위는 유지.** 판수 1→2 승에, 승리의 질이 다르다: design-boost의 2승은 조석 앱에서 **심사자 만장일치 clear로 Fable을 꺾은 것**, baseline의 1승은 심사자가 갈린 slight 1개.
+- **조석 앱 = 스킬 이식의 증명 사례.** Fable도 여기서 다크+애시드그린 근처 디폴트를 밟았고(심사평: "penalized dark-bg + acid-green-pill glow"), design-boost가 강제한 디폴트 회피 + 주제 그라운딩(웜 샌드 팔레트 + 해저 등고선 지도 + 모노스페이스 좌표)이 Fable 산출물을 이겼다. 규칙이 좋으면 브리프에 따라 Fable도 넘는다.
+- **대시보드에서 Fable 완승의 이유가 다음 개선점이다.** Fable은 유틸리티 화면에도 주제 디테일(조석/날씨 출항 정보, 해녀 인사, 셀러 프로필)을 심었는데, design-boost 대시보드는 "competent but generic corporate-blue"(심사평) — treatment 판별이 "조용함"으로 기울며 주제성을 잃었다. → **utilitarian에도 subject grounding 의무를 명시하는 수정 반영됨** (quiet ≠ generic).
+- **쌍대 심사의 상대성 확인**: 같은 Fable 조석 앱이 design-boost와 붙을 땐 "제네릭 다크 템플릿"으로 지고, Sonnet baseline과 붙을 땐 "생물발광 심해 미학, 진짜 주제 특정적"으로 이겼다 — 쌍대 판정은 절대 평가가 아니라 상대 평가다.
+- **Fable 심사자의 약한 자기선호 신호**: Fable-judge는 자기 산출물을 5/6, Opus-judge는 4/6 선택. n이 작아 단정 불가, 방향만 기록.
 
 ## 다른 프로젝트에서 벤치마크하기
 
