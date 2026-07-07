@@ -400,6 +400,59 @@ v-next(2726720) skill을 gate-tasks-v2 + oss-tasks로 재측정(신판 skill만,
 - **"Opus/Sonnet 추론 최대 활용"의 실측 답:** baseline이 이미 천장이라 **증폭할 여지가 없다.** 추론 증폭기의 헤드룸은 base 모델이 실제로 추론 실패하는 곳 — 경쟁/연구급 난제, 또는 채점 불가한 판단형 과제 — 에만 있고, 그건 이 벤치마크(객관 채점 가능·중형)가 닿지 못하는 영역이다. 실험 변형은 `opus-boost-crosscheck/`·`sonnet-boost-crosscheck/`에 보존.
 - 원시 데이터: `results\20260707-155436\`·`155439\`(Opus), `160021\`·`160026\`(Sonnet), `160402\`(Haiku).
 
+### 실험 9: 도메인 스킬 1차 실측 — 요약·번역도 "명시 스펙 = baseline 천장", 단 요약에서 밀도-폭 트레이드오프 발견 (2026-07-07)
+
+신규 도메인 스킬(summary-boost, translate-boost)의 첫 A/B. 기계 채점 가능한 과제 2개를 설계 (`domain-tasks-summary.json` / `domain-tasks-translate.json`):
+
+- `summary-brief` (`fixtures\summary-brief\`) — 1,300단어 투자 브리핑을 **220단어 경영진 요약**으로. 채점: `hidden\grade_summary_hidden.py` — 로드베어링 앵커 사실 15개(고유 숫자/고유명사, 그룹별 대안 regex + 숫자는 lookaround 가드) 커버리지 + 길이. 폭-압축 긴장이 난이도 레버: 15사실 ÷ 220단어.
+- `translate-notes` (`fixtures\translate-notes\`) — 릴리스 노트 영→한 번역(11헤딩·32불릿·용어집 7종·플레이스홀더 4종). 채점: `hidden\grade_translate_hidden.py` — 구조 카운트 일치·플레이스홀더 바이트 일치·용어 일관성(한국어 렌더링 수 ≥ 원문 수; 소스에서 동적 계산)·숫자 보존. 18체크.
+- **채점기 자체 테스트 선행**: known-good 산출물 만점 + 결함 주입 산출물이 심은 항목만 FAIL하는 걸 확인 후 실측 (스펙 버그 사고 예방책).
+
+결과 (n=1/셀, 유효 셀):
+
+| 모델 | 과제 | baseline | skill(최종판) | 토큰 b→s |
+|---|---|---|---|---|
+| Sonnet 5 | summary | PASS 15/15, 5.2k | PASS 15/15, 29.0k | **×5.6** |
+| Sonnet 5 | translate | PASS 18/18, 11.4k | PASS 18/18, 17.3k | +52% |
+| Opus 4.8 | summary | PASS 15/15, 10.6k | PASS 15/15, 10.2k | −4% |
+| Opus 4.8 | translate | PASS 18/18, 13.3k | PASS 18/18, 11.9k | −11% |
+
+관찰:
+
+- **품질 격차 미검출 — 실험 7·8의 경계가 도메인 과제에서도 재현.** 요구사항을 명시한 중형 요약/번역은 두 모델 baseline이 천장(만점). 스킬 이득의 헤드룸은 여기에도 없다.
+- **비용 기울기가 코딩과 반대.** 코딩에선 Sonnet baseline이 장황(42k)해서 스킬이 −66%를 샀지만, 요약/번역에선 Sonnet baseline이 원래 간결(5.2k/11.4k) — 교정할 낭비가 없어 스킬 절차가 순비용(요약 5.6배). Opus는 소폭 절감. **도메인 작업의 Sonnet은 코딩의 Haiku 포지션**이다.
+- **스펙 버그 사고 재발(과제 설계 교훈)**: 최초 프롬프트의 "포함 범주" 열거에서 '현재 운영 제약'을 빠뜨림 → skill 런이 계약을 문자 그대로 따라 가동률·초과근무를 잘라 13/15 FAIL, baseline은 우연히 포함해 PASS. skill 런의 상태 라인이 제외 사유("요구된 7개 카테고리 밖")를 자진 신고해 즉시 진단됨. 프롬프트 수정 후 재실험(위 표). → summary-boost에 "materiality는 결정에서 오고, 범주 목록은 floor지 ceiling이 아니다" 조항 추가.
+- **밀도-폭 트레이드오프 발견 및 수정 (요약, Sonnet)**: 인벤토리를 섹션 단위로 축소한 개정판이 3연속 "정확히 1앵커 부족"(14/15 ×3, 매번 다른 앵커) — 완화어·조건 보존 규칙이 사실당 프로즈를 두껍게 만들어 220단어 상한에서 커버리지를 밀어냄(baseline은 218단어로 15/15 = 예산은 충분). 규칙 덧대기 2회 실패 후 예산 정책으로 교체: **"길이 상한 아래에선 폭 우선 — 로드베어링 단위 전부를 평서형으로 먼저, 뉘앙스·보조수치는 남는 예산에"** → 15/15 회복. 요약 스킬의 일반 원칙으로 채택.
+- **채점기 밖 이득의 단편**: skill 런이 자기 초안의 잘못된 귀속("6.9년이 5년 가이던스 이내" — 실제로는 다른 시나리오의 가이던스)을 쓰기 시점 재조회로 잡아 수정. 앵커 채점으로는 안 보이는 충실성 이득이 존재하나, 점수를 못 움직인다.
+- **다음 헤드룸 후보(미검증)**: 수십 페이지 문서(단일 패스 불가 → 인벤토리가 필수가 되는 구간), 요구사항 비명시 발견형 요약, Haiku. 코딩 실험과 같은 경계 가설.
+- 원시 데이터: `results\20260707-155722\`(Sonnet 요약, 스펙버그 셀)·`155725\`(Opus 번역)·`160350\`(Sonnet 번역)·`160353\`(Opus 요약)·`160843\`·`161526\`·`161936\`·`162321\`·`163015\`(Sonnet 요약 skill 반복 5런: 15/15→14/15→14/15→14/15→15/15).
+
+### 실험 10: Fable 직접 비교 — outcome 패리티는 이미 성립, 스킬은 효율에서 오히려 Fable에서 멀어진다 (2026-07-07)
+
+질문: "같은 과제를 Fable과 스킬 적용 Opus/Sonnet이 푼 걸 비교하면 Fable 방식이 잘 적용됐는지 알 수 있지 않나?" 실현 가능성 확인 — 하네스가 `claude-fable-5`를 헤드리스로 호출함. 실험 8의 함정 과제(max-points, ±2 트랩)에 Fable baseline을 추가해 전 모델과 비교.
+
+| 모델·arm | 통과 | 토큰 | 비고 |
+|---|---|---|---|
+| **Fable baseline** | PASS | **2,678** | 최소. gap≥3 정확 추론, 26줄 O(n) 투포인터 |
+| Sonnet baseline | PASS | 3,991 | |
+| Opus baseline | PASS | 6,642 | |
+| Opus +skill | PASS | 9,432 | |
+| Opus +crosscheck | PASS | 9,312 | |
+| Sonnet +skill | PASS | 9,515 | |
+| Sonnet +crosscheck | PASS | 9,672 | |
+| Haiku baseline | PASS | 16,159 | |
+| Haiku +crosscheck | PASS | 17,339 | |
+
+관찰 — 이 비교가 "Fable 방식 적용됐나"를 두 축으로 갈라 답한다:
+
+- **Outcome(pass/fail) 패리티: 이미 성립.** Fable·Opus·Sonnet·Haiku, boosted·unboosted **전부 통과.** 객관 채점 과제에선 base 모델이 이미 Fable과 같은 정답에 도달하므로, outcome으로는 스킬이 뭘 했는지 안 드러난다(실험 5~9의 재확인).
+- **측정 가능한 유일한 품질축(간결한 정답=효율): Fable이 1위, 그리고 스킬은 약한 모델을 Fable에서 *멀어지게* 한다.** Fable은 2.7k 토큰에 바로 맞히는데, boosted Opus/Sonnet은 ~9.5k — 스킬이 검증 기계를 얹어 **더 장황해졌다.** 즉 스킬은 Opus/Sonnet을 Fable답게 만든 게 아니라, 같은 정답에 더 많은 일을 하게 만들었다.
+- **왜냐면 Fable의 "방식"은 여기서 프로세스가 아니라 능력이다** — "한 번에 정확·간결하게 추론". 이건 규칙으로 이식되지 않는다. 스킬은 Fable의 효율적 1패스 추론 대신 장황한 검증 기계를 대입할 뿐이다.
+- **스킬이 모델을 Fable에 가깝게 만드는 유일한 경우**: base가 원래 *실패*할 때(Haiku expr-eval FAIL→PASS, 실험 2). 거기선 추가 규율이 Fable이 native로 갖는 정확성을 사준다 — 단 Fable의 효율이 아니라 brute한 규율로. outcome은 Fable에 근접, 효율은 미달.
+- **종합 — "Fable 방식이 잘 적용됐는지"의 실측 답:** (a) outcome은 base가 이미 Fable급이라 스킬이 닫을 격차가 없고, (b) 효율/간결성에선 스킬이 오히려 Fable에서 멀어진다. 스킬이 값을 하는 건 base가 실패하는 좁은 구간뿐이고, 거기서도 Fable의 *효율*이 아니라 *정답*에만 근접한다. **Fable의 진짜 우위(효율적 정확 추론)는 프롬프트·규율로 이식되지 않는다.**
+- 한계: n=1, 단일 과제, 채점 밖 품질(견고성·가독성·정직성)은 미측정 — 그건 블라인드 심사 필요(주관적). 토큰은 objective 대리 지표.
+- 원시 데이터: `results\20260707-164420\`(Fable), 비교군은 실험 8.
+
 ### 숨김 테스트 패턴
 
 쉬운 과제는 모델이 보이는 테스트를 통과할 때까지 고치면 되므로 pass_pct 변별력이 없다. `csv-parser`처럼 **스펙은 프롬프트에 전부 명시하되, 보이는 테스트는 기본 케이스만 주고 채점은 `hidden\`의 숨김 테스트로** 하면 "보이는 테스트만 통과시키는 성급함"과 "스펙 전항목 구현"의 차이가 통과율로 드러난다. 숨김 테스트는 `check`에서 작업 폴더로 복사해 실행한다 (tasks.json의 csv-parser 항목 참고).
@@ -513,6 +566,58 @@ v-next(2726720) skill을 gate-tasks-v2 + oss-tasks로 재측정(신판 skill만,
 - **새 규칙의 트레이드오프 발견**: type-foundry design-boost의 유일한 감점이 "회색 `[사진: ...]` 플레이스홀더 박스" — 가짜 이미지 금지 규칙을 문자 그대로 준수한 결과다. 실서비스(실사진 삽입 예정)에는 올바른 행동이지만 원샷 미인대회에서는 감점. 규칙 유지가 맞다.
 - 2라운드 종합(4회 심사 합산): baseline 평균 28.3 vs design-boost 37.1 vs frontend-design 38.0 — 스킬 효과는 재확인, 두 스킬은 2승 2패 동급. baseline 점수의 라운드 간 출렁임(20.6→27.6, 28.5→36.6)이 크므로 절대점수 비교보다 동일 라운드 내 순위가 신뢰할 만하다.
 - 원시 데이터: `results\design-20260707-142150\`
+
+### 3라운드 (v2): 쌍대 심사 × 심사자 2명 + auto 발동 + 객관 오버플로 (같은 날)
+
+하네스 v2(모바일 iframe 렌더 교정 포함)로 재실행. 브리프 3개(에디토리얼 2 + **셀러 대시보드** 유틸리티 1) × 4-arm, 생성 Sonnet 5. 심사는 쌍대 비교(브리프당 3쌍) × 심사자 2명(Opus 4.8 + Fable), X/Y 무작위. design-boost에는 이 라운드 직전에 레퍼런스 조항까지 반영됨.
+
+쌍대 승수 (12판; 1판은 심사 JSON 파싱 실패로 11판 집계):
+
+| arm | 승 | clear 승 | 모바일 오버플로(3브리프 중) |
+|---|---|---|---|
+| frontend-design | 9 | 8 | 1 |
+| design-boost | 8 | 7 | **0** |
+| baseline | **0** | 0 | 2 |
+
+심사자별 판정 전체 (base=baseline, db=design-boost, fd=frontend-design):
+
+| 과제 | 쌍 | Opus 4.8 판정 | Fable 판정 | 일치 |
+|---|---|---|---|---|
+| tide-app | base vs db | db (clear) | db (clear) | O |
+| tide-app | base vs fd | fd (clear) | fd (clear) | O |
+| tide-app | db vs fd | **fd** (clear) | **db** (clear) | **X** |
+| type-foundry | base vs db | db (slight) | 파싱 실패 | — |
+| type-foundry | base vs fd | fd (clear) | fd (clear) | O |
+| type-foundry | db vs fd | fd (clear) | fd (slight) | O |
+| seller-dashboard | base vs db | db (clear) | db (clear) | O |
+| seller-dashboard | base vs fd | fd (clear) | fd (clear) | O |
+| seller-dashboard | db vs fd | db (clear) | db (clear) | O |
+
+생성 메트릭 (task × arm):
+
+| 과제 | arm | 오버플로 | 턴 | 출력 토큰 | 비용(환산) |
+|---|---|---|---|---|---|
+| tide-app | baseline | **O** | 3 | 11.5k | $0.53 |
+| tide-app | design-boost | — | 26 | 29.5k | $1.98 |
+| tide-app | frontend-design | — | 8 | 18.9k | $0.96 |
+| tide-app | auto (fired) | — | 9 | 25.5k | $1.72 |
+| type-foundry | baseline | — | 4 | 16.4k | $0.76 |
+| type-foundry | design-boost | — | 7 | 17.8k | $0.98 |
+| type-foundry | frontend-design | — | 4 | 18.2k | $0.86 |
+| type-foundry | auto (fired) | — | 10 | 22.5k | $1.20 |
+| seller-dashboard | baseline | **O** | 7 | 26.9k | $2.33 |
+| seller-dashboard | design-boost | — | 13 | 58.6k | $2.95 |
+| seller-dashboard | frontend-design | **O** | 23 | 108.5k | **$8.10** |
+| seller-dashboard | auto (fired) | **O** | 26 | 42.8k | $3.05 |
+
+관찰:
+
+- **baseline 전패 (0/11).** 쌍대 방식에서 격차가 절대점수보다 선명하다 — 두 심사자 모두, 세 브리프 전부에서 스킬 arm 승.
+- **auto 발동 3/3.** 브리프만 줬는데 Sonnet이 매번 design-boost를 스스로 불렀다. "실전에서 안 불리면 무용지물" 리스크 해소. 단 auto 대시보드 런은 발동했는데도 오버플로 — 주입 arm(SKILL+DESIGN-SYSTEM 전문)과 달리 auto 경로는 DESIGN-SYSTEM.md §5(오버플로 규칙)를 안 읽었을 가능성. **개선 후보: 모바일 임계 규칙을 SKILL.md 본문으로 승격.**
+- **직접 대결은 3:3 동률, 갈린 지점이 정보다**: 유틸리티 브리프(대시보드)는 심사자 2명 모두 design-boost clear 승 — 이번에 추가한 treatment 판별·차트 규칙이 실측으로 값을 함. 에디토리얼 중 활자 주조소는 frontend-design 승(2명 일치), 조석 앱은 심사자 불일치(초접전).
+- **객관 오버플로: design-boost만 3/3 통과.** §5 정적 규칙의 효과가 주입 경로에서 확인됨. frontend-design은 대시보드에서 오버플로 + 1892초/$8.10 폭주 — 에세이형 가이드는 유틸리티 과제에서 실행 편차가 크다.
+- **심사자 일치율 88% (7/8).** 유일한 불일치는 조석 앱의 스킬 간 대결(Opus→fd, Fable→db, 둘 다 clear) — 방향이 정반대인 clear라 이 쌍은 진짜 취향 영역. 쌍대+2심사자 체계가 "확실한 격차"와 "취향 차이"를 분리해 준다.
+- 원시 데이터: `results\design-20260707-150338\` (pairwise.jsonl에 심사 사유 전문)
 
 ## 다른 프로젝트에서 벤치마크하기
 

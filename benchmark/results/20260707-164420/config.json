@@ -1,0 +1,9 @@
+﻿{
+    "model":  "claude-fable-5",
+    "skill":  "sonnet-boost",
+    "runs":  1,
+    "modes":  [
+                  "baseline"
+              ],
+    "max_turns":  40
+}
