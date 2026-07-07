@@ -522,6 +522,26 @@ v-next(2726720) skill을 gate-tasks-v2 + oss-tasks로 재측정(신판 skill만,
 - 실험 11(아키텍처: 코딩식 간결 규율이 깊이를 깎아 역효과)과의 대비: 도메인 스킬엔 그 규율이 없어 역효과를 피했고, 도메인별 마감 규칙이 심사 우위를 만든다. **이식되는 것은 규율과 마감이지 추론 깊이가 아니다** — 두 실험의 공통 결론.
 - 한계: 셀당 n=1, 심사자 2명 중 1명이 Fable(자기편향 가능 — X/Y 익명·해시 배정으로 완화), report 최종 조항은 미재검증. 원시 데이터: `results\20260707-1703xx\`·`1713xx\`(v2), 심사 원장 `judgments.jsonl`, 케이스 `judge-cases-2~4b.json`.
 
+### 실험 12 후속: report 재검증 + summary 토큰 다이어트 + auto 발동 8종 실측 (2026-07-07)
+
+실험 12가 남긴 3개 미결 항목의 마무리.
+
+**1) report-boost 재검증 — 패→무.** "ask+단계별 타임라인" 조항 반영판(v3, agents 1 — 논지 프로브 발동)을 재심사: Opus 심사자가 skill로 뒤집고(사유: "staged plan with named phases, non-renewal ask ... covers more of the reference's decision structure" — 추가한 조항이 지목됨), Fable 심사자는 baseline slight 유지 → **1:1 동률**. 8도메인 최종 전적: **4승 4무 0패**.
+
+**2) summary-boost 토큰 다이어트 — −86%.** design-boost에서 실측된 레버("반복은 thinking에서, 표면엔 최종본만")를 이식: **29.0k → 4.2k 토큰, 270s → 61s, 기계 채점 15/15 유지** — baseline(5.2k)보다도 싸졌다. 트레이드오프: 심사는 만장일치 clear → 1:1(두 심사자가 같은 2차 뉘앙스 누락 지목 — "Danvers 압박 단독으론 5년 가이던스 이내"; 앵커 15개 밖이라 기계 채점은 못 봄). 점수합은 여전히 skill 우위(35:32, 35:33). −86% 비용에 clear→동률 맞교환으로 채택.
+
+**3) auto 발동 — 4/8, 그리고 문구가 아니라 과제 성격이 가른다.**
+
+| 발동 ○ (1/1) | 발동 × (0/2 — description 강화 후에도) |
+|---|---|
+| summary · translate · slides · data | report · research · review · persona |
+
+- 미발동 4종에 실전 표현("decision memo", "assess evidence", "review a module for defects", "reply in character")을 description에 추가하고 재측정 → **전부 여전히 미발동**. 문구 레버가 아니다.
+- 패턴: 발동 4종은 **기계적 제약이 많은 과제**(단어 예산, 용어집/구조 카운트, 헤드라인 규칙, 데이터셋 계산) — Sonnet이 "절차 도움이 필요하다"고 느끼는 곳. 미발동 4종은 **자신 있는 산문·논증형 과제** — 그냥 쓴다. 실험 5·6의 "확신이 조건을 우회한다"(조건 참을 기입하고도 서브에이전트 거부)와 같은 층위: **발동 판단은 description 매칭이 아니라 모델의 자기확신에서 나온다.**
+- 처방: report·research·review·persona는 **명시 호출**(스킬 이름 언급 또는 /skill)이 기본. 자동 발동에 의존할 수 있는 건 기계 제약형 4종뿐. 강화된 description은 무해하므로 유지.
+- auto 경로 부가 관찰: 발동 시 산출물 품질은 유지되나(summary auto 15/15 PASS, translate auto 17/18 — 용어 1회 누락) 주입 모드보다 무겁다(summary auto 30턴/13.5k vs 주입 9턴/4.2k) — 스킬을 중간에 로드하며 절차를 재구성하는 오버헤드.
+- 원시 데이터: `results\20260707-1732xx\`·`1734xx\`·`1737xx\`(재측정), report v3 `173215\`, summary diet `173220\`, 심사 `judgments.jsonl`(report-sonnet-v3, summary-sonnet-diet).
+
 ### 숨김 테스트 패턴
 
 쉬운 과제는 모델이 보이는 테스트를 통과할 때까지 고치면 되므로 pass_pct 변별력이 없다. `csv-parser`처럼 **스펙은 프롬프트에 전부 명시하되, 보이는 테스트는 기본 케이스만 주고 채점은 `hidden\`의 숨김 테스트로** 하면 "보이는 테스트만 통과시키는 성급함"과 "스펙 전항목 구현"의 차이가 통과율로 드러난다. 숨김 테스트는 `check`에서 작업 폴더로 복사해 실행한다 (tasks.json의 csv-parser 항목 참고).

@@ -1,6 +1,6 @@
 ---
 name: code-review-boost
-description: Adversarial code-review harness — read call sites before commenting, sweep the diff with 6 fixed defect lenses one at a time, confirm each finding with a concrete triggering input, rank by severity, loop until two clean rounds. Use at the START of any code-review/audit/find-bugs task when running on Sonnet or Opus. Skip trivial single-line diffs.
+description: Adversarial code-review harness — read call sites before commenting, sweep the diff with 6 fixed defect lenses one at a time, confirm each finding with a concrete triggering input, rank by severity, loop until two clean rounds. Use at the START whenever asked to review code, review a module/PR/diff for defects or quality, audit code, or find bugs without fixing them — when running on Sonnet or Opus. Skip trivial single-line diffs.
 ---
 
 # Code Review Boost

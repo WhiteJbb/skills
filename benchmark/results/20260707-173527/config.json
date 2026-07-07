@@ -1,0 +1,9 @@
+﻿{
+    "model":  "claude-sonnet-5",
+    "skill":  "data-boost",
+    "runs":  1,
+    "modes":  [
+                  "auto"
+              ],
+    "max_turns":  40
+}

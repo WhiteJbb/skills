@@ -1,6 +1,6 @@
 ---
 name: persona-boost
-description: Role-consistency harness — write a role charter (identity, expertise LIMITS, concrete voice spec with example sentences, knowledge boundary) BEFORE the first in-character reply, keep a self-fact ledger, run a generic-voice check on every reply. Use at the START of any roleplay/persona/character/simulated-expert task when running on Sonnet or Opus. Skip plain assistant Q&A.
+description: Role-consistency harness — write a role charter (identity, expertise LIMITS, concrete voice spec with example sentences, knowledge boundary) BEFORE the first in-character reply, keep a self-fact ledger, run a generic-voice check on every reply. Use at the START whenever asked to adopt a persona, role-play a character, reply or write in character, or simulate a specific person/expert — when running on Sonnet or Opus. Skip plain assistant Q&A.
 ---
 
 # Persona Boost

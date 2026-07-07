@@ -1,6 +1,6 @@
 ---
 name: research-boost
-description: Analysis-rigor harness — decompose the question evidence-first, grade every claim OBSERVED/SOURCED/INFERRED/ASSUMED, actively hunt disconfirming evidence, name rival explanations before any causal claim, report unknowns as first-class output. Use at the START of any research/analysis/investigation/comparison task when running on Sonnet or Opus. For web-source gathering use deep-research to collect; use this to govern analysis rigor. Skip simple factual lookups.
+description: Analysis-rigor harness — decompose the question evidence-first, grade every claim OBSERVED/SOURCED/INFERRED/ASSUMED, actively hunt disconfirming evidence, name rival explanations before any causal claim, report unknowns as first-class output. Use at the START whenever asked to assess evidence, weigh or critique sources, investigate a question, compare options, evaluate a claim, or recommend a decision from provided material — any research/analysis/assessment task — when running on Sonnet or Opus. For web-source gathering use deep-research to collect; use this to govern analysis rigor. Skip simple factual lookups.
 ---
 
 # Research Boost

@@ -1,6 +1,6 @@
 ---
 name: report-boost
-description: Report-writing harness — one-sentence thesis and reader contract BEFORE any outline, every claim tagged DATA/SOURCE/ASSUMPTION, sections that prove nothing get cut, conclusion-first structure, figure-consistency and naturalness pass before done. Use at the START of any report/memo/proposal/long-document writing task when running on Sonnet or Opus. Skip short answers and pure Q&A.
+description: Report-writing harness — one-sentence thesis and reader contract BEFORE any outline, every claim tagged DATA/SOURCE/ASSUMPTION, sections that prove nothing get cut, conclusion-first structure, figure-consistency and naturalness pass before done. Use at the START whenever the deliverable is a report, memo, decision memo, proposal, brief, or any document that argues for a recommendation from notes/data — including "write a memo/report for X" requests — when running on Sonnet or Opus. Skip short answers and pure Q&A.
 ---
 
 # Report Boost

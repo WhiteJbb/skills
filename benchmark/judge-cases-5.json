@@ -1,0 +1,24 @@
+[
+  {
+    "id": "report-sonnet-v3",
+    "kind": "report",
+    "task": "Read notes.md — raw, unsorted notes about whether to consolidate our two data warehouses (legacy Redshift vs Snowflake). Write decision-memo.md: a decision memo for the CTO, at most 450 words, recommending whether to consolidate onto one platform, and if so which one and on what timeline. The memo must be an argument, not a notes dump: state your recommendation clearly, support it with the evidence from the notes, be honest about what is fact versus assumption versus unresolved conflict in the notes, and address timing constraints.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\report-memo\\notes.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170455\\report-memo_baseline_run1\\decision-memo.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170328\\report-memo_baseline_run1\\decision-memo.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-173215\\report-memo_skill_run1\\decision-memo.md"
+  },
+  {
+    "id": "summary-sonnet-diet",
+    "kind": "summary",
+    "task": "Read document.md. Write summary.md: an executive summary of the briefing in English, at most 220 words, for the CFO who must decide at the January board meeting whether to approve the Meridian expansion. Requirements: every fact material to that decision must be included — the current operational constraint that motivates the project, the commercial demand and its conditions, the full cost picture, the schedule, all hard risks, the considered alternative, the financial returns and their sensitivity, and the specific structure of the recommendation. Numbers must match the document exactly; do not add claims that are not in the document.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\summary-brief\\document.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-164018\\summary-brief_baseline_run1\\summary.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-160843\\summary-brief_baseline_run1\\summary.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-173220\\summary-brief_skill_run1\\summary.md"
+  }
+]
