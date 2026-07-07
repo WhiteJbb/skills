@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>물모 Mulmoe — 제주 서퍼를 위한 물때·스웰 예보</title>
+<meta name="description" content="물모(Mulmoe)는 제주 전 해안의 물때·스웰·바람을 한 화면에 담은 서핑 예보 앱입니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grandiflora+One&family=Sunflower:wght@300;500;700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #0B120D;   /* deep kelp green-black */
+    --bg-raise:  #101A13;
+    --panel:     #121D15;
+    --line:      rgba(158, 210, 172, .14);
+    --line-soft: rgba(158, 210, 172, .08);
+    --ink:       #EDF5EA;
+    --ink-soft:  #C4D4C4;
+    --muted:     #8FA491;
+    --accent:    #8FE3A8;   /* seafoam green — text-safe on dark */
+    --accent-dim:#5FBF82;
+    --accent-deep:#1E6B45;
+    --sunlight:  #FFF6DC;   /* warm light from surface, not an accent */
+    --mono: 'Fragment Mono', monospace;
+    --disp: 'Grandiflora One', serif;
+    --body: 'Sunflower', sans-serif;
+    --radius: 12px;
+    --maxw: 1120px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    font-weight:300;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--accent-deep); color:var(--ink); }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+  section{ position:relative; }
+
+  h1,h2{ font-family:var(--disp); font-weight:400; line-height:1.35; letter-spacing:-0.01em; }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.18em;
+    color:var(--accent); text-transform:uppercase;
+    display:inline-flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:""; width:26px; height:1px; background:var(--accent-dim); }
+
+  /* ---------- nav ---------- */
+  header{
+    position:fixed; inset:0 0 auto 0; z-index:40;
+    background:rgba(11,18,13,.78);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .nav{
+    max-width:var(--maxw); margin:0 auto; padding:0 24px;
+    height:64px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand{
+    font-family:var(--disp); font-size:22px; color:var(--ink);
+    text-decoration:none; display:flex; align-items:baseline; gap:8px;
+  }
+  .brand small{ font-family:var(--mono); font-size:10px; letter-spacing:.22em; color:var(--muted); }
+  .nav-links{ display:flex; gap:30px; align-items:center; }
+  .nav-links a{
+    color:var(--ink-soft); text-decoration:none; font-size:14.5px; font-weight:300;
+    transition:color .2s;
+  }
+  .nav-links a:hover{ color:var(--accent); }
+  .btn{
+    display:inline-block; text-decoration:none; cursor:pointer;
+    font-family:var(--body); font-weight:500; font-size:15px;
+    padding:11px 24px; border-radius:999px;
+    background:var(--accent); color:#0A140E;
+    border:1px solid var(--accent);
+    transition:transform .18s, background .18s;
+  }
+  .btn:hover{ background:#A7F0BC; transform:translateY(-1px); }
+  .btn.ghost{
+    background:transparent; color:var(--accent);
+    border:1px solid rgba(143,227,168,.4);
+  }
+  .btn.ghost:hover{ background:rgba(143,227,168,.08); }
+  .btn.small{ padding:8px 18px; font-size:13.5px; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100svh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:140px 0 90px;
+    isolation:isolate;
+  }
+  #sea{
+    position:absolute; inset:0; z-index:-2;
+    width:100%; height:100%; display:block;
+  }
+  .hero::after{ /* darken bottom so text sits on quiet water */
+    content:""; position:absolute; inset:0; z-index:-1;
+    background:linear-gradient(180deg,
+      rgba(11,18,13,.20) 0%,
+      rgba(11,18,13,.42) 55%,
+      var(--bg) 100%);
+  }
+  .hero-inner{ max-width:760px; }
+  .hero h1{
+    font-size:clamp(34px, 5.4vw, 62px);
+    margin:22px 0 20px;
+    text-shadow:0 2px 30px rgba(5,10,7,.65);
+  }
+  .hero h1 em{ font-style:normal; color:var(--accent); }
+  .hero p.lede{
+    font-size:clamp(16px, 1.8vw, 18.5px);
+    color:var(--ink-soft); max-width:560px;
+    text-shadow:0 1px 18px rgba(5,10,7,.7);
+  }
+  .hero-cta{ display:flex; gap:14px; margin-top:34px; flex-wrap:wrap; }
+  .hero-note{
+    margin-top:64px;
+    font-family:var(--mono); font-size:11.5px; color:var(--muted);
+    display:flex; align-items:center; gap:10px;
+  }
+  .hero-note .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--accent); box-shadow:0 0 10px var(--accent);
+    animation:pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  /* today strip inside hero bottom */
+  .today{
+    margin-top:30px;
+    display:grid; grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:1px; background:var(--line);
+    border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; max-width:760px;
+  }
+  .today > div{
+    background:rgba(11,18,13,.72); backdrop-filter:blur(6px);
+    padding:16px 18px 14px;
+  }
+  .today .k{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.14em;
+    color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;
+  }
+  .today .v{ font-family:var(--mono); font-size:19px; color:var(--ink); }
+  .today .v small{ font-size:11px; color:var(--accent); margin-left:5px; }
+
+  /* ---------- generic section head ---------- */
+  .sect{ padding:110px 0; }
+  .sect-head{ max-width:640px; margin-bottom:56px; }
+  .sect-head h2{ font-size:clamp(26px, 3.4vw, 40px); margin:18px 0 14px; }
+  .sect-head p{ color:var(--muted); font-size:16.5px; }
+
+  /* ---------- breaks ---------- */
+  #breaks{ background:var(--bg-raise); border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); }
+  .break-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;
+  }
+  .break-card{
+    background:var(--panel);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius);
+    padding:22px 22px 18px;
+    transition:border-color .25s, transform .25s;
+  }
+  .break-card:hover{ border-color:rgba(143,227,168,.35); transform:translateY(-3px); }
+  .break-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
+  .break-top h3{ font-family:var(--body); font-weight:700; font-size:18px; letter-spacing:-.01em; }
+  .break-top .en{ font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:.12em; }
+  .break-face{ font-size:13px; color:var(--muted); margin-bottom:16px; }
+  .break-data{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;
+    font-family:var(--mono); font-size:12.5px;
+    border-top:1px dashed var(--line); padding-top:14px;
+  }
+  .break-data span{ display:block; color:var(--muted); font-size:9.5px; letter-spacing:.1em; margin-bottom:3px; }
+  .rating{
+    margin-top:16px; display:flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:500;
+  }
+  .waves{ display:flex; gap:3px; }
+  .waves i{
+    width:14px; height:5px; border-radius:3px;
+    background:var(--line); display:block;
+  }
+  .waves i.on{ background:var(--accent-dim); }
+  .rating.good  { color:var(--accent); }
+  .rating.fair  { color:#D8CE8E; }
+  .rating.flat  { color:var(--muted); }
+  .rating.fair .waves i.on{ background:#B3A95F; }
+  .rating.flat .waves i.on{ background:#5E6E60; }
+  .forecast-foot{
+    margin-top:26px; font-family:var(--mono); font-size:11.5px; color:var(--muted);
+  }
+
+  /* ---------- features ---------- */
+  .feat-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
+  .feat{
+    border:1px solid var(--line-soft); border-radius:var(--radius);
+    padding:30px 28px;
+    background:linear-gradient(160deg, rgba(143,227,168,.035), transparent 45%);
+  }
+  .feat .num{
+    font-family:var(--mono); font-size:11px; color:var(--accent-dim);
+    letter-spacing:.16em; display:block; margin-bottom:18px;
+  }
+  .feat h3{
+    font-family:var(--body); font-weight:700; font-size:19px;
+    margin-bottom:10px; letter-spacing:-.01em;
+  }
+  .feat p{ color:var(--muted); font-size:15px; }
+  .feat p b{ color:var(--ink-soft); font-weight:500; }
+
+  /* ---------- haenyeo ---------- */
+  #haenyeo{
+    background:
+      radial-gradient(1100px 480px at 70% 0%, rgba(143,227,168,.05), transparent 60%),
+      var(--bg-raise);
+    border-top:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .hae-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:70px; align-items:start; }
+  .hae-quote{
+    font-family:var(--disp); font-size:clamp(22px, 2.6vw, 30px);
+    line-height:1.65; margin:26px 0 20px;
+  }
+  .hae-quote .whistle{ color:var(--accent); white-space:nowrap; }
+  .hae-copy p{ color:var(--muted); font-size:16px; margin-bottom:16px; }
+  .hae-copy p b{ color:var(--ink-soft); font-weight:500; }
+  .glossary{ display:flex; flex-direction:column; gap:14px; margin-top:14px; }
+  .term{
+    border:1px solid var(--line-soft); border-left:2px solid var(--accent-dim);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:18px 22px; background:var(--panel);
+  }
+  .term dt{
+    font-weight:700; font-size:16px; margin-bottom:5px;
+    display:flex; align-items:baseline; gap:10px;
+  }
+  .term dt span{ font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:.14em; }
+  .term dd{ color:var(--muted); font-size:14.5px; }
+
+  /* ---------- cta ---------- */
+  #download .cta-box{
+    border:1px solid var(--line); border-radius:20px;
+    padding:70px 40px; text-align:center;
+    background:
+      radial-gradient(600px 260px at 50% 115%, rgba(143,227,168,.10), transparent 70%),
+      var(--panel);
+    position:relative; overflow:hidden;
+  }
+  #download h2{ font-size:clamp(26px, 3.4vw, 40px); margin:16px 0 14px; }
+  #download p{ color:var(--muted); max-width:460px; margin:0 auto 32px; }
+  .stores{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .store{
+    display:flex; align-items:center; gap:11px;
+    border:1px solid rgba(143,227,168,.35); border-radius:12px;
+    padding:12px 22px; text-decoration:none; color:var(--ink);
+    transition:background .2s, transform .18s;
+  }
+  .store:hover{ background:rgba(143,227,168,.08); transform:translateY(-1px); }
+  .store svg{ width:22px; height:22px; fill:var(--accent); flex:none; }
+  .store .lines{ text-align:left; line-height:1.25; }
+  .store .lines small{ font-family:var(--mono); font-size:9.5px; color:var(--muted); letter-spacing:.1em; display:block; }
+  .store .lines b{ font-weight:500; font-size:15px; }
+
+  /* ---------- footer ---------- */
+  footer{ border-top:1px solid var(--line-soft); padding:44px 0 52px; }
+  .foot{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:30px; flex-wrap:wrap;
+  }
+  .foot .brand{ font-size:19px; }
+  .foot p{ font-size:13px; color:var(--muted); margin-top:10px; max-width:380px; }
+  .foot-links{ display:flex; gap:26px; }
+  .foot-links a{ color:var(--muted); font-size:13.5px; text-decoration:none; }
+  .foot-links a:hover{ color:var(--accent); }
+  .foot-mono{
+    margin-top:36px; font-family:var(--mono); font-size:10.5px;
+    color:#5C6E5F; letter-spacing:.06em;
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  .rv{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+  .rv.in{ opacity:1; transform:none; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 900px){
+    .break-grid{ grid-template-columns:1fr 1fr; }
+    .hae-grid{ grid-template-columns:1fr; gap:44px; }
+    .nav-links a:not(.btn){ display:none; }
+  }
+  @media (max-width: 620px){
+    .today{ grid-template-columns:1fr 1fr; }
+    .break-grid{ grid-template-columns:1fr; }
+    .feat-grid{ grid-template-columns:1fr; }
+    .sect{ padding:80px 0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .rv{ opacity:1; transform:none; transition:none; }
+    .hero-note .dot{ animation:none; }
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <a class="brand" href="#top">물모 <small>MULMOE · JEJU</small></a>
+    <div class="nav-links">
+      <a href="#breaks">오늘의 파도</a>
+      <a href="#features">기능</a>
+      <a href="#haenyeo">물때 이야기</a>
+      <a class="btn small" href="#download">앱 다운로드</a>
+    </div>
+  </nav>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <canvas id="sea" aria-hidden="true"></canvas>
+  <div class="wrap hero-inner">
+    <span class="eyebrow">제주 서퍼를 위한 물때 · 스웰 예보</span>
+    <h1>물때를 아는 사람이<br><em>파도를 얻는다</em></h1>
+    <p class="lede">
+      물모는 제주 전 해안의 물때·스웰·바람을 한 화면에 담은 서핑 예보 앱입니다.
+      해녀들이 몸으로 익혀 온 바다의 리듬을, 이제 데이터로 건네받으세요.
+    </p>
+    <div class="hero-cta">
+      <a class="btn" href="#download">무료로 시작하기</a>
+      <a class="btn ghost" href="#breaks">오늘의 제주 바다 보기</a>
+    </div>
+
+    <div class="today" role="list" aria-label="오늘의 요약 예보">
+      <div role="listitem"><span class="k">물때 · 음력 5.23</span><span class="v">일곱물<small>중물</small></span></div>
+      <div role="listitem"><span class="k">스웰 SSW</span><span class="v">0.9m<small>@ 9s</small></span></div>
+      <div role="listitem"><span class="k">바람 SW</span><span class="v">4㎧<small>사이드</small></span></div>
+      <div role="listitem"><span class="k">만조 / 간조</span><span class="v">17:21<small>/ 11:07</small></span></div>
+    </div>
+
+    <p class="hero-note"><span class="dot"></span>물속에서 수면을 올려다본 빛 — 오늘 아침, 중문 앞바다의 수심 3m</p>
+  </div>
+</section>
+
+<!-- ================= BREAKS ================= -->
+<section class="sect" id="breaks">
+  <div class="wrap">
+    <div class="sect-head rv">
+      <span class="eyebrow">오늘의 제주 · 7월 7일 화요일</span>
+      <h2>섬의 모든 브레이크,<br>지금 상태 그대로</h2>
+      <p>제주 주요 서핑 포인트 여섯 곳의 파고·주기·바람을 3시간 단위로 갱신합니다. 남풍이 부는 여름, 오늘은 남쪽 해안이 답입니다.</p>
+    </div>
+
+    <div class="break-grid">
+      <article class="break-card rv">
+        <div class="break-top"><h3>중문 색달</h3><span class="en">JUNGMUN</span></div>
+        <p class="break-face">남향 비치브레이크 · 여름 남스웰의 본진</p>
+        <div class="break-data">
+          <div><span>파고</span>1.1m</div>
+          <div><span>주기</span>9s</div>
+          <div><span>바람</span>SW 4㎧</div>
+        </div>
+        <div class="rating good"><div class="waves"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>좋음 — 오전 미드타이드 추천</div>
+      </article>
+
+      <article class="break-card rv">
+        <div class="break-top"><h3>사계</h3><span class="en">SAGYE</span></div>
+        <p class="break-face">산방산 아래 리프브레이크 · 경험자 추천</p>
+        <div class="break-data">
+          <div><span>파고</span>1.0m</div>
+          <div><span>주기</span>9s</div>
+          <div><span>바람</span>SW 5㎧</div>
+        </div>
+        <div class="rating good"><div class="waves"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>좋음 — 간조 전후 리프 주의</div>
+      </article>
+
+      <article class="break-card rv">
+        <div class="break-top"><h3>표선</h3><span class="en">PYOSEON</span></div>
+        <p class="break-face">넓은 백사장 비치브레이크 · 입문 친화</p>
+        <div class="break-data">
+          <div><span>파고</span>0.8m</div>
+          <div><span>주기</span>8s</div>
+          <div><span>바람</span>SSW 4㎧</div>
+        </div>
+        <div class="rating fair"><div class="waves"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>보통 — 밀물 들어오는 오후</div>
+      </article>
+
+      <article class="break-card rv">
+        <div class="break-top"><h3>이호테우</h3><span class="en">IHO</span></div>
+        <p class="break-face">제주시 접근성 최고 · 북향 비치</p>
+        <div class="break-data">
+          <div><span>파고</span>0.4m</div>
+          <div><span>주기</span>6s</div>
+          <div><span>바람</span>SW 3㎧</div>
+        </div>
+        <div class="rating flat"><div class="waves"><i class="on"></i><i></i><i></i><i></i><i></i></div>잔잔 — 롱보드 크루징 정도</div>
+      </article>
+
+      <article class="break-card rv">
+        <div class="break-top"><h3>곽지</h3><span class="en">GWAKJI</span></div>
+        <p class="break-face">서북 해안 비치브레이크 · 가을·겨울 포인트</p>
+        <div class="break-data">
+          <div><span>파고</span>0.3m</div>
+          <div><span>주기</span>6s</div>
+          <div><span>바람</span>SW 3㎧</div>
+        </div>
+        <div class="rating flat"><div class="waves"><i class="on"></i><i></i><i></i><i></i><i></i></div>잔잔 — 오늘은 스킵</div>
+      </article>
+
+      <article class="break-card rv">
+        <div class="break-top"><h3>월정리</h3><span class="en">WOLJEONG</span></div>
+        <p class="break-face">동북 해안 비치브레이크 · 북동스웰용</p>
+        <div class="break-data">
+          <div><span>파고</span>0.5m</div>
+          <div><span>주기</span>7s</div>
+          <div><span>바람</span>S 4㎧</div>
+        </div>
+        <div class="rating fair"><div class="waves"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>보통 — 해질녘 오프쇼어 전환</div>
+      </article>
+    </div>
+
+    <p class="forecast-foot rv">※ 위 수치는 소개용 예시 화면입니다 · 앱에서는 기상청·KHOA 관측 기반으로 3시간마다 갱신됩니다</p>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="sect" id="features">
+  <div class="wrap">
+    <div class="sect-head rv">
+      <span class="eyebrow">기능</span>
+      <h2>체크할 것은 네 가지,<br>화면은 하나</h2>
+      <p>서퍼가 바다에 들어가기 전 확인하는 모든 것 — 물때, 스웰, 바람, 그리고 타이밍. 물모는 이 네 가지를 포인트별로 묶어 보여줍니다.</p>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat rv">
+        <span class="num">01 — 물때</span>
+        <h3>열다섯 물때, 오늘은 몇 물</h3>
+        <p>한물부터 사리·조금까지, 제주 전통 <b>15물때 체계</b>와 만조·간조 시각을 함께 표시합니다. 브레이크마다 파도가 서는 물때가 다르다는 걸, 물모는 알고 있습니다.</p>
+      </div>
+      <div class="feat rv">
+        <span class="num">02 — 스웰</span>
+        <h3>파고보다 중요한 건 주기</h3>
+        <p>파고·주기·방향을 분리해 보여주고, 포인트의 방향과 스웰이 맞는지 <b>정면 노출도</b>로 환산합니다. 0.8m@11s가 1.5m@6s보다 좋은 날임을 숫자로 확인하세요.</p>
+      </div>
+      <div class="feat rv">
+        <span class="num">03 — 바람</span>
+        <h3>온쇼어인지, 오프쇼어인지</h3>
+        <p>같은 남서풍도 중문에선 사이드, 월정리에선 오프쇼어. 풍향을 <b>포인트 기준 상대 방위</b>로 번역해 시간대별 전환 시점까지 알려줍니다.</p>
+      </div>
+      <div class="feat rv">
+        <span class="num">04 — 알림</span>
+        <h3>파도가 서기 전에, 먼저</h3>
+        <p>홈 포인트와 조건(파고·주기·바람·물때)을 저장해 두면, 조건이 맞는 날 <b>하루 전 저녁에 알림</b>을 보냅니다. 새벽 첫 세션을 놓치지 않도록.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HAENYEO ================= -->
+<section class="sect" id="haenyeo">
+  <div class="wrap">
+    <div class="hae-grid">
+      <div class="hae-copy rv">
+        <span class="eyebrow">물때 이야기</span>
+        <p class="hae-quote">
+          "숨비소리 <span class="whistle">호오이—</span> 한 번에<br>
+          바다의 하루를 읽던 사람들이 있었다."
+        </p>
+        <p>
+          제주 해녀는 예보 없이 바다에 들었습니다. 오늘이 몇 물인지, 물살이 언제 죽는지,
+          어느 여(암초) 옆이 안전한지 — 전부 <b>몸으로 외운 물때</b>였습니다.
+          불턱에 둘러앉아 다음 물질을 정하던 그 지식은, 사실 정밀한 조석 데이터였습니다.
+        </p>
+        <p>
+          물모(물—Mul, 바다의 물 + 모에—Moe, 모이다)는 그 오래된 감각을 이어받아 만들었습니다.
+          숫자와 그래프로 바뀌었을 뿐, 하는 일은 같습니다.
+          <b>들어갈 때와 기다릴 때를 아는 것.</b>
+        </p>
+      </div>
+      <dl class="glossary rv">
+        <div class="term">
+          <dt>물때 <span>MUL-TTAE</span></dt>
+          <dd>보름을 한 바퀴로 도는 15단계 조석 주기. 한물—열세물(사리)—조금—무시. 물살의 세기와 파도의 성격이 이 순서를 따라 돕니다.</dd>
+        </div>
+        <div class="term">
+          <dt>숨비소리 <span>SUMBI-SORI</span></dt>
+          <dd>해녀가 물질을 마치고 수면에서 내쉬는 휘파람 같은 숨. 한 호흡의 끝이자 다음 잠수의 시작 — 바다와 맞춘 사람의 리듬.</dd>
+        </div>
+        <div class="term">
+          <dt>불턱 <span>BULTEOK</span></dt>
+          <dd>해녀들이 몸을 녹이며 바다 정보를 나누던 돌담 화덕. 물모의 포인트별 커뮤니티 탭은 이 불턱에서 이름을 빌렸습니다.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DOWNLOAD ================= -->
+<section class="sect" id="download">
+  <div class="wrap">
+    <div class="cta-box rv">
+      <span class="eyebrow" style="justify-content:center">무료 다운로드</span>
+      <h2>다음 스웰은<br>기다리지 말고, 마중 나가세요</h2>
+      <p>제주 12개 포인트 예보, 물때 달력, 조건 알림까지 — 전부 무료입니다.</p>
+      <div class="stores">
+        <a class="store" href="#" aria-label="App Store에서 다운로드">
+          <svg viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8.79.05 2.27-.8 3.83-.68 1.86.15 3.26 1.05 4.05 2.66-3.53 2.12-2.62 6.36.87 7.62-.63 1.24-1.15 1.9-1.83 2.57M12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25"/></svg>
+          <span class="lines"><small>DOWNLOAD ON</small><b>App Store</b></span>
+        </a>
+        <a class="store" href="#" aria-label="Google Play에서 다운로드">
+          <svg viewBox="0 0 24 24"><path d="M3.6 1.81 13.7 12 3.6 22.19c-.36-.19-.6-.57-.6-1.03V2.84c0-.46.24-.84.6-1.03m11.1 9.19-2.3-2.32 7.14-4.11c.43.25.43.87 0 1.12l-2.62 1.51zm-2.3 2.32 2.3-2.32 2.22 3.8 2.62 1.51c.43.25.43.87 0 1.12zM4.94 1.5l9.16 9.19-1.4 1.31L4.94 22.5c-.13.07-.27.1-.4.12L14.3 12z"/></svg>
+          <span class="lines"><small>GET IT ON</small><b>Google Play</b></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="brand" href="#top">물모 <small>MULMOE</small></a>
+      <p>제주 서퍼를 위한 물때·스웰·바람 예보. 바다에 드는 모든 사람이 안전하게, 좋은 파도를 만나도록.</p>
+    </div>
+    <div class="foot-links">
+      <a href="#breaks">예보</a>
+      <a href="#features">기능</a>
+      <a href="#haenyeo">물때 이야기</a>
+      <a href="#" aria-disabled="true">이용약관</a>
+    </div>
+  </div>
+  <div class="wrap foot-mono">© 2026 MULMOE · JEJU, KR · 33.2°N 126.4°E · 예보는 참고용이며 입수 전 현장 확인은 서퍼의 몫입니다</div>
+</footer>
+
+<script>
+/* =========================================================
+   Signature hero: "물속에서 수면을 올려다본 빛"
+   Underwater caustics — the view a haenyeo sees mid-dive
+   and a surfer sees duck-diving. Interfering wave sources
+   produce moving light lace; a soft sun disc wobbles above.
+   Rendered on a low-res buffer, upscaled with smoothing.
+   ========================================================= */
+(function(){
+  const canvas = document.getElementById('sea');
+  const ctx = canvas.getContext('2d');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // low-res field buffer
+  const BW = 192, BH = 120;
+  const buf = document.createElement('canvas');
+  buf.width = BW; buf.height = BH;
+  const bctx = buf.getContext('2d');
+  const img = bctx.createImageData(BW, BH);
+  const px = img.data;
+
+  // palette ramp: deep kelp -> jade water -> pale sunlight
+  const deep = [10, 22, 15];      // matches page bg family
+  const mid  = [28, 84, 58];
+  const lite = [154, 226, 178];
+  const sun  = [255, 246, 220];
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function ramp(t, out){
+    // t in [0,1] -> color
+    if (t < 0.55){
+      const k = t / 0.55;
+      out[0]=lerp(deep[0],mid[0],k); out[1]=lerp(deep[1],mid[1],k); out[2]=lerp(deep[2],mid[2],k);
+    } else if (t < 0.85){
+      const k = (t-0.55)/0.30;
+      out[0]=lerp(mid[0],lite[0],k); out[1]=lerp(mid[1],lite[1],k); out[2]=lerp(mid[2],lite[2],k);
+    } else {
+      const k = (t-0.85)/0.15;
+      out[0]=lerp(lite[0],sun[0],k); out[1]=lerp(lite[1],sun[1],k); out[2]=lerp(lite[2],sun[2],k);
+    }
+  }
+
+  // wave sources for the interference field (fixed seed values)
+  const W = [
+    { kx: 0.055, ky: 0.062, sp: 0.62, ph: 1.7 },
+    { kx: -0.048, ky: 0.071, sp: 0.83, ph: 4.1 },
+    { kx: 0.031, ky: -0.044, sp: 0.51, ph: 0.6 },
+    { kx: 0.078, ky: 0.018, sp: 0.95, ph: 2.9 },
+    { kx: -0.022, ky: -0.058, sp: 0.44, ph: 5.3 }
+  ];
+
+  const col = [0,0,0];
+
+  function renderField(t){
+    for (let y = 0; y < BH; y++){
+      // depth falloff: surface (top) bright, deep (bottom) dark
+      const depth = y / BH;
+      const depthDim = 1 - depth * 0.82;
+      for (let x = 0; x < BW; x++){
+        let v = 0;
+        for (let i = 0; i < W.length; i++){
+          const w = W[i];
+          v += Math.cos(x * w.kx * 6 + y * w.ky * 6 + t * w.sp + w.ph);
+        }
+        v /= W.length;                    // [-1,1]
+        let i2 = (v + 1) * 0.5;           // [0,1]
+        i2 = Math.pow(i2, 5.2);           // sharpen into caustic filaments
+        i2 *= depthDim;
+
+        // sun disc, gently wobbling near upper third
+        const sx = BW * (0.62 + 0.03 * Math.sin(t * 0.35));
+        const sy = BH * (0.16 + 0.02 * Math.cos(t * 0.28));
+        const dx = (x - sx) / (BW * 0.20), dy = (y - sy) / (BH * 0.24);
+        const g = Math.exp(-(dx*dx + dy*dy) * 2.4);
+        i2 += g * 0.75 * (1 - depth * 0.5);
+
+        ramp(Math.min(i2, 1), col);
+        const o = (y * BW + x) * 4;
+        px[o] = col[0]; px[o+1] = col[1]; px[o+2] = col[2]; px[o+3] = 255;
+      }
+    }
+    bctx.putImageData(img, 0, 0);
+  }
+
+  // rising bubbles (a diver's exhale)
+  const bubbles = [];
+  function seedBubbles(w, h){
+    bubbles.length = 0;
+    for (let i = 0; i < 26; i++){
+      bubbles.push({
+        x: (0.12 + 0.76 * ((i * 37) % 100) / 100) * w,
+        y: h * (0.3 + ((i * 53) % 100) / 100 * 0.7),
+        r: 1 + ((i * 29) % 100) / 100 * 2.6,
+        v: 14 + ((i * 41) % 100) / 100 * 26,   // px/s upward
+        sway: 2 + ((i * 17) % 100) / 100 * 6,
+        ph: ((i * 61) % 100) / 100 * 6.28
+      });
+    }
+  }
+
+  let cw = 0, ch = 0, dpr = 1;
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.parentElement.getBoundingClientRect();
+    cw = rect.width; ch = rect.height;
+    canvas.width = Math.round(cw * dpr);
+    canvas.height = Math.round(ch * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    seedBubbles(cw, ch);
+    if (reduced) frame(38.5, 0); // one static frame
+  }
+
+  let last = null;
+  function frame(t, dt){
+    renderField(t);
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(buf, 0, 0, cw, ch);
+
+    // bubbles
+    ctx.strokeStyle = 'rgba(210, 240, 220, 0.35)';
+    ctx.lineWidth = 1;
+    for (const b of bubbles){
+      if (dt){ b.y -= b.v * dt; if (b.y < -6) b.y = ch + 6; }
+      const bx = b.x + Math.sin(t * 1.1 + b.ph) * b.sway;
+      ctx.beginPath();
+      ctx.arc(bx, b.y, b.r, 0, 6.283);
+      ctx.stroke();
+    }
+  }
+
+  function loop(now){
+    if (last == null) last = now;
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    frame(now / 1000, dt);
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  if (!reduced) requestAnimationFrame(loop);
+})();
+
+/* reveal on scroll */
+(function(){
+  const els = document.querySelectorAll('.rv');
+  if (!('IntersectionObserver' in window)){
+    els.forEach(e => e.classList.add('in'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  els.forEach(e => io.observe(e));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mulmoe — 제주 조류·스웰 예보</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Nanum+Gothic:wght@400;700;800&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eee3ce;
+    --surface: #e4d6b6;
+    --surface-2: #dccaa4;
+    --text: #1c2b2b;
+    --muted: #6b6353;
+    --accent: #1f6fb2;
+    --accent-text: #184e82;
+    --accent-on-dark: #7ab4e6;
+    --accent-ink: #f6efdd;
+    --contour: #8a6a3f;
+    --border: rgba(28,43,43,0.16);
+    --good: #3f7a4f;
+    --warn: #a3701f;
+
+    --font-display: 'Bricolage Grotesque', 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+    --font-body: 'Nanum Gothic', system-ui, 'Segoe UI', Roboto, sans-serif;
+    --font-utility: 'Spline Sans Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+    --scale: 1.25;
+    --text-sm: calc(1rem / var(--scale));
+    --text-base: 1rem;
+    --text-lg: calc(1rem * var(--scale));
+    --text-xl: calc(var(--text-lg) * var(--scale));
+    --text-2xl: calc(var(--text-xl) * var(--scale));
+    --text-hero: clamp(2.4rem, 6vw, calc(var(--text-2xl) * var(--scale) * 1.15));
+
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s6: 24px;
+    --s8: 32px; --s12: 48px; --s16: 64px; --s24: 96px; --s32: 128px;
+
+    --radius: 6px;
+
+    --t-fast: 150ms; --t-base: 250ms; --t-slow: 400ms;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1.1;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    word-break: keep-all;
+    margin: 0;
+  }
+  p { margin: 0; text-wrap: pretty; }
+  a { color: inherit; }
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-inline: var(--s6);
+  }
+  @media (min-width: 640px) {
+    .container { padding-inline: var(--s8); }
+  }
+
+  /* ---------- header ---------- */
+  header.site {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(238,227,206,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--s4);
+    gap: var(--s4);
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--text-lg);
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: baseline;
+    gap: var(--s2);
+  }
+  .wordmark span.tag {
+    font-family: var(--font-utility);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--muted);
+    letter-spacing: 0;
+  }
+  .nav-links {
+    display: none;
+    gap: var(--s8);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  @media (min-width: 760px) {
+    .nav-links { display: flex; }
+  }
+  .nav-links a {
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+    padding-bottom: 2px;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible { color: var(--text); border-color: var(--contour); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s2);
+    min-height: 40px;
+    padding: 0 var(--s4);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform var(--t-fast) var(--ease), background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .btn-primary:hover { transform: translateY(-1px); background: #1a5f9c; }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--contour);
+    color: var(--text);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent-text); }
+  .btn:focus-visible, a:focus-visible, .spot-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding-block: var(--s16) var(--s12);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s12);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: var(--s16); }
+  }
+  .hero-copy { min-width: 0; }
+  .hero-eyebrow {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: var(--s4);
+  }
+  .hero h1 {
+    font-size: var(--text-hero);
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero p.lede {
+    margin-top: var(--s6);
+    max-width: 52ch;
+    font-size: var(--text-lg);
+    color: var(--muted);
+  }
+  .hero-actions {
+    margin-top: var(--s8);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+  }
+  .hero-meta {
+    margin-top: var(--s8);
+    display: flex;
+    gap: var(--s6);
+    flex-wrap: wrap;
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .hero-meta strong {
+    display: block;
+    color: var(--text);
+    font-size: var(--text-base);
+  }
+
+  /* chart panel */
+  .chart-panel {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--s4);
+    min-width: 0;
+  }
+  .chart-panel::before {
+    content: "N 33.36° · E 126.53° — 제주 서부 리프 브레이크";
+    display: block;
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: var(--s3);
+  }
+  canvas#chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    border-radius: 2px;
+  }
+  .chart-caption {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s2);
+    margin-top: var(--s3);
+    font-family: var(--font-utility);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- instrument strip ---------- */
+  section.strip {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .strip-inner {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s6) var(--s8);
+    padding-block: var(--s8);
+  }
+  @media (min-width: 700px) {
+    .strip-inner { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  }
+  .stat {
+    min-width: 0;
+    border-left: 2px solid var(--contour);
+    padding-left: var(--s4);
+  }
+  .stat .label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .stat .value {
+    margin-top: var(--s1);
+    font-family: var(--font-utility);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .stat .value small {
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+  .stat .sub {
+    margin-top: 2px;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  /* ---------- explainer ---------- */
+  section.explain { padding-block: var(--s24); }
+  .explain-head {
+    max-width: 62ch;
+    margin-bottom: var(--s12);
+  }
+  .explain-head h2 {
+    font-size: var(--text-2xl);
+    letter-spacing: -0.01em;
+  }
+  .explain-head p {
+    margin-top: var(--s4);
+    color: var(--muted);
+    font-size: var(--text-lg);
+    max-width: 58ch;
+  }
+  .readings {
+    display: flex;
+    flex-direction: column;
+  }
+  .reading {
+    display: grid;
+    grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+    gap: var(--s6);
+    padding-block: var(--s8);
+    border-top: 1px solid var(--border);
+  }
+  .reading:last-child { border-bottom: 1px solid var(--border); }
+  @media (max-width: 640px) {
+    .reading { grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
+  }
+  .reading .source {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--accent-text);
+    letter-spacing: 0.01em;
+  }
+  .reading .source .idx {
+    color: var(--muted);
+    margin-right: var(--s2);
+  }
+  .reading h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-top: var(--s1);
+  }
+  .reading p {
+    margin-top: var(--s2);
+    color: var(--muted);
+    max-width: 62ch;
+  }
+
+  /* ---------- spot table ---------- */
+  section.spots {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding-block: var(--s24);
+  }
+  .spots-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--s6);
+    margin-bottom: var(--s8);
+    flex-wrap: wrap;
+  }
+  .spots-head h2 { font-size: var(--text-2xl); max-width: 20ch; }
+  .spots-head p { color: var(--muted); max-width: 40ch; }
+
+  .spot-table { width: 100%; overflow-x: auto; }
+  table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  thead th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-bottom: var(--s3);
+    border-bottom: 1px solid var(--contour);
+  }
+  tbody td {
+    padding-block: var(--s4);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tbody tr.spot-row {
+    transition: background var(--t-fast) var(--ease);
+  }
+  tbody tr.spot-row:hover { background: var(--surface-2); }
+  td.name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-base);
+  }
+  td .en {
+    display: block;
+    font-family: var(--font-utility);
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  td.nums {
+    font-family: var(--font-utility);
+    font-variant-numeric: tabular-nums;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px var(--s2);
+    border-radius: 999px;
+    font-family: var(--font-utility);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .pill::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+  .pill.good { background: rgba(63,122,79,0.12); color: var(--good); }
+  .pill.fair { background: rgba(163,112,31,0.14); color: var(--warn); }
+  .pill.flat { background: rgba(107,99,83,0.14); color: var(--muted); }
+
+  /* ---------- cta ---------- */
+  section.cta { padding-block: var(--s24); }
+  .cta-box {
+    background: var(--text);
+    color: var(--bg);
+    border-radius: var(--radius);
+    padding: var(--s16) var(--s8);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s6);
+  }
+  .cta-box h2 {
+    color: var(--bg);
+    font-size: var(--text-2xl);
+    max-width: 20ch;
+  }
+  .cta-box p { color: #b9b0a0; max-width: 48ch; }
+  .cta-box .hero-actions { margin-top: 0; }
+  .cta-box .btn-primary { background: var(--accent); }
+  .cta-box .btn-ghost { border-color: #4a5a5a; color: var(--bg); }
+  .cta-box .btn-ghost:hover { border-color: var(--accent); color: var(--accent-on-dark); }
+
+  /* ---------- footer ---------- */
+  footer.site {
+    padding-block: var(--s8);
+    border-top: 1px solid var(--border);
+  }
+  .foot-inner {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--s4);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    font-family: var(--font-utility);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="container nav">
+    <div class="wordmark">Mulmoe <span class="tag">물모이</span></div>
+    <nav class="nav-links">
+      <a href="#today">오늘의 물때</a>
+      <a href="#how">예보 원리</a>
+      <a href="#spots">브레이크</a>
+    </nav>
+    <a class="btn btn-primary" href="#download">앱 받기</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="hero-eyebrow">JEJU TIDE &amp; SWELL FORECAST</span>
+        <h1>지형을 알아야<br><em>파도가</em> 보인다</h1>
+        <p class="lede">Mulmoe는 국립해양조사원 조위 데이터와 실시간 부이 관측값을 제주 리프·포인트 브레이크 각각의 지형 보정값과 결합해, 오늘 어느 스팟이 실제로 설 만한지 알려줍니다.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#download">iOS에서 받기</a>
+          <a class="btn btn-ghost" href="#download">Android에서 받기</a>
+        </div>
+        <div class="hero-meta">
+          <div><strong>14개</strong>제주 전역 브레이크</div>
+          <div><strong>10분</strong>관측 갱신 주기</div>
+          <div><strong>3개</strong>지형 보정 모델</div>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <canvas id="chart" width="800" height="600" role="img" aria-label="제주 서부 리프 브레이크의 등고선 해도와 스웰 방향 화살표"></canvas>
+        <div class="chart-caption">
+          <span>등고선 간격 1m</span>
+          <span id="swellLabel">SW 228° 스웰 유입</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="strip" id="today">
+    <div class="container strip-inner">
+      <div class="stat">
+        <div class="label">조위</div>
+        <div class="value">142<small>cm</small></div>
+        <div class="sub">일곱물 · 밀물</div>
+      </div>
+      <div class="stat">
+        <div class="label">파고</div>
+        <div class="value">1.2<small>m</small></div>
+        <div class="sub">세트 최대 1.6m</div>
+      </div>
+      <div class="stat">
+        <div class="label">주기</div>
+        <div class="value">11<small>s</small></div>
+        <div class="sub">우수한 그라운드 스웰</div>
+      </div>
+      <div class="stat">
+        <div class="label">풍향/풍속</div>
+        <div class="value">NE<small>4m/s</small></div>
+        <div class="sub">오프쇼어, 서부 기준</div>
+      </div>
+      <div class="stat">
+        <div class="label">수온</div>
+        <div class="value">19<small>℃</small></div>
+        <div class="sub">3/2 슈트 권장</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="explain" id="how">
+    <div class="container">
+      <div class="explain-head">
+        <h2>세 가지 데이터를 겹쳐서 읽습니다</h2>
+        <p>단순히 파고 숫자 하나를 보여주는 게 아니라, 제주 해안의 실제 지형이 그 숫자를 어떻게 바꾸는지까지 계산합니다.</p>
+      </div>
+      <div class="readings">
+        <div class="reading">
+          <div class="source"><span class="idx">A</span>국립해양조사원 조위표</div>
+          <div>
+            <h3>물때 기준값</h3>
+            <p>제주 전역 8개 검조소의 실측 조위를 15분 단위로 받아, 사리·조금 주기에 따른 기본 조위 곡선을 만듭니다.</p>
+          </div>
+        </div>
+        <div class="reading">
+          <div class="source"><span class="idx">B</span>실시간 파주기 부이</div>
+          <div>
+            <h3>먼바다 스웰 관측</h3>
+            <p>이어도·마라도 인근 부이에서 파고·주기·방향을 직접 측정해, 예측이 아닌 실측값으로 스웰의 도착 시간을 계산합니다.</p>
+          </div>
+        </div>
+        <div class="reading">
+          <div class="source"><span class="idx">C</span>지형별 보정 모델</div>
+          <div>
+            <h3>리프·포인트 굴절 보정</h3>
+            <p>같은 스웰도 현무암 리프와 모래 포인트에서 다르게 부서집니다. 브레이크별 해저 지형을 반영해 실제 라이딩 가능 여부를 조정합니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="spots" id="spots">
+    <div class="container">
+      <div class="spots-head">
+        <h2>지금 설 만한 곳</h2>
+        <p>노출 방향과 최적 스웰 방향이 맞아야 좋은 파도가 만들어집니다.</p>
+      </div>
+      <div class="spot-table">
+        <table>
+          <thead>
+            <tr>
+              <th>브레이크</th>
+              <th>지형</th>
+              <th>최적 스웰</th>
+              <th>파고</th>
+              <th>상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="spot-row" tabindex="0">
+              <td class="name">중문<span class="en">Jungmun</span></td>
+              <td>현무암 리프</td>
+              <td class="nums">S–SW</td>
+              <td class="nums">1.2m / 11s</td>
+              <td><span class="pill good">굿</span></td>
+            </tr>
+            <tr class="spot-row" tabindex="0">
+              <td class="name">이호테우<span class="en">Iho Tewoo</span></td>
+              <td>모래 포인트</td>
+              <td class="nums">NW–N</td>
+              <td class="nums">0.6m / 9s</td>
+              <td><span class="pill flat">플랫</span></td>
+            </tr>
+            <tr class="spot-row" tabindex="0">
+              <td class="name">월정리<span class="en">Woljeong-ri</span></td>
+              <td>모래 비치</td>
+              <td class="nums">NE–E</td>
+              <td class="nums">0.9m / 8s</td>
+              <td><span class="pill fair">보통</span></td>
+            </tr>
+            <tr class="spot-row" tabindex="0">
+              <td class="name">함덕<span class="en">Hamdeok</span></td>
+              <td>모래 비치</td>
+              <td class="nums">NE–N</td>
+              <td class="nums">0.7m / 8s</td>
+              <td><span class="pill fair">보통</span></td>
+            </tr>
+            <tr class="spot-row" tabindex="0">
+              <td class="name">사계리<span class="en">Sagye-ri</span></td>
+              <td>현무암 리프</td>
+              <td class="nums">SW–W</td>
+              <td class="nums">1.4m / 12s</td>
+              <td><span class="pill good">굿</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="download">
+    <div class="container">
+      <div class="cta-box">
+        <h2>다음 세션, 헛걸음 없이</h2>
+        <p>Mulmoe는 매일 새벽 5시, 오늘 설 만한 브레이크를 순위로 정리해 알림으로 보내드립니다.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#">iOS에서 받기</a>
+          <a class="btn btn-ghost" href="#">Android에서 받기</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container foot-inner">
+    <span>MULMOE · JEJU-SI, KOREA</span>
+    <span>DATA: KHOA / REAL-TIME BUOY NETWORK</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // seeded PRNG (mulberry32) so the chart is reproducible, not random per load
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(19330715); // seed: fixed so the reef shape is stable across loads
+
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const inkContour = '#8a6a3f';
+  const inkContourDeep = '#5f4a2b';
+  const inkText = '#1c2b2b';
+  const paper = '#e4d6b6';
+  const accent = '#1f6fb2';
+
+  // build a pseudo-bathymetry height field from a few seeded sine/gaussian bumps
+  const bumps = [];
+  for (let i = 0; i < 5; i++) {
+    bumps.push({
+      x: 0.2 + rand() * 0.6,
+      y: 0.2 + rand() * 0.6,
+      r: 0.18 + rand() * 0.22,
+      h: 0.5 + rand() * 1.0,
+    });
+  }
+  function heightAt(nx, ny) {
+    let h = 0;
+    for (const b of bumps) {
+      const dx = nx - b.x, dy = ny - b.y;
+      const d2 = (dx * dx) / (b.r * b.r) + (dy * dy) / (b.r * b.r);
+      h += b.h * Math.exp(-d2 * 2.2);
+    }
+    return h;
+  }
+
+  function drawContours() {
+    ctx.fillStyle = paper;
+    ctx.fillRect(0, 0, W, H);
+
+    // faint chart grid
+    ctx.strokeStyle = 'rgba(28,43,43,0.08)';
+    ctx.lineWidth = 1;
+    const step = 40;
+    for (let x = 0; x <= W; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y <= H; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // marching-squares-lite: sample grid, draw contour rings per level
+    const res = 90;
+    const levels = [0.25, 0.5, 0.75, 1.0, 1.3, 1.6];
+    levels.forEach((level, li) => {
+      ctx.beginPath();
+      for (let gx = 0; gx < res; gx++) {
+        for (let gy = 0; gy < res; gy++) {
+          const nx = gx / res, ny = gy / res;
+          const h = heightAt(nx, ny);
+          const hL = heightAt(nx + 1 / res, ny);
+          const hD = heightAt(nx, ny + 1 / res);
+          const crossesRight = (h - level) * (hL - level) < 0;
+          const crossesDown = (h - level) * (hD - level) < 0;
+          if (crossesRight || crossesDown) {
+            const px = nx * W, py = ny * H;
+            if (crossesRight) { ctx.moveTo(px, py); ctx.lineTo(px + (W / res), py); }
+            if (crossesDown) { ctx.moveTo(px, py); ctx.lineTo(px, py + (H / res)); }
+          }
+        }
+      }
+      ctx.strokeStyle = li > 3 ? inkContourDeep : inkContour;
+      ctx.lineWidth = li > 3 ? 1.6 : 1.1;
+      ctx.globalAlpha = 0.55 + li * 0.06;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // reef shading for shallowest zone
+    for (let gx = 0; gx < res; gx += 2) {
+      for (let gy = 0; gy < res; gy += 2) {
+        const nx = gx / res, ny = gy / res;
+        const h = heightAt(nx, ny);
+        if (h > 1.5) {
+          ctx.fillStyle = 'rgba(138,106,63,' + Math.min(0.35, (h - 1.5) * 0.4) + ')';
+          ctx.fillRect(nx * W, ny * H, W / res * 2, H / res * 2);
+        }
+      }
+    }
+
+    // compass rose
+    const cx = W - 80, cy = 80, r = 42;
+    ctx.save();
+    ctx.strokeStyle = inkText;
+    ctx.fillStyle = inkText;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.font = '600 13px "Spline Sans Mono", monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const dirs = [['N', 0], ['E', 90], ['S', 180], ['W', 270]];
+    dirs.forEach(([label, deg]) => {
+      const rad = (deg - 90) * Math.PI / 180;
+      const tx = cx + Math.cos(rad) * (r + 16);
+      const ty = cy + Math.sin(rad) * (r + 16);
+      ctx.fillText(label, tx, ty);
+      const ix = cx + Math.cos(rad) * r;
+      const iy = cy + Math.sin(rad) * r;
+      const ox = cx + Math.cos(rad) * (r - 8);
+      const oy = cy + Math.sin(rad) * (r - 8);
+      ctx.beginPath(); ctx.moveTo(ix, iy); ctx.lineTo(ox, oy); ctx.stroke();
+    });
+    ctx.restore();
+
+    return { cx, cy, r };
+  }
+
+  const rose = drawContours();
+
+  // animated swell arrow from SW (228deg) sweeping in once, then resting
+  const swellDeg = 228;
+  let progress = 0;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function drawArrow(p) {
+    drawContours();
+    const rad = (swellDeg - 90) * Math.PI / 180;
+    const len = rose.r * 1.9 * p;
+    const startX = rose.cx + Math.cos(rad) * (rose.r + 30 + (1 - p) * 60);
+    const startY = rose.cy + Math.sin(rad) * (rose.r + 30 + (1 - p) * 60);
+    const endX = rose.cx + Math.cos(rad) * (rose.r + 30 + (1 - p) * 60 - len);
+    const endY = rose.cy + Math.sin(rad) * (rose.r + 30 + (1 - p) * 60 - len);
+
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, p * 1.5);
+    ctx.strokeStyle = accent;
+    ctx.fillStyle = accent;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.stroke();
+
+    const headSize = 8;
+    const angle = Math.atan2(endY - startY, endX - startX);
+    ctx.beginPath();
+    ctx.moveTo(endX, endY);
+    ctx.lineTo(endX - headSize * Math.cos(angle - Math.PI / 6), endY - headSize * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(endX - headSize * Math.cos(angle + Math.PI / 6), endY - headSize * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  if (prefersReduced) {
+    drawArrow(1);
+  } else {
+    const duration = 1100;
+    let start = null;
+    function step(ts) {
+      if (start === null) start = ts;
+      const elapsed = ts - start;
+      const p = Math.min(1, elapsed / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      drawArrow(eased);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+})();
+</script>
+
+</body>
+</html>

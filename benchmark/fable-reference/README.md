@@ -17,6 +17,19 @@ Fable(`claude-fable-5`)이 벤치마크에서 실제로 생성한 결과물을 *
 | `pairwise-verdicts.jsonl` | 10페어 × 2심사자 = 20 판정 (승자·마진·근거 한 줄) |
 | `gen-metrics.jsonl` | 후보별 생성 메트릭 (문자수·토큰·시간·비용) |
 
+### `design-tide-app/` · `design-type-foundry/` · `design-seller-dashboard/` — 디자인 과제 (디자인 4라운드)
+
+같은 브리프를 Fable baseline / Sonnet baseline / Sonnet+design-boost가 푼 비교 세트. 블라인드 쌍대 심사(Opus 4.8 + Fable) 합산: **Fable vs Sonnet baseline = 5:1, Fable vs Sonnet+design-boost = 4:2** — 스킬이 격차를 절반쯤 좁혔고, tide-app에서는 심사자 만장일치 clear로 Fable을 꺾었다(Fable이 다크+애시드그린 디폴트를 밟은 브리프). 분석은 [../README.md](../README.md) 디자인 4라운드.
+
+| 파일 | 내용 |
+|---|---|
+| `fable-{index.html,desktop.png,mobile.png}` | **Fable baseline 산출물** (html은 재렌더 가능한 원본, png는 심사자가 본 실제 화면) |
+| `sonnet-base-*` / `sonnet-design-boost-*` | 같은 브리프의 Sonnet 대조군 (3라운드 산출물) |
+| `pairwise-verdicts.jsonl` | 이 과제의 교차 심사 판정 4건 (심사자·승자·마진·근거) |
+| `gen-metrics.jsonl` | 세 후보의 생성 메트릭 (턴·토큰·비용·오버플로) |
+
+재심사 예 (새 스킬 버전과 붙여보기): `.\judge-pairs.ps1 -PairsFile <새 쌍 명세>` — dir에 desktop.png/mobile.png만 있으면 됨.
+
 ### `algo-max-points/` — 알고리즘 추론 과제 (실험 8·10)
 delete-and-earn ±2 변형(±1 습관이면 hidden 실패). 전 모델이 정답에 도달하나 **Fable이 최소 토큰(2,678)으로 가장 간결·우아하게** 해결.
 

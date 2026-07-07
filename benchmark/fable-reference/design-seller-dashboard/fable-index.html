@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>해녀마켓 · 판매자 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Gowun+Batang:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f7f7;
+    --surface:#ffffff;
+    --ink:#12333a;
+    --ink-soft:#5c7a80;
+    --line:#e2eaea;
+    --deep:#0e4f5c;      /* 깊은 바다 */
+    --deep-2:#0a3d48;
+    --foam:#e8f4f2;      /* 물거품 */
+    --kelp:#2e8b6e;      /* 미역 초록 */
+    --coral:#e2593e;     /* 산호 - 경고 */
+    --amber:#d98a1f;     /* 주의 */
+    --tang:#f2a63b;      /* 감귤 포인트 */
+    --radius:14px;
+    --shadow:0 1px 2px rgba(14,79,92,.06),0 6px 20px rgba(14,79,92,.07);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'IBM Plex Sans KR',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* ===== 레이아웃 ===== */
+  .shell{display:grid;grid-template-columns:224px 1fr;min-height:100vh}
+  .sidebar{
+    background:linear-gradient(180deg,var(--deep) 0%,var(--deep-2) 100%);
+    color:#dcecec;
+    padding:24px 16px;
+    display:flex;flex-direction:column;gap:4px;
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{
+    font-family:'Gowun Batang',serif;
+    font-size:21px;color:#fff;
+    display:flex;align-items:center;gap:10px;
+    padding:4px 10px 22px;
+  }
+  .brand svg{flex:none}
+  .nav-label{font-size:11px;letter-spacing:.14em;color:#7fa8ad;padding:14px 12px 6px}
+  .nav a{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 12px;border-radius:9px;font-size:14px;color:#c3dadd;
+  }
+  .nav a.active{background:rgba(255,255,255,.13);color:#fff;font-weight:600}
+  .nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+  .nav .badge{margin-left:auto;background:var(--coral);color:#fff;font-size:11px;font-weight:600;border-radius:99px;padding:1px 7px}
+  .sidebar-foot{margin-top:auto;padding:12px;border-top:1px solid rgba(255,255,255,.12);font-size:12px;color:#8fb3b8;line-height:1.6}
+
+  main{padding:26px 30px 48px;max-width:1240px;width:100%}
+
+  /* ===== 헤더 ===== */
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+  .topbar h1{font-size:22px;font-weight:700}
+  .topbar .sub{font-size:13px;color:var(--ink-soft);margin-top:4px}
+  .seller-chip{
+    display:flex;align-items:center;gap:10px;background:var(--surface);
+    border:1px solid var(--line);border-radius:99px;padding:6px 14px 6px 6px;
+    box-shadow:var(--shadow);font-size:13px;
+  }
+  .seller-chip .avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,var(--kelp),var(--deep));
+    color:#fff;display:grid;place-items:center;font-weight:600;font-size:13px;
+  }
+  .seller-chip b{display:block;font-size:13px}
+  .seller-chip span{display:block;font-size:11px;color:var(--ink-soft)}
+  .weather{
+    display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);
+    background:var(--foam);border-radius:99px;padding:7px 14px;
+  }
+  .weather b{color:var(--deep)}
+
+  /* ===== 카드 공통 ===== */
+  .card{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+  }
+  .card-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    padding:18px 20px 0;
+  }
+  .card-head h2{font-size:15px;font-weight:600}
+  .card-head .hint{font-size:12px;color:var(--ink-soft)}
+
+  /* ===== KPI ===== */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+  .kpi{padding:18px 20px;position:relative;overflow:hidden}
+  .kpi .label{font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:6px}
+  .kpi .value{font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-.02em}
+  .kpi .value small{font-size:14px;font-weight:500;color:var(--ink-soft);margin-left:2px}
+  .kpi .delta{font-size:12px;margin-top:6px;display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:2px 7px;font-weight:600}
+  .delta.up{color:var(--kelp);background:#e7f4ee}
+  .delta.down{color:var(--coral);background:#fceee9}
+  .delta .vs{font-weight:400;color:var(--ink-soft)}
+  .kpi .ico{
+    position:absolute;right:14px;top:14px;width:38px;height:38px;border-radius:10px;
+    display:grid;place-items:center;background:var(--foam);color:var(--deep);
+  }
+
+  .grid-mid{display:grid;grid-template-columns:1.7fr 1fr;gap:14px;margin-bottom:16px}
+  .grid-bot{display:grid;grid-template-columns:1.35fr 1fr;gap:14px}
+
+  /* ===== 차트 ===== */
+  .chart-wrap{padding:8px 14px 14px}
+  .legend{display:flex;gap:14px;font-size:12px;color:var(--ink-soft)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  #chart{width:100%;height:auto;display:block}
+  .bar{transition:opacity .15s}
+  .bar-g:hover .bar{opacity:.75}
+  .tip{
+    position:fixed;pointer-events:none;z-index:30;background:var(--deep-2);color:#fff;
+    font-size:12px;border-radius:8px;padding:8px 11px;line-height:1.55;
+    opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);white-space:nowrap;
+  }
+  .tip.show{opacity:1;transform:translateY(0)}
+  .tip b{color:#ffd489}
+
+  /* ===== TOP5 ===== */
+  .top5{padding:6px 20px 18px}
+  .top5 li{
+    list-style:none;display:grid;grid-template-columns:26px 1fr auto;gap:12px;
+    align-items:center;padding:11px 0;border-bottom:1px solid var(--line);
+  }
+  .top5 li:last-child{border-bottom:none}
+  .rank{
+    width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+    font-size:13px;font-weight:700;background:var(--foam);color:var(--deep);
+  }
+  .top5 li:first-child .rank{background:var(--deep);color:#fff}
+  .p-name{font-size:14px;font-weight:500}
+  .p-meta{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .p-amount{font-size:14px;font-weight:600;text-align:right}
+  .p-bar{height:4px;border-radius:99px;background:var(--foam);margin-top:6px;overflow:hidden;grid-column:2/4}
+  .p-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--kelp),var(--deep))}
+
+  /* ===== 파이프라인 ===== */
+  .pipe{padding:16px 20px 20px}
+  .pipe-track{display:flex;height:12px;border-radius:99px;overflow:hidden;margin:6px 0 18px;background:var(--foam)}
+  .pipe-track i{height:100%}
+  .pipe-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .step{
+    border:1px solid var(--line);border-radius:11px;padding:12px;
+    display:flex;flex-direction:column;gap:4px;position:relative;
+  }
+  .step .dot{width:9px;height:9px;border-radius:50%;position:absolute;top:14px;right:12px}
+  .step .n{font-size:21px;font-weight:700}
+  .step .t{font-size:12px;color:var(--ink-soft)}
+  .step .s{font-size:11px;color:var(--ink-soft)}
+  .step.alert{border-color:#f3cbbf;background:#fdf6f3}
+  .step.alert .s{color:var(--coral);font-weight:600}
+
+  /* ===== 재고 알림 ===== */
+  .stock{padding:6px 20px 18px}
+  .stock li{
+    list-style:none;display:flex;align-items:center;gap:12px;
+    padding:12px 0;border-bottom:1px solid var(--line);
+  }
+  .stock li:last-child{border-bottom:none}
+  .lvl{
+    flex:none;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+    font-size:12px;font-weight:700;
+  }
+  .lvl.crit{background:#fceee9;color:var(--coral)}
+  .lvl.warn{background:#fbf1df;color:var(--amber)}
+  .stock .s-name{font-size:14px;font-weight:500}
+  .stock .s-meta{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .stock .act{
+    margin-left:auto;flex:none;font-size:12px;font-weight:600;color:var(--deep);
+    border:1px solid var(--line);border-radius:8px;padding:6px 12px;background:#fff;cursor:pointer;
+    font-family:inherit;
+  }
+  .stock .act:hover{background:var(--foam)}
+  .tag{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+  .tag.crit{background:var(--coral);color:#fff}
+  .tag.warn{background:var(--amber);color:#fff}
+
+  footer{margin-top:28px;font-size:12px;color:var(--ink-soft);text-align:center}
+
+  @media(max-width:1080px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid-mid,.grid-bot{grid-template-columns:1fr}
+    .pipe-steps{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:760px){
+    .shell{grid-template-columns:1fr}
+    .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center}
+    .nav,.nav-label,.sidebar-foot{display:none}
+    main{padding:18px 16px 40px}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ===== 사이드바 ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <circle cx="13" cy="13" r="12" stroke="#7fd4c8" stroke-width="2"/>
+        <path d="M4 15c2.5-2.6 5-2.6 7.5 0s5 2.6 7.5 0 3-2 3-2" stroke="#f2a63b" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 10c2.5-2.6 5-2.6 7.5 0s5 2.6 7.5 0" stroke="#7fd4c8" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      해녀마켓
+    </div>
+    <div class="nav-label">판매 관리</div>
+    <nav class="nav">
+      <a class="active" href="#">📊 대시보드</a>
+      <a href="#">🧾 주문 관리 <span class="badge">12</span></a>
+      <a href="#">🐟 상품 관리</a>
+      <a href="#">📦 재고·물류</a>
+    </nav>
+    <div class="nav-label">정산</div>
+    <nav class="nav">
+      <a href="#">💰 정산 내역</a>
+      <a href="#">⭐ 리뷰 관리</a>
+      <a href="#">⚙️ 설정</a>
+    </nav>
+    <div class="sidebar-foot">
+      성산포 수협 공판장 연동<br>오늘 물때 · 7물 (조금)
+    </div>
+  </aside>
+
+  <!-- ===== 본문 ===== -->
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>좋은 아침입니다, 고순옥 해녀님 🌊</h1>
+        <div class="sub">2026년 7월 7일 (화) · 오늘 새벽 물질 수확분 판매 현황입니다</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div class="weather">🌤️ 성산포 <b>26℃</b> · 파고 0.5m · 출항 적합</div>
+        <div class="seller-chip">
+          <div class="avatar">고</div>
+          <div><b>고순옥 상회</b><span>제주 서귀포시 성산읍</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <section class="kpis">
+      <div class="card kpi">
+        <div class="label">오늘 주문</div>
+        <div class="value">47<small>건</small></div>
+        <span class="delta up">▲ 12.5% <span class="vs">어제 대비</span></span>
+        <div class="ico">🧾</div>
+      </div>
+      <div class="card kpi">
+        <div class="label">오늘 매출</div>
+        <div class="value">2,184,000<small>원</small></div>
+        <span class="delta up">▲ 8.3% <span class="vs">어제 대비</span></span>
+        <div class="ico">💰</div>
+      </div>
+      <div class="card kpi">
+        <div class="label">평균 주문 금액</div>
+        <div class="value">46,468<small>원</small></div>
+        <span class="delta down">▼ 3.7% <span class="vs">어제 대비</span></span>
+        <div class="ico">🧮</div>
+      </div>
+      <div class="card kpi">
+        <div class="label">신규 리뷰 · 평점</div>
+        <div class="value">9<small>건 · ★4.9</small></div>
+        <span class="delta up">▲ 3건 <span class="vs">어제 대비</span></span>
+        <div class="ico">⭐</div>
+      </div>
+    </section>
+
+    <!-- 주간 매출 + TOP5 -->
+    <section class="grid-mid">
+      <div class="card">
+        <div class="card-head">
+          <h2>주간 매출 추이</h2>
+          <div class="legend"><span><i style="background:var(--deep)"></i>이번 주</span><span><i style="background:#c9dcdc"></i>지난 주</span></div>
+        </div>
+        <div class="chart-wrap"><svg id="chart" viewBox="0 0 640 260" role="img" aria-label="주간 매출 막대 차트"></svg></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>인기 상품 TOP 5</h2>
+          <div class="hint">오늘 판매액 기준</div>
+        </div>
+        <ul class="top5" id="top5"></ul>
+      </div>
+    </section>
+
+    <!-- 파이프라인 + 재고 -->
+    <section class="grid-bot">
+      <div class="card">
+        <div class="card-head">
+          <h2>주문 처리 현황</h2>
+          <div class="hint">오늘 47건 · 당일 출고 마감 16:00</div>
+        </div>
+        <div class="pipe">
+          <div class="pipe-track" id="pipeTrack"></div>
+          <div class="pipe-steps" id="pipeSteps"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>재고 부족 알림</h2>
+          <div class="hint">기준: 안전재고 미만</div>
+        </div>
+        <ul class="stock" id="stock"></ul>
+      </div>
+    </section>
+
+    <footer>해녀마켓 판매자센터 · 제주특별자치도 서귀포시 성산읍 · 데이터 기준 2026-07-07 10:30</footer>
+  </main>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const fmt = n => n.toLocaleString('ko-KR');
+
+/* ===== 주간 매출 차트 ===== */
+const week = [
+  {d:'월 7/1', cur:1520000, prev:1310000},
+  {d:'화 7/2', cur:1780000, prev:1620000},
+  {d:'수 7/3', cur:1350000, prev:1490000},
+  {d:'목 7/4', cur:2010000, prev:1700000},
+  {d:'금 7/5', cur:2460000, prev:2180000},
+  {d:'토 7/6', cur:2890000, prev:2520000},
+  {d:'일 7/7', cur:2184000, prev:1950000},
+];
+(function(){
+  const svg = document.getElementById('chart');
+  const W=640,H=260,padL=52,padB=30,padT=14;
+  const max = 3000000;
+  const iw=(W-padL-16)/week.length;
+  let s='';
+  // 가로 눈금
+  for(let v=0; v<=max; v+=1000000){
+    const y=padT+(H-padT-padB)*(1-v/max);
+    s+=`<line x1="${padL}" y1="${y}" x2="${W-8}" y2="${y}" stroke="#e2eaea"/>`;
+    s+=`<text x="${padL-8}" y="${y+4}" text-anchor="end" font-size="11" fill="#5c7a80">${v/10000}만</text>`;
+  }
+  week.forEach((w,i)=>{
+    const x=padL+iw*i;
+    const bw=Math.min(22,iw*0.28);
+    const hCur=(H-padT-padB)*w.cur/max, hPrev=(H-padT-padB)*w.prev/max;
+    const cx=x+iw/2;
+    s+=`<g class="bar-g" data-i="${i}">
+      <rect class="bar" x="${cx-bw-3}" y="${H-padB-hPrev}" width="${bw}" height="${hPrev}" rx="4" fill="#c9dcdc"/>
+      <rect class="bar" x="${cx+3}" y="${H-padB-hCur}" width="${bw}" height="${hCur}" rx="4" fill="#0e4f5c"/>
+      <rect x="${x}" y="${padT}" width="${iw}" height="${H-padT-padB}" fill="transparent"/>
+      <text x="${cx}" y="${H-9}" text-anchor="middle" font-size="11" fill="#5c7a80">${w.d}</text>
+    </g>`;
+  });
+  svg.innerHTML=s;
+
+  const tip=document.getElementById('tip');
+  svg.addEventListener('mousemove',e=>{
+    const g=e.target.closest('.bar-g');
+    if(!g){tip.classList.remove('show');return;}
+    const w=week[+g.dataset.i];
+    const diff=w.cur-w.prev, sign=diff>=0?'▲':'▼';
+    tip.innerHTML=`${w.d}<br>이번 주 <b>${fmt(w.cur)}원</b><br>지난 주 ${fmt(w.prev)}원 (${sign} ${fmt(Math.abs(diff))}원)`;
+    tip.style.left=(e.clientX+14)+'px';
+    tip.style.top=(e.clientY-10)+'px';
+    tip.classList.add('show');
+  });
+  svg.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+})();
+
+/* ===== TOP 5 상품 ===== */
+const top5=[
+  {name:'제주 자연산 활전복 (대) 1kg', qty:18, amt:594000},
+  {name:'성산포 당일 채취 뿔소라 2kg', qty:15, amt:405000},
+  {name:'제주 은갈치 (생물) 3미', qty:9,  amt:342000},
+  {name:'해녀 직채 성게알 100g', qty:7,  amt:266000},
+  {name:'우도 자연산 홍해삼 500g', qty:6,  amt:192000},
+];
+document.getElementById('top5').innerHTML = top5.map((p,i)=>{
+  const pct=Math.round(p.amt/top5[0].amt*100);
+  return `<li>
+    <div class="rank">${i+1}</div>
+    <div><div class="p-name">${p.name}</div><div class="p-meta">${p.qty}건 판매</div></div>
+    <div class="p-amount">${fmt(p.amt)}원</div>
+    <div class="p-bar"><i style="width:${pct}%"></i></div>
+  </li>`;
+}).join('');
+
+/* ===== 주문 파이프라인 ===== */
+const pipe=[
+  {t:'신규 주문',   n:12, c:'#e2593e', s:'확인 대기', alert:true},
+  {t:'상품 준비중', n:9,  c:'#d98a1f', s:'포장·손질 중'},
+  {t:'배송 준비',   n:7,  c:'#f2a63b', s:'송장 출력 완료'},
+  {t:'배송중',      n:11, c:'#2e8b6e', s:'항공·냉장 직송'},
+  {t:'배송 완료',   n:8,  c:'#0e4f5c', s:'오늘 누적'},
+];
+const total=pipe.reduce((a,b)=>a+b.n,0);
+document.getElementById('pipeTrack').innerHTML =
+  pipe.map(p=>`<i style="width:${p.n/total*100}%;background:${p.c}"></i>`).join('');
+document.getElementById('pipeSteps').innerHTML =
+  pipe.map(p=>`<div class="step${p.alert?' alert':''}">
+    <span class="dot" style="background:${p.c}"></span>
+    <span class="n">${p.n}<small style="font-size:12px;font-weight:400;color:#5c7a80">건</small></span>
+    <span class="t">${p.t}</span><span class="s">${p.s}</span>
+  </div>`).join('');
+
+/* ===== 재고 부족 알림 ===== */
+const stock=[
+  {name:'해녀 직채 성게알 100g', left:3,  safe:15, lvl:'crit', note:'오늘 물질 수확분 소진 임박'},
+  {name:'제주 자연산 활전복 (대) 1kg', left:6, safe:20, lvl:'crit', note:'주문 급증 · 내일 입고 예정'},
+  {name:'우도 자연산 홍해삼 500g', left:9, safe:15, lvl:'warn', note:'채취 가능 시기 확인 필요'},
+  {name:'구좌 당일 손질 문어 1마리', left:11, safe:18, lvl:'warn', note:'냉장 보관 12시간 경과'},
+];
+document.getElementById('stock').innerHTML = stock.map(s=>`<li>
+  <div class="lvl ${s.lvl}">${s.left}</div>
+  <div>
+    <div class="s-name">${s.name}<span class="tag ${s.lvl}">${s.lvl==='crit'?'긴급':'주의'}</span></div>
+    <div class="s-meta">잔여 ${s.left}개 / 안전재고 ${s.safe}개 · ${s.note}</div>
+  </div>
+  <button class="act" onclick="alert('${s.name}\\n재입고 알림을 등록했습니다.')">재입고 설정</button>
+</li>`).join('');
+</script>
+</body>
+</html>

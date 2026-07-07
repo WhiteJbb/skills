@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>활자집 Hwalja House — 서울 활자 주조소</title>
+<meta name="description" content="1984년부터 서울 을지로에서 한글 활자를 손으로 주조해온 3대 활자 주조소. 클래식 활자체의 디지털 복각을 판매합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;500;600;700&family=Gothic+A1:wght@300;400;500;700;900&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#211d1a;
+    --paper:#f3ead9;
+    --paper-deep:#e9dcc2;
+    --indigo:#2c3a63;
+    --indigo-deep:#1c2745;
+    --copper:#b08558;
+    --line: rgba(33,29,26,0.14);
+    --shadow: rgba(33,29,26,0.18);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Gothic A1', sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.serif{ font-family:'Hahmlet', serif; }
+  .mono{ font-family:'Fira Mono', monospace; letter-spacing:0.02em; }
+  a{ color:inherit; }
+  img{max-width:100%;display:block;}
+  .wrap{ max-width:1160px; margin:0 auto; padding:0 32px; }
+
+  /* NAV */
+  header.site{
+    position:sticky; top:0; z-index:50;
+    background:rgba(243,234,217,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px; max-width:1160px; margin:0 auto;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Hahmlet',serif; font-weight:700; font-size:1.25rem;
+    text-decoration:none;
+  }
+  .brand small{
+    display:block; font-family:'Fira Mono',monospace; font-weight:400;
+    font-size:0.6rem; letter-spacing:0.12em; color:var(--indigo); margin-top:2px;
+  }
+  .navlinks{ display:flex; gap:34px; list-style:none; margin:0; padding:0; }
+  .navlinks a{
+    text-decoration:none; font-size:0.94rem; font-weight:500; color:var(--ink);
+    position:relative; padding-bottom:4px;
+  }
+  .navlinks a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:2px;
+    background:var(--indigo); transition:width .25s ease;
+  }
+  .navlinks a:hover::after{ width:100%; }
+  .navcta{
+    background:var(--indigo); color:var(--paper); border:none;
+    padding:10px 20px; font-family:'Fira Mono',monospace; font-size:0.82rem;
+    text-decoration:none; cursor:pointer;
+  }
+  .navcta:hover{ background:var(--indigo-deep); }
+  .mobile-toggle{ display:none; }
+
+  /* HERO */
+  .hero{
+    padding:88px 0 60px;
+    position:relative;
+  }
+  .hero .wrap{
+    display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center;
+  }
+  .kicker{
+    font-family:'Fira Mono',monospace; font-size:0.78rem; letter-spacing:0.18em;
+    color:var(--indigo); text-transform:uppercase; margin:0 0 18px;
+  }
+  .hero h1{
+    font-size:3.4rem; line-height:1.16; margin:0 0 22px; font-weight:600;
+  }
+  .hero h1 em{ font-style:normal; color:var(--indigo); }
+  .hero p.lead{
+    font-size:1.08rem; max-width:46ch; color:#4a453e; margin:0 0 32px;
+  }
+  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{
+    display:inline-block; padding:14px 26px; text-decoration:none;
+    font-weight:600; font-size:0.95rem; border:1.5px solid var(--ink);
+    transition:all .2s ease;
+  }
+  .btn-primary{ background:var(--ink); color:var(--paper); }
+  .btn-primary:hover{ background:var(--indigo); border-color:var(--indigo); }
+  .btn-ghost{ background:transparent; color:var(--ink); }
+  .btn-ghost:hover{ background:var(--ink); color:var(--paper); }
+
+  /* HERO PUNCH ANIMATION */
+  .press-stage{
+    position:relative; height:420px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .press-frame{
+    position:relative; width:100%; max-width:340px; height:100%;
+  }
+  .rail{
+    position:absolute; left:50%; top:0; transform:translateX(-50%);
+    width:4px; height:150px; background:linear-gradient(var(--copper), transparent);
+    opacity:0.5;
+  }
+  .punch{
+    position:absolute; left:50%; top:6px; transform:translate(-50%, 0);
+    width:34px; animation: punchDrop 3.4s cubic-bezier(.6,0,.4,1) infinite;
+  }
+  .punch-body{
+    width:34px; height:150px; background:linear-gradient(180deg,#8c8b89,#4c4b49 70%,#2c2b2a);
+    clip-path: polygon(50% 0%, 100% 12%, 100% 100%, 0% 100%, 0% 12%);
+    box-shadow: 2px 0 6px rgba(0,0,0,0.25);
+  }
+  .anvil{
+    position:absolute; left:50%; bottom:88px; transform:translateX(-50%);
+    width:220px; height:70px;
+    background:linear-gradient(180deg,#c79a68,var(--copper) 40%,#8f6a41);
+    border:1px solid rgba(0,0,0,0.2);
+    box-shadow: 0 18px 30px -12px rgba(33,29,26,0.45), inset 0 2px 0 rgba(255,255,255,0.35);
+  }
+  .glyph-stamp{
+    position:absolute; left:50%; bottom:88px; transform:translate(-50%,-46px);
+    font-family:'Hahmlet',serif; font-weight:700; font-size:2.6rem;
+    color:#6b4a24;
+    opacity:0; text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    animation: glyphReveal 3.4s ease infinite;
+  }
+  .spark{
+    position:absolute; left:50%; bottom:156px; transform:translate(-50%,-50%);
+    width:8px; height:8px; border-radius:50%;
+    background:radial-gradient(circle, #ffe6b0, transparent 70%);
+    opacity:0; animation: sparkPop 3.4s ease infinite;
+  }
+  .base-shadow{
+    position:absolute; left:50%; bottom:60px; transform:translateX(-50%);
+    width:260px; height:22px; border-radius:50%;
+    background:radial-gradient(ellipse, rgba(33,29,26,0.28), transparent 70%);
+  }
+  .press-caption{
+    position:absolute; bottom:16px; left:0; right:0; text-align:center;
+    font-family:'Fira Mono',monospace; font-size:0.72rem; letter-spacing:0.08em;
+    color:#8a8378;
+  }
+  @keyframes punchDrop{
+    0%, 8%   { top:6px; }
+    22%      { top:150px; }
+    26%      { top:140px; }
+    30%, 100%{ top:6px; }
+  }
+  @keyframes glyphReveal{
+    0%, 24% { opacity:0; }
+    27%     { opacity:1; }
+    88%     { opacity:1; }
+    100%    { opacity:0; }
+  }
+  @keyframes sparkPop{
+    0%, 21%{ opacity:0; transform:translate(-50%,-50%) scale(0.4); }
+    24%    { opacity:1; transform:translate(-50%,-50%) scale(1.6); }
+    34%    { opacity:0; transform:translate(-50%,-50%) scale(2.4); }
+    100%   { opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .punch, .glyph-stamp, .spark{ animation:none; }
+    .glyph-stamp{ opacity:1; }
+    .punch{ top:6px; }
+  }
+
+  /* STAT STRIP */
+  .stats{
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    background:var(--paper-deep);
+  }
+  .stats .wrap{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+    padding:34px 32px;
+  }
+  .stat{ text-align:center; border-left:1px solid var(--line); padding:0 12px; }
+  .stat:first-child{ border-left:none; }
+  .stat .num{ font-family:'Fira Mono',monospace; font-size:1.9rem; color:var(--indigo); }
+  .stat .label{ font-size:0.82rem; color:#5b5648; margin-top:4px; }
+
+  /* SECTION GENERIC */
+  section{ padding:96px 0; }
+  .section-head{ max-width:640px; margin:0 0 52px; }
+  .section-head .kicker{ margin-bottom:14px; }
+  .section-head h2{ font-size:2.1rem; margin:0 0 16px; font-weight:600; }
+  .section-head p{ color:#4a453e; margin:0; }
+
+  /* ABOUT */
+  .about .wrap{ display:grid; grid-template-columns:0.9fr 1.1fr; gap:64px; align-items:center; }
+  .about-art{
+    aspect-ratio: 4/5; position:relative; border:1px solid var(--line);
+    background:
+      repeating-linear-gradient(0deg, rgba(44,58,99,0.06) 0 2px, transparent 2px 26px),
+      linear-gradient(160deg, #ded0ae, #c7b285 60%, #a98a5c);
+  }
+  .about-art::after{
+    content:'活字'; position:absolute; inset:0; display:flex; align-items:center;
+    justify-content:center; font-family:'Hahmlet',serif; font-size:6rem; font-weight:700;
+    color:rgba(33,29,26,0.16);
+  }
+  .about-body p{ color:#3d3930; margin:0 0 18px; }
+  .about-body p:last-child{ margin-bottom:0; }
+  .signature{
+    margin-top:28px; font-family:'Hahmlet',serif; font-size:1.05rem;
+    color:var(--indigo); border-left:3px solid var(--indigo); padding-left:16px;
+  }
+
+  /* PROCESS */
+  .process{ background:var(--ink); color:var(--paper); }
+  .process .section-head h2, .process .kicker{ color:var(--paper); }
+  .process .kicker{ color:#c9a26a; }
+  .process .section-head p{ color:#c8c2b6; }
+  .steps{
+    display:grid; grid-template-columns:repeat(5,1fr); gap:0;
+    border-top:1px solid rgba(243,234,217,0.18);
+  }
+  .step{
+    padding:30px 18px 0; border-left:1px solid rgba(243,234,217,0.18);
+    position:relative;
+  }
+  .step:first-child{ border-left:none; }
+  .step .n{
+    font-family:'Fira Mono',monospace; font-size:0.78rem; color:#c9a26a;
+    display:block; margin-bottom:14px;
+  }
+  .step h3{ font-size:1.05rem; margin:0 0 10px; font-weight:600; }
+  .step p{ font-size:0.88rem; color:#b7b0a2; margin:0 0 30px; }
+  .step-arrow{
+    position:absolute; right:-9px; top:36px; width:16px; height:16px;
+    border-top:1px solid rgba(243,234,217,0.35); border-right:1px solid rgba(243,234,217,0.35);
+    transform:rotate(45deg); z-index:2; background:var(--ink);
+  }
+  .step:last-child .step-arrow{ display:none; }
+
+  /* TYPEFACES */
+  .type-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  .type-card{
+    background:var(--paper); padding:34px 30px; display:flex; flex-direction:column;
+    min-height:280px;
+  }
+  .type-card .sample{
+    font-family:'Hahmlet',serif; font-size:2.6rem; line-height:1.1; margin:0 0 auto;
+    color:var(--ink);
+  }
+  .type-card.style-b .sample{ font-weight:300; letter-spacing:0.02em; }
+  .type-card.style-c .sample{ font-weight:700; font-style:normal; transform:scale(1,1.05); transform-origin:left; }
+  .type-meta{ margin-top:22px; }
+  .type-meta h3{ font-size:1.05rem; margin:0 0 6px; }
+  .type-meta p{ font-size:0.85rem; color:#6b6559; margin:0 0 16px; }
+  .type-meta .row{ display:flex; align-items:center; justify-content:space-between; }
+  .price{ font-family:'Fira Mono',monospace; font-size:0.85rem; color:var(--indigo); }
+  .dl{
+    font-family:'Fira Mono',monospace; font-size:0.78rem; text-decoration:none;
+    border-bottom:1px solid var(--ink); color:var(--ink); padding-bottom:2px;
+  }
+  .dl:hover{ color:var(--indigo); border-color:var(--indigo); }
+
+  /* VISIT */
+  .visit .wrap{ display:grid; grid-template-columns:1fr 1fr; gap:64px; }
+  .visit-map{
+    aspect-ratio:4/3; border:1px solid var(--line);
+    background:
+      linear-gradient(0deg, transparent 24%, rgba(44,58,99,0.08) 25%, rgba(44,58,99,0.08) 26%, transparent 27%, transparent 74%, rgba(44,58,99,0.08) 75%, rgba(44,58,99,0.08) 76%, transparent 77%),
+      linear-gradient(90deg, transparent 24%, rgba(44,58,99,0.08) 25%, rgba(44,58,99,0.08) 26%, transparent 27%, transparent 74%, rgba(44,58,99,0.08) 75%, rgba(44,58,99,0.08) 76%, transparent 77%),
+      var(--paper-deep);
+    position:relative;
+  }
+  .visit-map .pin{
+    position:absolute; left:52%; top:44%; width:14px; height:14px;
+    background:var(--indigo); border-radius:50% 50% 50% 0; transform:rotate(-45deg);
+    box-shadow:0 0 0 6px rgba(44,58,99,0.15);
+  }
+  .visit-list{ list-style:none; margin:0; padding:0; }
+  .visit-list li{
+    display:grid; grid-template-columns:110px 1fr; gap:16px; padding:16px 0;
+    border-bottom:1px solid var(--line); font-size:0.95rem;
+  }
+  .visit-list li:first-child{ padding-top:0; }
+  .visit-list .k{ font-family:'Fira Mono',monospace; font-size:0.78rem; color:#8a8378; text-transform:uppercase; letter-spacing:0.06em; }
+
+  /* NEWSLETTER */
+  .signup{ background:var(--paper-deep); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .signup .wrap{
+    display:flex; align-items:center; justify-content:space-between; gap:40px; flex-wrap:wrap;
+    padding:56px 32px;
+  }
+  .signup h2{ font-size:1.6rem; margin:0 0 8px; }
+  .signup p{ margin:0; color:#4a453e; max-width:40ch; }
+  form.signup-form{ display:flex; gap:0; flex:0 0 auto; }
+  form.signup-form input[type="email"]{
+    font-family:'Fira Mono',monospace; font-size:0.88rem;
+    padding:14px 16px; border:1.5px solid var(--ink); border-right:none;
+    background:var(--paper); color:var(--ink); width:260px;
+  }
+  form.signup-form input[type="email"]:focus{ outline:none; }
+  form.signup-form button{
+    font-family:'Fira Mono',monospace; font-size:0.85rem; font-weight:500;
+    padding:14px 22px; border:1.5px solid var(--ink); background:var(--ink); color:var(--paper);
+    cursor:pointer;
+  }
+  form.signup-form button:hover{ background:var(--indigo); border-color:var(--indigo); }
+  .form-note{ width:100%; font-size:0.78rem; color:var(--indigo); margin-top:10px; font-family:'Fira Mono',monospace; }
+
+  /* FOOTER */
+  footer{ padding:56px 0 40px; }
+  footer .wrap{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:32px; }
+  footer h4{ font-size:0.82rem; letter-spacing:0.08em; text-transform:uppercase; color:#8a8378; margin:0 0 16px; font-family:'Fira Mono',monospace;}
+  footer ul{ list-style:none; margin:0; padding:0; }
+  footer li{ margin-bottom:9px; font-size:0.92rem; }
+  footer a{ text-decoration:none; }
+  footer a:hover{ color:var(--indigo); }
+  .foot-bottom{
+    max-width:1160px; margin:40px auto 0; padding:20px 32px 0; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; font-size:0.8rem; color:#8a8378;
+    font-family:'Fira Mono',monospace; flex-wrap:wrap; gap:10px;
+  }
+
+  @media (max-width: 980px){
+    .hero .wrap{ grid-template-columns:1fr; }
+    .about .wrap{ grid-template-columns:1fr; }
+    .about-art{ aspect-ratio:16/9; }
+    .steps{ grid-template-columns:repeat(2,1fr); }
+    .step{ border-left:none; border-top:1px solid rgba(243,234,217,0.18); padding-top:24px; }
+    .step:first-child{ border-top:none; }
+    .step-arrow{ display:none; }
+    .type-grid{ grid-template-columns:1fr; }
+    .visit .wrap{ grid-template-columns:1fr; }
+    .stats .wrap{ grid-template-columns:repeat(2,1fr); row-gap:24px; }
+    .stat:nth-child(3){ border-left:none; }
+    footer .wrap{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 640px){
+    .navlinks{ display:none; }
+    .hero h1{ font-size:2.4rem; }
+    .wrap{ padding:0 20px; }
+    form.signup-form{ width:100%; }
+    form.signup-form input[type="email"]{ width:100%; flex:1; }
+    .signup .wrap{ padding:44px 20px; }
+    footer .wrap{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <nav>
+    <a class="brand" href="#top">
+      활자집
+      <small>HWALJA HOUSE EST. 1984</small>
+    </a>
+    <ul class="navlinks">
+      <li><a href="#about">소개</a></li>
+      <li><a href="#process">주조 공정</a></li>
+      <li><a href="#typefaces">활자체</a></li>
+      <li><a href="#visit">방문</a></li>
+    </ul>
+    <a class="navcta" href="#typefaces">서체 보기 →</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="kicker">서울 을지로 · 3대째 손주조</p>
+        <h1>손끝에서 태어나<br>화면으로 이어지는 <em>활자</em></h1>
+        <p class="lead">1984년 문을 연 활자집은 납활자를 한 벌 한 벌 손으로 주조해온 을지로의 마지막 활자 주조소 중 하나입니다. 이제 그 원도와 손맛을 그대로 옮긴 디지털 복각 서체를 만듭니다.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#typefaces">서체 컬렉션 보기</a>
+          <a class="btn btn-ghost" href="#process">주조 공정 알아보기</a>
+        </div>
+      </div>
+      <div class="press-stage" aria-hidden="true">
+        <div class="press-frame">
+          <div class="rail"></div>
+          <div class="punch"><div class="punch-body"></div></div>
+          <div class="spark"></div>
+          <div class="anvil"></div>
+          <div class="glyph-stamp">활</div>
+          <div class="base-shadow"></div>
+          <div class="press-caption">PUNCH → MATRIX → 활 (3.4s cycle)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="wrap">
+      <div class="stat"><div class="num">1984</div><div class="label">설립 연도</div></div>
+      <div class="stat"><div class="num">3대</div><div class="label">가업 계승</div></div>
+      <div class="stat"><div class="num">42</div><div class="label">보유 원도 서체</div></div>
+      <div class="stat"><div class="num">6,800+</div><div class="label">주조 완료 활자 벌수</div></div>
+    </div>
+  </div>
+
+  <section class="about" id="about">
+    <div class="wrap">
+      <div class="about-art"></div>
+      <div class="about-body">
+        <p class="kicker">우리 이야기</p>
+        <h2 class="serif" style="font-size:2rem;margin:0 0 20px;">활자가 남아있는 몇 안 되는 이유</h2>
+        <p>활자집은 1984년, 창업주 故 김성도 선생이 을지로 인쇄 골목 한켠에 차린 작은 주조소에서 시작했습니다. 활판 인쇄가 사양길에 접어든 뒤에도, 선생은 원도 하나하나를 지키며 활자를 부었습니다.</p>
+        <p>지금은 손자인 김도현 대표가 가업을 잇고 있습니다. 여전히 합금을 녹이고 어미자를 뜨는 재래식 공정을 그대로 두되, 그 결과물을 스캔하고 다듬어 디지털 서체로 되살리는 일을 함께 하고 있습니다. 활자체 하나하나에는 원래 주조된 날짜와 원도 작가의 이름이 남아 있습니다.</p>
+        <p class="signature">"활자는 눌러야 완성됩니다. 화면 안에서도 그 눌림의 감각은 지켜져야 한다고 믿습니다." — 김도현, 3대 대표</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="process" id="process">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">HOW IT'S CAST</p>
+        <h2>활자 한 벌이 완성되기까지</h2>
+        <p>원도를 그리는 순간부터 활자 케이스에 담기기까지, 다섯 단계는 40년 전과 크게 다르지 않습니다.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="n">01 / 원도</span>
+          <h3>글자 원형을 그리다</h3>
+          <p>손으로 획의 굵기와 흘림을 정하고 종이 위에 실제 크기로 원도를 그립니다.</p>
+          <div class="step-arrow"></div>
+        </div>
+        <div class="step">
+          <span class="n">02 / 어미자</span>
+          <h3>펀치를 새기다</h3>
+          <p>원도를 강철에 옮겨 새긴 뒤, 이 펀치로 구리 어미자(모형)를 찍어냅니다.</p>
+          <div class="step-arrow"></div>
+        </div>
+        <div class="step">
+          <span class="n">03 / 합금</span>
+          <h3>납·주석·안티몬을 녹이다</h3>
+          <p>정확한 비율로 배합한 합금을 섭씨 320도 안팎으로 녹여 주조를 준비합니다.</p>
+          <div class="step-arrow"></div>
+        </div>
+        <div class="step">
+          <span class="n">04 / 주조</span>
+          <h3>활자를 붓다</h3>
+          <p>어미자에 녹인 합금을 부어 한 벌 한 벌 활자를 찍어내는, 공정의 핵심 순간입니다.</p>
+          <div class="step-arrow"></div>
+        </div>
+        <div class="step">
+          <span class="n">05 / 마무리</span>
+          <h3>다듬고 채우다</h3>
+          <p>거스러미를 다듬고 높이를 맞춘 뒤 활자 케이스에 정렬해 넣으면 완성입니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="typefaces" id="typefaces">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">디지털 복각 서체</p>
+        <h2>주조소의 원도를 그대로 옮긴 서체</h2>
+        <p>모두 활자집 소장 원도를 스캔·복원해 만들었습니다. 개인 및 상업 라이선스로 다운로드하실 수 있습니다.</p>
+      </div>
+      <div class="type-grid">
+        <div class="type-card">
+          <div class="sample">을지 명조</div>
+          <div class="type-meta">
+            <h3>을지 명조 Ver. 1962</h3>
+            <p>1962년 원도 복원 · 본문용 명조체</p>
+            <div class="row"><span class="price mono">₩ 88,000 / 상업용</span><a class="dl" href="#">다운로드 →</a></div>
+          </div>
+        </div>
+        <div class="type-card style-b">
+          <div class="sample">청파 고딕</div>
+          <div class="type-meta">
+            <h3>청파 고딕 Ver. 1978</h3>
+            <p>1978년 원도 복원 · 얇은 획의 초기 고딕</p>
+            <div class="row"><span class="price mono">₩ 88,000 / 상업용</span><a class="dl" href="#">다운로드 →</a></div>
+          </div>
+        </div>
+        <div class="type-card style-c">
+          <div class="sample">인주 필사</div>
+          <div class="type-meta">
+            <h3>인주 필사 Ver. 1984</h3>
+            <p>창업 원년 원도 복원 · 손맛이 짙은 견출용</p>
+            <div class="row"><span class="price mono">₩ 120,000 / 상업용</span><a class="dl" href="#">다운로드 →</a></div>
+          </div>
+        </div>
+        <div class="type-card">
+          <div class="sample">해묵 세리프</div>
+          <div class="type-meta">
+            <h3>해묵 세리프 Ver. 1991</h3>
+            <p>1991년 원도 복원 · 신문 본문용 세리프</p>
+            <div class="row"><span class="price mono">₩ 88,000 / 상업용</span><a class="dl" href="#">다운로드 →</a></div>
+          </div>
+        </div>
+        <div class="type-card style-b">
+          <div class="sample">담연 고딕</div>
+          <div class="type-meta">
+            <h3>담연 고딕 Ver. 2004</h3>
+            <p>2004년 원도 복원 · 넓은 자폭의 정보용 고딕</p>
+            <div class="row"><span class="price mono">₩ 88,000 / 상업용</span><a class="dl" href="#">다운로드 →</a></div>
+          </div>
+        </div>
+        <div class="type-card style-c">
+          <div class="sample">활자집 견출</div>
+          <div class="type-meta">
+            <h3>활자집 견출 Ver. 2018</h3>
+            <p>3대 복원 · 굵고 강한 제목용 견출체</p>
+            <div class="row"><span class="price mono">₩ 96,000 / 상업용</span><a class="dl" href="#">다운로드 →</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="visit" id="visit">
+    <div class="wrap">
+      <div>
+        <div class="section-head" style="margin-bottom:32px;">
+          <p class="kicker">방문 안내</p>
+          <h2>주조소를 직접 둘러보세요</h2>
+          <p>예약하시면 원도실과 주조 작업장을 함께 보여드립니다. 소요 시간은 약 40분입니다.</p>
+        </div>
+        <ul class="visit-list">
+          <li><span class="k">주소</span><span>서울특별시 중구 을지로 12길 4, 활자집</span></li>
+          <li><span class="k">운영시간</span><span>화–토 10:00–18:00 (일·월 휴무)</span></li>
+          <li><span class="k">견학 예약</span><span>전화 02-2266-XXXX 또는 이메일 예약</span></li>
+          <li><span class="k">이메일</span><span>hello@hwaljahouse.kr</span></li>
+        </ul>
+      </div>
+      <div class="visit-map" aria-hidden="true"><div class="pin"></div></div>
+    </div>
+  </section>
+
+  <div class="signup">
+    <div class="wrap">
+      <div>
+        <h2 class="serif">새 서체 소식을 받아보세요</h2>
+        <p>새 원도가 복원될 때마다, 한 달에 한 번 정도만 소식을 보내드립니다.</p>
+      </div>
+      <div>
+        <form class="signup-form" id="signupForm">
+          <input type="email" id="signupEmail" placeholder="you@email.com" required aria-label="이메일 주소">
+          <button type="submit">구독하기</button>
+        </form>
+        <div class="form-note" id="signupNote" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top" style="margin-bottom:14px;">활자집<small>HWALJA HOUSE EST. 1984</small></a>
+      <p style="color:#6b6559; font-size:0.9rem; max-width:34ch; margin-top:14px;">서울 을지로에서 40년째 활자를 손으로 짓는 3대 활자 주조소입니다.</p>
+    </div>
+    <div>
+      <h4>둘러보기</h4>
+      <ul>
+        <li><a href="#about">소개</a></li>
+        <li><a href="#process">주조 공정</a></li>
+        <li><a href="#typefaces">활자체</a></li>
+        <li><a href="#visit">방문</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>서체 라이선스</h4>
+      <ul>
+        <li><a href="#">개인용 라이선스</a></li>
+        <li><a href="#">상업용 라이선스</a></li>
+        <li><a href="#">주문 제작 문의</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>연락처</h4>
+      <ul>
+        <li><a href="mailto:hello@hwaljahouse.kr">hello@hwaljahouse.kr</a></li>
+        <li><a href="tel:0222660000">02-2266-XXXX</a></li>
+        <li>서울 중구 을지로 12길 4</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 1984–2026 활자집 Hwalja House. All rights reserved.</span>
+    <span>Est. Seoul, Korea</span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('signupForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = document.getElementById('signupEmail').value.trim();
+    var note = document.getElementById('signupNote');
+    if(email){
+      note.textContent = '감사합니다. ' + email + ' 로 다음 서체 소식을 보내드릴게요.';
+      note.style.display = 'block';
+      this.reset();
+    }
+  });
+</script>
+
+</body>
+</html>

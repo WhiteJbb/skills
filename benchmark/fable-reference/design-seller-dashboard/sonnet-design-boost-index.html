@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>해녀마켓 판매자 대시보드 · 성산일출수산</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Stylish&family=Gothic+A1:wght@400;500;700;800&family=Red+Hat+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F2F6F7;
+    --surface: #FFFFFF;
+    --text: #142228;
+    --muted: #55696F;
+    --accent: #0B6B8F;
+    --accent-tint: #E2EEF2;
+    --accent-ink: #FFFFFF;
+    --border: #DCE6E8;
+
+    --good: #2E7D5B;
+    --good-tint: #E3F3EC;
+    --good-ink: #1E5A40;
+
+    --warning: #C1841F;
+    --warning-tint: #FBEFDB;
+    --warning-ink: #8A5A12;
+
+    --critical: #C23B34;
+    --critical-tint: #FBE5E3;
+    --critical-ink: #932A25;
+
+    --font-display: 'Stylish', 'Gothic A1', sans-serif;
+    --font-body: 'Gothic A1', system-ui, sans-serif;
+    --font-utility: 'Red Hat Mono', ui-monospace, Consolas, monospace;
+
+    --scale: 1.2;
+    --text-sm: calc(1rem / var(--scale));
+    --text-xs: calc(var(--text-sm) / var(--scale));
+    --text-base: 1rem;
+    --text-lg: calc(1rem * var(--scale));
+    --text-xl: calc(var(--text-lg) * var(--scale));
+    --text-2xl: calc(var(--text-xl) * var(--scale));
+    --text-hero: calc(var(--text-2xl) * var(--scale));
+
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s6: 24px;
+    --s8: 32px; --s12: 48px; --s16: 64px; --s24: 96px;
+
+    --radius: 6px;
+    --t-fast: 150ms; --t-base: 250ms; --t-slow: 400ms;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; word-break: keep-all; overflow-wrap: break-word; }
+  p { margin: 0; }
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+  a, button { font-family: inherit; }
+  button { cursor: pointer; }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* ---------- layout shell ---------- */
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--s6); }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--s4); padding: var(--s4) 0;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: baseline; gap: var(--s2); min-width: 0; }
+  .brand-mark { font-family: var(--font-display); font-size: var(--text-xl); letter-spacing: 0.01em; }
+  .brand-sub { color: var(--muted); font-size: var(--text-sm); white-space: nowrap; }
+
+  .seller-block { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accent-tint); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: var(--text-sm); flex: none;
+    border: 1px solid var(--border);
+  }
+  .seller-id { line-height: 1.3; }
+  .seller-shop { font-weight: 700; font-size: var(--text-sm); }
+  .seller-name { color: var(--muted); font-size: var(--text-xs); }
+  .seller-date { color: var(--muted); font-size: var(--text-xs); white-space: nowrap; }
+
+  .refresh-btn {
+    display: inline-flex; align-items: center; gap: var(--s1);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: var(--s2) var(--s3);
+    font-size: var(--text-xs); color: var(--text); font-weight: 500;
+    transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+  }
+  .refresh-btn:hover { background: var(--accent-tint); border-color: var(--accent); }
+  .refresh-btn svg { width: 14px; height: 14px; }
+  .refresh-btn.spinning svg { animation: spin var(--t-slow) var(--ease); }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(180deg); } }
+
+  main { padding: var(--s8) 0 var(--s24); }
+
+  /* ---------- stamp component (signature) ---------- */
+  .stamp {
+    --stamp-color: var(--accent);
+    --stamp-tint: var(--accent-tint);
+    --stamp-ink: var(--accent);
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 2px solid var(--stamp-color);
+    background: var(--stamp-tint);
+    color: var(--stamp-ink);
+    clip-path: polygon(50% 1%, 68% 4%, 83% 13%, 94% 27%, 99% 45%, 97% 63%,
+      89% 79%, 75% 91%, 58% 98%, 40% 97%, 24% 90%, 11% 78%,
+      3% 62%, 2% 43%, 9% 25%, 22% 11%, 36% 4%);
+    font-family: var(--font-utility);
+  }
+  .stamp::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5) 0%, transparent 45%);
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .stamp-count {
+    width: 56px; height: 56px; flex: none;
+    font-weight: 700; font-size: var(--text-lg);
+    transform: rotate(-3deg);
+  }
+  .stamp-tag {
+    padding: var(--s1) var(--s3);
+    font-size: var(--text-xs); font-weight: 700; letter-spacing: 0.03em;
+    white-space: nowrap;
+    transform: rotate(-2deg);
+  }
+  .stamp.good     { --stamp-color: var(--good);     --stamp-tint: var(--good-tint);     --stamp-ink: var(--good-ink); }
+  .stamp.warning  { --stamp-color: var(--warning);  --stamp-tint: var(--warning-tint);  --stamp-ink: var(--warning-ink); }
+  .stamp.critical { --stamp-color: var(--critical); --stamp-tint: var(--critical-tint); --stamp-ink: var(--critical-ink); }
+  .stamp-tag:nth-of-type(2n) { transform: rotate(3deg); }
+
+  /* ---------- kpi row ---------- */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s4);
+  }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: var(--s4) var(--s4) var(--s3);
+    min-width: 0;
+  }
+  .kpi-label { font-size: var(--text-xs); color: var(--muted); letter-spacing: 0.02em; font-weight: 500; }
+  .kpi-value {
+    font-family: var(--font-display); font-size: var(--text-2xl);
+    margin-top: var(--s1); line-height: 1.15;
+    overflow-wrap: break-word;
+  }
+  .kpi-delta { display: flex; align-items: center; gap: var(--s1); margin-top: var(--s2); font-size: var(--text-xs); color: var(--muted); }
+  .kpi-delta .up { color: var(--good-ink); font-weight: 700; }
+  .kpi-delta .down { color: var(--critical-ink); font-weight: 700; }
+  .kpi-note { margin-top: var(--s2); font-size: var(--text-xs); color: var(--muted); }
+
+  /* ---------- main grid ---------- */
+  .main-grid {
+    display: grid; grid-template-columns: 1.6fr 1fr;
+    gap: var(--s6);
+    margin-top: var(--s8);
+    align-items: start;
+  }
+  .col { display: flex; flex-direction: column; gap: var(--s6); min-width: 0; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: var(--s6);
+    min-width: 0;
+  }
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; }
+  .card-title { font-size: var(--text-lg); }
+  .card-sub { font-size: var(--text-xs); color: var(--muted); margin-top: var(--s1); }
+  .card-stat { font-family: var(--font-utility); font-size: var(--text-sm); color: var(--accent); font-weight: 600; white-space: nowrap; }
+
+  /* ---------- chart ---------- */
+  .chart-wrap { position: relative; margin-top: var(--s6); }
+  canvas#revenueChart { width: 100%; height: 260px; display: block; }
+  .chart-tooltip {
+    position: absolute; pointer-events: none; opacity: 0;
+    transition: opacity var(--t-fast) var(--ease);
+    background: var(--text); color: #fff;
+    border-radius: 4px; padding: var(--s2) var(--s3);
+    font-size: var(--text-xs); line-height: 1.4;
+    transform: translate(-50%, -100%);
+    white-space: nowrap; z-index: 5;
+  }
+  .chart-tooltip b { font-family: var(--font-utility); font-weight: 700; }
+  .chart-legend { display: flex; gap: var(--s4); margin-top: var(--s3); flex-wrap: wrap; }
+  .chart-legend-item { display: flex; align-items: center; gap: var(--s1); font-size: var(--text-xs); color: var(--muted); }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+  .swatch.solid { background: var(--accent); }
+  .swatch.dashed { background: var(--accent-tint); border: 1.5px dashed var(--accent); }
+
+  /* ---------- pipeline ---------- */
+  .pipeline-track {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-top: var(--s8); position: relative; gap: var(--s2);
+  }
+  .pipeline-stage {
+    display: flex; flex-direction: column; align-items: center; gap: var(--s2);
+    text-align: center; position: relative; z-index: 1; flex: 1; min-width: 0;
+  }
+  .pipeline-stage:not(:last-child)::after {
+    content: '';
+    position: absolute; top: 28px; left: 50%;
+    width: calc(100% + var(--s2)); height: 2px;
+    background: var(--border); z-index: -1;
+  }
+  .pipeline-stage-name { font-size: var(--text-xs); color: var(--text); font-weight: 500; word-break: keep-all; }
+  .pipeline-stage-sub { font-size: var(--text-xs); color: var(--muted); }
+
+  /* ---------- product ranking ---------- */
+  .rank-list { display: flex; flex-direction: column; gap: var(--s4); margin-top: var(--s6); }
+  .rank-row { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
+  .rank-num {
+    font-family: var(--font-utility); font-weight: 700; color: var(--muted);
+    font-size: var(--text-sm); width: 20px; flex: none; text-align: center;
+  }
+  .rank-row:first-child .rank-num { color: var(--accent); }
+  .rank-body { flex: 1; min-width: 0; }
+  .rank-top { display: flex; justify-content: space-between; gap: var(--s2); align-items: baseline; }
+  .rank-name { font-weight: 500; font-size: var(--text-sm); overflow-wrap: break-word; }
+  .rank-revenue { font-family: var(--font-utility); font-size: var(--text-xs); color: var(--text); font-weight: 600; white-space: nowrap; }
+  .rank-meta { font-size: var(--text-xs); color: var(--muted); margin-top: 2px; }
+  .rank-bar-track { height: 6px; background: var(--bg); border-radius: 3px; margin-top: var(--s2); overflow: hidden; }
+  .rank-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+
+  /* ---------- alerts ---------- */
+  .alert-list { display: flex; flex-direction: column; gap: var(--s3); margin-top: var(--s6); }
+  .alert-row {
+    display: flex; align-items: center; gap: var(--s3);
+    padding: var(--s3); border: 1px solid var(--border); border-radius: var(--radius);
+    min-width: 0;
+  }
+  .alert-body { flex: 1; min-width: 0; }
+  .alert-name { font-weight: 700; font-size: var(--text-sm); }
+  .alert-qty { font-size: var(--text-xs); color: var(--muted); margin-top: 2px; }
+  .alert-note { font-size: var(--text-xs); color: var(--muted); margin-top: 2px; }
+
+  footer.foot {
+    border-top: 1px solid var(--border);
+    padding: var(--s4) 0 var(--s16);
+  }
+  .foot-inner { display: flex; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; font-size: var(--text-xs); color: var(--muted); }
+
+  /* ---------- entrance motion ---------- */
+  .fade-in { opacity: 0; transform: translateY(10px); animation: fadeIn var(--t-slow) var(--ease) forwards; }
+  @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 880px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .kpi-row { grid-template-columns: 1fr; }
+    .pipeline-track { flex-direction: column; align-items: stretch; gap: var(--s4); }
+    .pipeline-stage:not(:last-child)::after { display: none; }
+    .pipeline-stage { flex-direction: row; text-align: left; gap: var(--s3); }
+    .seller-block { width: 100%; justify-content: space-between; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">해녀마켓</span>
+      <span class="brand-sub">판매자 대시보드</span>
+    </div>
+    <div class="seller-block">
+      <div class="avatar">김</div>
+      <div class="seller-id">
+        <div class="seller-shop">성산일출수산</div>
+        <div class="seller-name">대표 김순자</div>
+      </div>
+      <span class="stamp stamp-tag good">정상영업중</span>
+      <span class="seller-date">2026년 7월 7일 화요일</span>
+      <button class="refresh-btn" id="refreshBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+        새로고침
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="kpi-row">
+    <div class="kpi-card fade-in" style="animation-delay:0ms">
+      <div class="kpi-label">오늘 주문</div>
+      <div class="kpi-value tabular">47건</div>
+      <div class="kpi-delta"><span class="up">▲ 12%</span> 어제 대비</div>
+    </div>
+    <div class="kpi-card fade-in" style="animation-delay:40ms">
+      <div class="kpi-label">오늘 매출</div>
+      <div class="kpi-value tabular" id="todayRevenue">₩1,240,000</div>
+      <div class="kpi-delta"><span class="up">▲ 8%</span> 어제 동시간 대비</div>
+      <div class="kpi-note">진행중 · 14:32 기준</div>
+    </div>
+    <div class="kpi-card fade-in" style="animation-delay:80ms">
+      <div class="kpi-label">평균 주문금액</div>
+      <div class="kpi-value tabular">₩26,383</div>
+      <div class="kpi-note">전체 47건 기준</div>
+    </div>
+    <div class="kpi-card fade-in" style="animation-delay:120ms">
+      <div class="kpi-label">재고 경고</div>
+      <div class="kpi-value tabular">4건</div>
+      <div class="kpi-delta"><span class="down">즉시 확인 필요</span></div>
+    </div>
+  </section>
+
+  <div class="main-grid">
+    <div class="col">
+
+      <section class="card fade-in" style="animation-delay:160ms">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">주간 매출 추이</h2>
+            <div class="card-sub">7/1(수) ~ 7/7(화) · 오늘은 진행중 수치 포함</div>
+          </div>
+          <div class="card-stat tabular">주간 합계 ₩14,050,000</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="revenueChart" role="img" aria-label="주간 매출 추이: 7/1(수) 182만원, 7/2(목) 165만원, 7/3(금) 205만원, 7/4(토) 286만원, 7/5(일) 264만원, 7/6(월) 179만원, 7/7(화, 진행중) 124만원"></canvas>
+          <div class="chart-tooltip" id="chartTooltip"></div>
+        </div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><span class="swatch solid"></span>마감된 매출</div>
+          <div class="chart-legend-item"><span class="swatch dashed"></span>오늘(진행중)</div>
+        </div>
+      </section>
+
+      <section class="card fade-in" style="animation-delay:200ms">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">오늘의 처리 현황</h2>
+            <div class="card-sub">총 47건 진행 중 · 주문접수부터 배송완료까지</div>
+          </div>
+        </div>
+        <div class="pipeline-track">
+          <div class="pipeline-stage">
+            <span class="stamp stamp-count tabular">6</span>
+            <span class="pipeline-stage-name">주문접수</span>
+            <span class="pipeline-stage-sub">방금 전~</span>
+          </div>
+          <div class="pipeline-stage">
+            <span class="stamp stamp-count tabular">9</span>
+            <span class="pipeline-stage-name">손질·포장</span>
+            <span class="pipeline-stage-sub">평균 22분</span>
+          </div>
+          <div class="pipeline-stage">
+            <span class="stamp stamp-count tabular">5</span>
+            <span class="pipeline-stage-name">냉장 배송 준비</span>
+            <span class="pipeline-stage-sub">평균 11분</span>
+          </div>
+          <div class="pipeline-stage">
+            <span class="stamp stamp-count tabular">14</span>
+            <span class="pipeline-stage-name">배송중</span>
+            <span class="pipeline-stage-sub">평균 3시간</span>
+          </div>
+          <div class="pipeline-stage">
+            <span class="stamp stamp-count tabular">13</span>
+            <span class="pipeline-stage-name">배송완료</span>
+            <span class="pipeline-stage-sub">오늘 누적</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="col">
+
+      <section class="card fade-in" style="animation-delay:240ms">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">이번 주 베스트 5</h2>
+            <div class="card-sub">판매량 · 매출 기준</div>
+          </div>
+        </div>
+        <div class="rank-list">
+          <div class="rank-row">
+            <span class="rank-num tabular">1</span>
+            <div class="rank-body">
+              <div class="rank-top"><span class="rank-name">제주 은갈치 (2미 세트)</span><span class="rank-revenue tabular">₩3,528,000</span></div>
+              <div class="rank-meta">84세트 판매 · 세트당 ₩42,000</div>
+              <div class="rank-bar-track"><div class="rank-bar-fill" style="width:100%"></div></div>
+            </div>
+          </div>
+          <div class="rank-row">
+            <span class="rank-num tabular">2</span>
+            <div class="rank-body">
+              <div class="rank-top"><span class="rank-name">성게알 (100g, 냉장)</span><span class="rank-revenue tabular">₩1,708,000</span></div>
+              <div class="rank-meta">61팩 판매 · 팩당 ₩28,000</div>
+              <div class="rank-bar-track"><div class="rank-bar-fill" style="width:48%"></div></div>
+            </div>
+          </div>
+          <div class="rank-row">
+            <span class="rank-num tabular">3</span>
+            <div class="rank-body">
+              <div class="rank-top"><span class="rank-name">옥돔 (1마리, 손질)</span><span class="rank-revenue tabular">₩1,387,000</span></div>
+              <div class="rank-meta">73마리 판매 · 마리당 ₩19,000</div>
+              <div class="rank-bar-track"><div class="rank-bar-fill" style="width:39%"></div></div>
+            </div>
+          </div>
+          <div class="rank-row">
+            <span class="rank-num tabular">4</span>
+            <div class="rank-body">
+              <div class="rank-top"><span class="rank-name">뿔소라 (1kg)</span><span class="rank-revenue tabular">₩1,330,000</span></div>
+              <div class="rank-meta">95팩 판매 · 팩당 ₩14,000</div>
+              <div class="rank-bar-track"><div class="rank-bar-fill" style="width:38%"></div></div>
+            </div>
+          </div>
+          <div class="rank-row">
+            <span class="rank-num tabular">5</span>
+            <div class="rank-body">
+              <div class="rank-top"><span class="rank-name">자리돔 (물회용, 500g)</span><span class="rank-revenue tabular">₩928,000</span></div>
+              <div class="rank-meta">58팩 판매 · 팩당 ₩16,000</div>
+              <div class="rank-bar-track"><div class="rank-bar-fill" style="width:26%"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card fade-in" style="animation-delay:280ms">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">재고 경고</h2>
+            <div class="card-sub">현재 재고 스냅샷</div>
+          </div>
+        </div>
+        <div class="alert-list">
+          <div class="alert-row">
+            <span class="stamp stamp-tag critical">품절임박</span>
+            <div class="alert-body">
+              <div class="alert-name">옥돔 (1마리, 손질)</div>
+              <div class="alert-qty tabular">재고 4마리</div>
+              <div class="alert-note">최근 판매 속도 기준 약 40분 내 소진 예상</div>
+            </div>
+          </div>
+          <div class="alert-row">
+            <span class="stamp stamp-tag critical">품절임박</span>
+            <div class="alert-body">
+              <div class="alert-name">성게알 (100g)</div>
+              <div class="alert-qty tabular">재고 6팩</div>
+              <div class="alert-note">오늘 입고 없음 · 남은 수량 우선 배정 권장</div>
+            </div>
+          </div>
+          <div class="alert-row">
+            <span class="stamp stamp-tag warning">재고부족</span>
+            <div class="alert-body">
+              <div class="alert-name">딱새우 (500g)</div>
+              <div class="alert-qty tabular">재고 9팩</div>
+              <div class="alert-note">내일 입고 예정 · 임시 주문 제한 권장</div>
+            </div>
+          </div>
+          <div class="alert-row">
+            <span class="stamp stamp-tag warning">재고부족</span>
+            <div class="alert-body">
+              <div class="alert-name">전복 (소, 10미)</div>
+              <div class="alert-qty tabular">재고 12팩</div>
+              <div class="alert-note">정상 재고의 30% 수준</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <span>마지막 업데이트: <span id="lastUpdated">오늘 14:32</span></span>
+    <span>해녀마켓 판매자 센터 · 성산일출수산</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var days = [
+    { label: '7/1(수)', full: '7월 1일 수요일', revenue: 1820000, orders: 42 },
+    { label: '7/2(목)', full: '7월 2일 목요일', revenue: 1650000, orders: 39 },
+    { label: '7/3(금)', full: '7월 3일 금요일', revenue: 2050000, orders: 45 },
+    { label: '7/4(토)', full: '7월 4일 토요일', revenue: 2860000, orders: 61 },
+    { label: '7/5(일)', full: '7월 5일 일요일', revenue: 2640000, orders: 57 },
+    { label: '7/6(월)', full: '7월 6일 월요일', revenue: 1790000, orders: 41 },
+    { label: '7/7(화)', full: '7월 7일 화요일 · 진행중', revenue: 1240000, orders: 47, inProgress: true }
+  ];
+
+  var canvas = document.getElementById('revenueChart');
+  var ctx = canvas.getContext('2d');
+  var tooltip = document.getElementById('chartTooltip');
+  var wrap = canvas.parentElement;
+  var bars = [];
+
+  function formatWon(n) {
+    return '₩' + n.toLocaleString('ko-KR');
+  }
+
+  function roundRectTop(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x, y + h);
+    c.lineTo(x, y + r);
+    c.arcTo(x, y, x + r, y, r);
+    c.lineTo(x + w - r, y);
+    c.arcTo(x + w, y, x + w, y + r, r);
+    c.lineTo(x + w, y + h);
+    c.closePath();
+  }
+
+  function draw() {
+    var cssWidth = wrap.clientWidth;
+    var cssHeight = 260;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = cssWidth * dpr;
+    canvas.height = cssHeight * dpr;
+    canvas.style.width = cssWidth + 'px';
+    canvas.style.height = cssHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+    var padTop = 28, padBottom = 28, padSide = 4;
+    var plotW = cssWidth - padSide * 2;
+    var plotH = cssHeight - padTop - padBottom;
+    var maxVal = Math.max.apply(null, days.map(function (d) { return d.revenue; }));
+    maxVal = Math.ceil(maxVal / 500000) * 500000;
+
+    var borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
+    var mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+    var accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    var accentTint = getComputedStyle(document.documentElement).getPropertyValue('--accent-tint').trim();
+    var textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+
+    // gridlines
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 1;
+    [0, 0.5, 1].forEach(function (f) {
+      var y = padTop + plotH * (1 - f);
+      ctx.beginPath();
+      ctx.moveTo(padSide, y);
+      ctx.lineTo(cssWidth - padSide, y);
+      ctx.stroke();
+    });
+
+    var n = days.length;
+    var slot = plotW / n;
+    var barW = Math.min(44, slot * 0.5);
+    bars = [];
+
+    days.forEach(function (d, i) {
+      var cx = padSide + slot * i + slot / 2;
+      var barH = (d.revenue / maxVal) * plotH;
+      var x = cx - barW / 2;
+      var y = padTop + plotH - barH;
+
+      roundRectTop(ctx, x, y, barW, barH, 4);
+      if (d.inProgress) {
+        ctx.fillStyle = accentTint;
+        ctx.fill();
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else {
+        ctx.fillStyle = accentColor;
+        ctx.fill();
+      }
+
+      ctx.fillStyle = textColor;
+      ctx.font = '600 11px "Red Hat Mono", monospace';
+      ctx.textAlign = 'center';
+      var label = (d.revenue / 10000).toFixed(0) + '만';
+      ctx.fillText(label, cx, y - 8);
+
+      ctx.fillStyle = mutedColor;
+      ctx.font = '500 11px "Gothic A1", sans-serif';
+      ctx.fillText(d.label, cx, cssHeight - 8);
+
+      bars.push({ x: x, y: y, w: barW, h: barH, cx: cx, data: d });
+    });
+  }
+
+  function showTooltip(bar, clientX) {
+    var rect = wrap.getBoundingClientRect();
+    tooltip.innerHTML = '<b>' + bar.data.full + '</b><br>' +
+      formatWon(bar.data.revenue) + ' · ' + bar.data.orders + '건';
+    tooltip.style.left = bar.cx + 'px';
+    tooltip.style.top = (bar.y - 10) + 'px';
+    tooltip.style.opacity = '1';
+  }
+
+  function hideTooltip() {
+    tooltip.style.opacity = '0';
+  }
+
+  canvas.addEventListener('pointermove', function (e) {
+    var rect = canvas.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var closest = null, closestDist = Infinity;
+    bars.forEach(function (b) {
+      var d = Math.abs(b.cx - x);
+      if (d < closestDist) { closestDist = d; closest = b; }
+    });
+    if (closest && closestDist < 40) {
+      showTooltip(closest, e.clientX);
+    } else {
+      hideTooltip();
+    }
+  });
+  canvas.addEventListener('pointerleave', hideTooltip);
+
+  window.addEventListener('resize', function () {
+    window.requestAnimationFrame(draw);
+  });
+
+  draw();
+
+  var refreshBtn = document.getElementById('refreshBtn');
+  refreshBtn.addEventListener('click', function () {
+    refreshBtn.classList.add('spinning');
+    var now = new Date();
+    var hh = String(now.getHours()).padStart(2, '0');
+    var mm = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('lastUpdated').textContent = '오늘 ' + hh + ':' + mm;
+    setTimeout(function () { refreshBtn.classList.remove('spinning'); }, 400);
+  });
+})();
+</script>
+
+</body>
+</html>

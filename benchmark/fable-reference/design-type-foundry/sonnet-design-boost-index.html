@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>활자집 Hwalja House — 서울 활자 주조소</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&family=Noto+Serif+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* color */
+    --bg: #E4DED0;
+    --surface: #EDE8DB;
+    --surface-ink: #2A2620;
+    --text: #211D17;
+    --muted: #746C5B;
+    --accent: #55632F;
+    --accent-deep: #3E491F;
+    --accent-ink: #F5F1E2;
+    --border: #D2C9B2;
+
+    /* type */
+    --font-display: 'East Sea Dokdo', 'Noto Serif KR', serif;
+    --font-body: 'Noto Serif KR', serif;
+    --font-utility: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+    --scale: 1.333;
+    --text-sm: calc(1rem / var(--scale));
+    --text-base: 1.0625rem;
+    --text-lg: calc(1rem * var(--scale));
+    --text-xl: calc(var(--text-lg) * var(--scale));
+    --text-2xl: calc(var(--text-xl) * var(--scale));
+    --text-hero: calc(var(--text-2xl) * var(--scale) * var(--scale));
+
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s6: 24px;
+    --s8: 32px; --s12: 48px; --s16: 64px; --s24: 96px; --s32: 128px;
+
+    --radius: 6px;
+    --shadow: 0 1px 2px rgba(33,29,23,.06), 0 6px 20px -8px rgba(33,29,23,.22);
+
+    --t-fast: 150ms; --t-base: 250ms; --t-slow: 400ms;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-body);
+    font-weight: 700;
+    margin: 0;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    word-break: keep-all;
+  }
+  p { text-wrap: pretty; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-inline: var(--s6);
+  }
+
+  /* ---------- header ---------- */
+  header.site {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(228,222,208,.88);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-block: var(--s3);
+    gap: var(--s4);
+  }
+  .brand {
+    display: flex; align-items: baseline; gap: var(--s2);
+    font-weight: 700; font-size: var(--text-lg);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .brand small {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  nav.links {
+    display: flex; gap: var(--s6);
+    font-size: var(--text-sm);
+    flex-wrap: wrap;
+  }
+  nav.links a {
+    text-decoration: none;
+    color: var(--muted);
+    padding-block: var(--s1);
+    border-bottom: 1px solid transparent;
+    transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+  }
+  nav.links a:hover { color: var(--text); border-color: var(--accent); }
+
+  /* ---------- hero ---------- */
+  section.hero {
+    padding-block: var(--s24) var(--s16);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--s16);
+    align-items: center;
+  }
+  .hero-copy .eyebrow {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--accent-deep);
+    letter-spacing: 0.08em;
+    margin-bottom: var(--s4);
+  }
+  .hero-copy h1 {
+    font-size: clamp(2.2rem, 6vw, var(--text-hero));
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .hero-copy p.lede {
+    margin-top: var(--s6);
+    max-width: 52ch;
+    color: var(--muted);
+    font-size: var(--text-lg);
+    line-height: 1.6;
+  }
+  .hero-actions {
+    margin-top: var(--s8);
+    display: flex; gap: var(--s4); flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--s2);
+    padding: var(--s3) var(--s6);
+    border-radius: var(--radius);
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    min-height: 40px;
+    transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: var(--shadow);
+  }
+  .btn-primary:hover { background: var(--accent-deep); transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); }
+
+  /* ---------- ink comparison signature ---------- */
+  .ink-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s3);
+  }
+  .ink-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--s4);
+    display: flex; flex-direction: column; align-items: center; gap: var(--s3);
+    min-width: 0;
+  }
+  .ink-card canvas, .ink-card .glyph-clean {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: block;
+  }
+  .ink-card .glyph-clean {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900;
+    font-size: clamp(3.5rem, 12vw, 7rem);
+    color: var(--text);
+  }
+  .ink-card .cap {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    text-align: center;
+  }
+  .ink-card.dark { background: var(--surface-ink); }
+  .ink-card.dark .cap { color: #B8AF9A; }
+
+  /* ---------- section shell ---------- */
+  section { padding-block: var(--s24); }
+  section.alt { background: var(--surface); }
+  .section-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: var(--s6); margin-bottom: var(--s12);
+    flex-wrap: wrap;
+  }
+  .section-head h2 {
+    font-size: var(--text-2xl);
+    letter-spacing: -0.01em;
+  }
+  .section-head .num {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  /* ---------- timeline (history) ---------- */
+  .timeline {
+    display: grid;
+    gap: var(--s8);
+    border-left: 2px solid var(--border);
+    padding-left: var(--s8);
+  }
+  .tl-item { position: relative; }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--s8) * -1 - 5px);
+    top: 6px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .tl-year {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--accent-deep);
+    font-weight: 700;
+    margin-bottom: var(--s1);
+  }
+  .tl-item h3 { font-size: var(--text-lg); margin-bottom: var(--s2); }
+  .tl-item p { color: var(--muted); max-width: 62ch; }
+
+  /* ---------- process strip ---------- */
+  .process-copy {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: var(--s16);
+    align-items: start;
+  }
+  .process-copy p { max-width: 60ch; color: var(--text); }
+  .process-copy p + p { margin-top: var(--s4); color: var(--muted); }
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: var(--s2);
+    margin-top: var(--s8);
+  }
+  .step {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: var(--s3) var(--s2);
+    text-align: center;
+    min-width: 0;
+  }
+  .step .k {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--accent-deep);
+    display: block;
+    margin-bottom: var(--s1);
+  }
+  .step .v { font-size: var(--text-sm); color: var(--muted); }
+
+  /* ---------- typeface grid ---------- */
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s6);
+  }
+  .type-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--s8);
+    min-width: 0;
+  }
+  .type-card .sample {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.2;
+    margin-bottom: var(--s6);
+  }
+  .type-card .meta {
+    display: flex; justify-content: space-between; align-items: baseline;
+    border-top: 1px solid var(--border);
+    padding-top: var(--s4);
+    gap: var(--s3);
+    flex-wrap: wrap;
+  }
+  .type-card .meta h3 { font-size: var(--text-lg); }
+  .type-card .meta p { color: var(--muted); font-size: var(--text-sm); margin: var(--s1) 0 0; }
+  .type-card .price {
+    font-family: var(--font-utility);
+    font-size: var(--text-sm);
+    color: var(--accent-deep);
+    white-space: nowrap;
+  }
+
+  /* ---------- visit callout ---------- */
+  .visit {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-radius: var(--radius);
+    padding: var(--s16);
+    display: grid;
+    grid-template-columns: minmax(0,1.2fr) minmax(0,1fr);
+    gap: var(--s12);
+    align-items: center;
+  }
+  .visit h2 { color: var(--accent-ink); font-size: var(--text-2xl); }
+  .visit p { color: #E4E7D8; max-width: 48ch; margin-top: var(--s4); }
+  .visit dl {
+    display: grid;
+    grid-template-columns: auto minmax(0,1fr);
+    gap: var(--s2) var(--s4);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+  .visit dt { font-family: var(--font-utility); color: #C9CFAE; }
+  .visit dd { margin: 0; }
+
+  /* ---------- footer ---------- */
+  footer {
+    padding-block: var(--s12);
+    border-top: 1px solid var(--border);
+  }
+  .foot-grid {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: var(--s4); flex-wrap: wrap;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .foot-grid .stamp {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--accent-deep);
+  }
+
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: minmax(0,1fr); }
+    .process-copy { grid-template-columns: minmax(0,1fr); }
+    .type-grid { grid-template-columns: minmax(0,1fr); }
+    .visit { grid-template-columns: minmax(0,1fr); padding: var(--s8); }
+    .process-steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    nav.links { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap nav">
+    <div class="brand">활자집<small>HWALJA HOUSE · EST. 1986</small></div>
+    <nav class="links">
+      <a href="#history">역사</a>
+      <a href="#process">공정</a>
+      <a href="#typefaces">활자체</a>
+      <a href="#visit">방문</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow">서울 을지로 · 1986년부터 3대째</div>
+      <h1>활자는 눌러 찍은<br>흔적으로 완성된다</h1>
+      <p class="lede">활자집은 을지로에서 40년째 납활자를 손으로 주조해온 가족 활판소입니다. 종이에 눌린 자국, 잉크가 번지는 결까지 — 우리가 디지털로 되살리는 것은 서체가 아니라 그 흔적입니다.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#typefaces">활자체 둘러보기</a>
+        <a class="btn btn-ghost" href="#visit">공방 방문 예약</a>
+      </div>
+    </div>
+    <div class="ink-compare">
+      <div class="ink-card">
+        <div class="glyph-clean">활</div>
+        <div class="cap">디지털 벡터 — 매끈한 윤곽</div>
+      </div>
+      <div class="ink-card dark">
+        <canvas id="inkGlyph" width="480" height="480" aria-label="손으로 주조한 활자 활, 잉크 번짐과 눌림이 있는 인쇄면"></canvas>
+        <div class="cap">활판 인압 — 잉크와 종이의 흔적</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="history">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>4대에 걸친 시간</h2>
+      <span class="num">1986 — 2026</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">1986</div>
+        <h3>창업주 이정형, 을지로에 활판소를 열다</h3>
+        <p>충무로 인쇄골목에서 문선공으로 일하던 이정형이 독립하여 활자집을 세웠습니다. 초창기에는 신문사와 인쇄소에 납활자를 납품하는 것이 주된 일이었습니다.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">1998</div>
+        <h3>오프셋 인쇄의 확산, 활자모 보전을 시작하다</h3>
+        <p>활판 인쇄가 빠르게 줄어들던 시기, 2대 이규환은 폐기 위기의 활자모 원도와 종모형을 사들여 보관하기 시작했습니다. 지금 활자집 자산의 절반은 이때 지켜낸 것입니다.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2014</div>
+        <h3>서울미래유산 후보 소개, 공방을 개방하다</h3>
+        <p>사라져가는 을지로 활판 문화의 사례로 소개되며, 처음으로 일반인 방문과 견학을 받기 시작했습니다.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2019</div>
+        <h3>3대 이한나, 디지털 복각 프로젝트를 시작하다</h3>
+        <p>보관해온 원도를 스캔하고 실제 인압 자국을 관찰해 디지털 서체로 옮기는 작업을 시작했습니다. 목표는 완벽한 곡선이 아니라, 활자가 종이에 남긴 압력과 번짐을 그대로 옮기는 것이었습니다.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2026</div>
+        <h3>40주년, 활자집닷컴을 열다</h3>
+        <p>지금까지 복각한 네 벌의 서체를 온라인으로 공개하며, 여전히 매주 주조기를 돌려 납활자를 찍어냅니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="process">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>활자가 만들어지는 순서</h2>
+      <span class="num">공정 5단계</span>
+    </div>
+    <div class="process-copy">
+      <div>
+        <p>활자 한 벌을 완성하는 데는 짧게는 8개월, 길게는 2년이 걸립니다. 원도를 그리는 손끝의 판단부터, 합금이 식으며 만들어내는 미세한 뒤틀림까지 — 모든 단계가 최종 글자의 표정에 남습니다.</p>
+        <p>디지털 복각도 이 순서를 그대로 따릅니다. 다만 마지막 단계에서 화면 대신, 실제로 찍어낸 종이를 스캔해 확인합니다.</p>
+      </div>
+      <div class="process-steps">
+        <div class="step"><span class="k">01</span><span class="v">원도</span></div>
+        <div class="step"><span class="k">02</span><span class="v">종모형</span></div>
+        <div class="step"><span class="k">03</span><span class="v">모형(母型)</span></div>
+        <div class="step"><span class="k">04</span><span class="v">주조</span></div>
+        <div class="step"><span class="k">05</span><span class="v">마무리</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="typefaces">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>지금 공개된 활자체</h2>
+      <span class="num">4종 · 계속 추가 중</span>
+    </div>
+    <div class="type-grid">
+      <div class="type-card">
+        <div class="sample">을지명조</div>
+        <div class="meta">
+          <div>
+            <h3>을지명조</h3>
+            <p>창업주 이정형의 1986년 원도를 그대로 복각. 획 끝의 미세한 눌림을 살렸습니다.</p>
+          </div>
+          <div class="price">₩ 88,000</div>
+        </div>
+      </div>
+      <div class="type-card">
+        <div class="sample">활판고딕</div>
+        <div class="meta">
+          <div>
+            <h3>활판고딕</h3>
+            <p>신문 표제용으로 쓰이던 굵은 활자를 기반으로, 인압 특유의 잉크 번짐 두께를 재현.</p>
+          </div>
+          <div class="price">₩ 88,000</div>
+        </div>
+      </div>
+      <div class="type-card">
+        <div class="sample">국전바탕</div>
+        <div class="meta">
+          <div>
+            <h3>국전바탕</h3>
+            <p>국전지 규격 서적에 쓰이던 본문용 활자. 긴 문단에서도 눈이 편안하도록 다듬었습니다.</p>
+          </div>
+          <div class="price">₩ 68,000</div>
+        </div>
+      </div>
+      <div class="type-card">
+        <div class="sample">정형체</div>
+        <div class="meta">
+          <div>
+            <h3>정형체</h3>
+            <p>창업주의 육필 원도에서 출발한 손글씨 계열 활자. 2026년, 40주년 기념으로 새로 공개.</p>
+          </div>
+          <div class="price">₩ 108,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="visit">
+  <div class="wrap">
+    <div class="visit">
+      <div>
+        <h2>공방은 지금도 매주 돌아갑니다</h2>
+        <p>주조기 소리를 듣고, 갓 찍힌 활자를 손에 쥐어 보세요. 매주 화·목요일 오후, 예약 없이도 견학을 받습니다.</p>
+      </div>
+      <dl>
+        <dt>주소</dt><dd>서울 중구 을지로 12길 8</dd>
+        <dt>견학</dt><dd>화·목 14:00–17:00, 무료</dd>
+        <dt>문의</dt><dd>02-2266-4817</dd>
+        <dt>메일</dt><dd>hello@hwaljahouse.kr</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-grid">
+    <span>© 1986–2026 활자집 Hwalja House. 을지로에서 손으로 짓습니다.</span>
+    <span class="stamp">활자집</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // seeded PRNG so the ink-bleed impression is reproducible, not per-load random noise
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var rand = mulberry32(19860411);
+
+  var canvas = document.getElementById('inkGlyph');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // pre-generate jittered ink passes: each pass is the glyph redrawn with
+  // a small seeded offset + varying alpha, approximating uneven letterpress inking
+  var passes = [];
+  var PASS_COUNT = 26;
+  for (var i = 0; i < PASS_COUNT; i++) {
+    passes.push({
+      dx: (rand() - 0.5) * 5,
+      dy: (rand() - 0.5) * 5,
+      alpha: 0.05 + rand() * 0.10,
+      scale: 0.985 + rand() * 0.03
+    });
+  }
+  // feather speckles: fine grain where ink caught paper fiber
+  var speckles = [];
+  var SPECKLE_COUNT = 140;
+  for (var s = 0; s < SPECKLE_COUNT; s++) {
+    var angle = rand() * Math.PI * 2;
+    var radius = 60 + rand() * 150;
+    speckles.push({
+      x: W / 2 + Math.cos(angle) * radius * (0.5 + rand() * 0.6),
+      y: H / 2 + Math.sin(angle) * radius * (0.5 + rand() * 0.6),
+      r: 0.6 + rand() * 1.8,
+      a: 0.08 + rand() * 0.18
+    });
+  }
+
+  function drawGlyph(offsetX, offsetY, scale, alpha) {
+    ctx.save();
+    ctx.translate(W / 2 + offsetX, H / 2 + offsetY);
+    ctx.scale(scale, scale);
+    ctx.font = '900 340px "Noto Serif KR", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(228,222,208,' + alpha + ')';
+    ctx.fillText('활', 0, 10);
+    ctx.restore();
+  }
+
+  function drawSpeckles(alphaMul) {
+    speckles.forEach(function (sp) {
+      ctx.beginPath();
+      ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(228,222,208,' + (sp.a * alphaMul) + ')';
+      ctx.fill();
+    });
+  }
+
+  function renderFull() {
+    ctx.clearRect(0, 0, W, H);
+    passes.forEach(function (p) {
+      drawGlyph(p.dx, p.dy, p.scale, p.alpha);
+    });
+    drawSpeckles(1);
+  }
+
+  if (reduceMotion) {
+    renderFull();
+    return;
+  }
+
+  // animate the impression settling: passes stagger in over ~1.1s, like a press bedding into paper
+  var start = null;
+  function frame(ts) {
+    if (!start) start = ts;
+    var elapsed = ts - start;
+    var duration = 1100;
+    var progress = Math.min(1, elapsed / duration);
+    var visibleCount = Math.ceil(progress * PASS_COUNT);
+
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < visibleCount; i++) {
+      var p = passes[i];
+      var localP = Math.min(1, (elapsed - (i / PASS_COUNT) * duration * 0.6) / 200);
+      localP = Math.max(0, Math.min(1, localP));
+      drawGlyph(p.dx, p.dy, p.scale, p.alpha * localP);
+    }
+    drawSpeckles(progress);
+
+    if (progress < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      renderFull();
+    }
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>

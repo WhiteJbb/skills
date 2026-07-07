@@ -1,0 +1,3 @@
+﻿{"task":"seller-dashboard","arm":"baseline","model":"claude-fable-5","html":true,"screenshots":true,"mobile_overflow":false,"skill_fired":null,"skills_used":"","wall_s":119.2,"turns":2,"out_tokens":9931,"cost_usd":0.860319,"is_error":false}
+{"task":"seller-dashboard","arm":"baseline","model":"claude-sonnet-5","html":true,"screenshots":true,"mobile_overflow":true,"skill_fired":null,"skills_used":"","wall_s":266.8,"turns":7,"out_tokens":26899,"cost_usd":2.3289649999999997,"is_error":false}
+{"task":"seller-dashboard","arm":"design-boost","model":"claude-sonnet-5","html":true,"screenshots":true,"mobile_overflow":false,"skill_fired":null,"skills_used":"","wall_s":702.4,"turns":13,"out_tokens":58632,"cost_usd":2.950536,"is_error":false}

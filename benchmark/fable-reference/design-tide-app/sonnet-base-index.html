@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mulmoe — Tide & Swell Forecast for Jeju Surfers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#050b14;
+    --navy-900:#0a1626;
+    --navy-800:#0f2035;
+    --navy-700:#16304d;
+    --cyan-400:#3fd8e0;
+    --cyan-300:#7ee8ec;
+    --coral-400:#ff8a65;
+    --foam:#eaf6f6;
+    --ink-mute:#9fb3c8;
+    --line:rgba(127,232,236,0.14);
+    --maxw:1160px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--navy-950);
+    color:var(--foam);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.logo{font-family:'Bricolage Grotesque',sans-serif;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+
+  /* background texture */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(63,216,224,0.14), transparent 45%),
+      radial-gradient(circle at 85% 30%, rgba(255,138,101,0.08), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(63,216,224,0.10), transparent 50%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* ---------- Nav ---------- */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(5,11,20,0.75);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 24px;
+    max-width:var(--maxw);margin:0 auto;
+  }
+  .logo{
+    display:flex;align-items:center;gap:9px;
+    font-size:1.35rem;font-weight:700;letter-spacing:-0.02em;
+    color:var(--foam);
+  }
+  .logo .dot{
+    width:11px;height:11px;border-radius:50%;
+    background:var(--cyan-400);
+    box-shadow:0 0 14px 3px rgba(63,216,224,0.6);
+  }
+  .nav-links{display:flex;gap:32px;align-items:center;}
+  .nav-links a{
+    font-size:0.92rem;font-weight:500;color:var(--ink-mute);
+    transition:color .2s;
+  }
+  .nav-links a:hover{color:var(--cyan-300);}
+  .nav-cta{
+    background:var(--cyan-400);
+    color:var(--navy-950)!important;
+    padding:9px 20px;
+    border-radius:999px;
+    font-weight:700;font-size:0.88rem;
+  }
+  .nav-cta:hover{background:var(--cyan-300);}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;z-index:1;
+    padding:96px 0 70px;
+    display:grid;grid-template-columns:1.05fr 0.95fr;
+    gap:40px;align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:0.8rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+    color:var(--cyan-300);
+    background:rgba(63,216,224,0.09);
+    border:1px solid var(--line);
+    padding:7px 14px;border-radius:999px;
+    margin-bottom:22px;
+  }
+  .eyebrow span.pin{color:var(--coral-400);}
+  .hero h1{
+    font-size:clamp(2.4rem,5vw,3.6rem);
+    line-height:1.08;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    margin-bottom:22px;
+  }
+  .hero h1 em{
+    font-style:normal;
+    color:var(--cyan-300);
+  }
+  .hero p.lead{
+    font-size:1.08rem;
+    color:var(--ink-mute);
+    max-width:480px;
+    margin-bottom:34px;
+  }
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:40px;}
+  .btn-primary{
+    background:var(--cyan-400);
+    color:var(--navy-950);
+    padding:14px 26px;
+    border-radius:10px;
+    font-weight:700;font-size:0.96rem;
+    box-shadow:0 8px 30px -8px rgba(63,216,224,0.55);
+    transition:transform .2s, background .2s;
+  }
+  .btn-primary:hover{transform:translateY(-2px);background:var(--cyan-300);}
+  .btn-ghost{
+    border:1px solid var(--line);
+    color:var(--foam);
+    padding:14px 26px;
+    border-radius:10px;
+    font-weight:600;font-size:0.96rem;
+    transition:border-color .2s, background .2s;
+  }
+  .btn-ghost:hover{border-color:var(--cyan-400);background:rgba(63,216,224,0.06);}
+  .hero-stats{display:flex;gap:36px;}
+  .hero-stats div{display:flex;flex-direction:column;}
+  .hero-stats strong{font-size:1.5rem;font-family:'Bricolage Grotesque',sans-serif;color:var(--foam);}
+  .hero-stats span{font-size:0.8rem;color:var(--ink-mute);}
+
+  /* phone mockup */
+  .phone-stage{position:relative;display:flex;justify-content:center;}
+  .phone{
+    width:290px;
+    background:linear-gradient(160deg,var(--navy-800),var(--navy-900));
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:38px;
+    padding:14px;
+    box-shadow:0 40px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02);
+    position:relative;
+    z-index:2;
+  }
+  .phone-screen{
+    background:var(--navy-950);
+    border-radius:26px;
+    overflow:hidden;
+    padding:20px 18px 24px;
+    position:relative;
+  }
+  .phone-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .phone-loc{font-size:0.72rem;color:var(--ink-mute);font-weight:600;letter-spacing:0.03em;}
+  .phone-loc b{color:var(--foam);}
+  .swell-badge{
+    background:rgba(255,138,101,0.15);
+    color:var(--coral-400);
+    font-size:0.68rem;font-weight:700;
+    padding:4px 9px;border-radius:999px;
+  }
+  .wave-big{font-family:'Bricolage Grotesque',sans-serif;font-size:2.6rem;font-weight:700;color:var(--cyan-300);line-height:1;}
+  .wave-sub{font-size:0.78rem;color:var(--ink-mute);margin-top:4px;margin-bottom:18px;}
+  .chart{
+    height:70px;
+    display:flex;align-items:flex-end;gap:4px;
+    margin-bottom:16px;
+  }
+  .chart i{
+    flex:1;
+    background:linear-gradient(180deg,var(--cyan-400),rgba(63,216,224,0.15));
+    border-radius:3px 3px 0 0;
+    display:block;
+  }
+  .mini-row{display:flex;justify-content:space-between;font-size:0.62rem;color:var(--ink-mute);margin-bottom:16px;}
+  .card-row{display:flex;gap:8px;}
+  .mini-card{
+    flex:1;background:var(--navy-800);border:1px solid var(--line);
+    border-radius:12px;padding:10px;text-align:center;
+  }
+  .mini-card .lbl{font-size:0.6rem;color:var(--ink-mute);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;}
+  .mini-card .val{font-size:0.95rem;font-weight:700;color:var(--foam);}
+  .phone-glow{
+    position:absolute;
+    width:340px;height:340px;
+    background:radial-gradient(circle, rgba(63,216,224,0.28), transparent 70%);
+    top:50%;left:50%;transform:translate(-50%,-50%);
+    z-index:1;filter:blur(10px);
+  }
+
+  /* ---------- Marquee spots ---------- */
+  .marquee-wrap{
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding:16px 0;
+    overflow:hidden;
+    position:relative;z-index:1;
+    background:rgba(255,255,255,0.015);
+  }
+  .marquee{
+    display:flex;gap:52px;white-space:nowrap;
+    animation:scroll 28s linear infinite;
+    width:max-content;
+  }
+  .marquee span{
+    font-size:0.85rem;color:var(--ink-mute);font-weight:600;
+    display:flex;align-items:center;gap:10px;
+    letter-spacing:0.02em;
+  }
+  .marquee span::before{content:"🌊";font-size:0.9rem;}
+  @keyframes scroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+
+  /* ---------- Section shared ---------- */
+  section{position:relative;z-index:1;padding:100px 0;}
+  .section-head{max-width:600px;margin-bottom:56px;}
+  .section-head .eyebrow{margin-bottom:16px;}
+  .section-head h2{
+    font-size:clamp(1.9rem,3.4vw,2.6rem);
+    font-weight:700;letter-spacing:-0.02em;
+    margin-bottom:16px;
+  }
+  .section-head p{color:var(--ink-mute);font-size:1.02rem;}
+  .center{text-align:center;margin-left:auto;margin-right:auto;}
+
+  /* ---------- Features ---------- */
+  .features-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  .feature-card{
+    background:linear-gradient(160deg,var(--navy-800),var(--navy-900));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:30px 26px;
+    transition:transform .25s, border-color .25s;
+  }
+  .feature-card:hover{transform:translateY(-6px);border-color:rgba(63,216,224,0.4);}
+  .feature-icon{
+    width:46px;height:46px;
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;
+    background:rgba(63,216,224,0.12);
+    margin-bottom:20px;
+  }
+  .feature-card h3{font-size:1.15rem;margin-bottom:10px;font-weight:700;}
+  .feature-card p{color:var(--ink-mute);font-size:0.93rem;}
+
+  /* ---------- Spots ---------- */
+  .spots-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+  }
+  .spot-card{
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    background:var(--navy-800);
+    position:relative;
+  }
+  .spot-photo{
+    height:130px;
+    position:relative;
+    display:flex;align-items:flex-end;
+    padding:14px;
+  }
+  .spot-photo::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55));
+  }
+  .spot-photo b{position:relative;z-index:1;font-family:'Bricolage Grotesque',sans-serif;font-size:1.02rem;}
+  .s1{background:linear-gradient(140deg,#0f3d4a,#123047);}
+  .s2{background:linear-gradient(140deg,#123047,#1a1f45);}
+  .s3{background:linear-gradient(140deg,#0d3b3d,#0a2436);}
+  .s4{background:linear-gradient(140deg,#1a2d47,#0f1e33);}
+  .spot-info{padding:14px;display:flex;justify-content:space-between;align-items:center;}
+  .spot-wave{font-size:0.82rem;color:var(--cyan-300);font-weight:700;}
+  .spot-tag{font-size:0.72rem;color:var(--ink-mute);}
+
+  /* ---------- How it works ---------- */
+  .steps{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:30px;
+    counter-reset:step;
+  }
+  .step{position:relative;padding-left:0;}
+  .step .num{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-size:2.6rem;font-weight:700;
+    color:transparent;
+    -webkit-text-stroke:1.5px rgba(63,216,224,0.5);
+    margin-bottom:16px;
+  }
+  .step h3{font-size:1.1rem;margin-bottom:10px;font-weight:700;}
+  .step p{color:var(--ink-mute);font-size:0.93rem;max-width:280px;}
+
+  /* ---------- Testimonials ---------- */
+  .testi-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+  }
+  .testi-card{
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:26px;
+  }
+  .stars{color:var(--coral-400);letter-spacing:2px;margin-bottom:14px;font-size:0.9rem;}
+  .testi-card p{color:var(--foam);font-size:0.95rem;margin-bottom:20px;}
+  .testi-who{display:flex;align-items:center;gap:12px;}
+  .avatar{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(140deg,var(--cyan-400),var(--coral-400));
+    flex-shrink:0;
+  }
+  .testi-who b{font-size:0.88rem;display:block;}
+  .testi-who span{font-size:0.76rem;color:var(--ink-mute);}
+
+  /* ---------- CTA ---------- */
+  .cta-band{
+    background:linear-gradient(135deg,var(--navy-800),var(--navy-900));
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:70px 50px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-band::before{
+    content:"";position:absolute;
+    width:500px;height:500px;
+    background:radial-gradient(circle,rgba(63,216,224,0.18),transparent 70%);
+    top:-200px;left:50%;transform:translateX(-50%);
+  }
+  .cta-band h2{
+    font-size:clamp(1.8rem,3.6vw,2.5rem);
+    font-weight:700;margin-bottom:16px;position:relative;z-index:1;
+  }
+  .cta-band p{color:var(--ink-mute);margin-bottom:30px;position:relative;z-index:1;}
+  .store-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+  .store-btn{
+    display:flex;align-items:center;gap:10px;
+    background:var(--navy-950);
+    border:1px solid var(--line);
+    padding:12px 22px;border-radius:12px;
+    font-weight:600;font-size:0.9rem;
+    transition:border-color .2s;
+  }
+  .store-btn:hover{border-color:var(--cyan-400);}
+  .store-btn .ic{font-size:1.3rem;}
+  .store-btn small{display:block;color:var(--ink-mute);font-size:0.65rem;font-weight:500;}
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:50px 0 30px;
+    position:relative;z-index:1;
+  }
+  .foot-top{
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px;
+    margin-bottom:40px;
+  }
+  .foot-cols{display:flex;gap:60px;flex-wrap:wrap;}
+  .foot-col h4{font-size:0.82rem;margin-bottom:14px;color:var(--foam);text-transform:uppercase;letter-spacing:0.05em;}
+  .foot-col a{display:block;font-size:0.88rem;color:var(--ink-mute);margin-bottom:10px;transition:color .2s;}
+  .foot-col a:hover{color:var(--cyan-300);}
+  .foot-bottom{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+    padding-top:24px;border-top:1px solid var(--line);
+    font-size:0.8rem;color:var(--ink-mute);
+  }
+
+  @media(max-width:920px){
+    .hero{grid-template-columns:1fr;padding-top:60px;}
+    .phone-stage{order:-1;margin-bottom:20px;}
+    .features-grid{grid-template-columns:repeat(2,1fr);}
+    .spots-grid{grid-template-columns:repeat(2,1fr);}
+    .steps{grid-template-columns:1fr;}
+    .testi-grid{grid-template-columns:1fr;}
+    .nav-links{display:none;}
+  }
+  @media(max-width:520px){
+    .features-grid{grid-template-columns:1fr;}
+    .spots-grid{grid-template-columns:1fr;}
+    .hero-stats{gap:22px;}
+    .cta-band{padding:50px 24px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="logo"><span class="dot"></span>Mulmoe</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#spots">Spots</a>
+      <a href="#how">How it works</a>
+      <a href="#reviews">Reviews</a>
+    </div>
+    <a href="#download" class="nav-cta">Get the App</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap" style="display:grid;grid-template-columns:1.05fr 0.95fr;gap:40px;align-items:center;">
+    <div>
+      <div class="eyebrow"><span class="pin">●</span> Built for Jeju surf breaks</div>
+      <h1>Know the swell<br>before you <em>paddle out</em>.</h1>
+      <p class="lead">Mulmoe (물목) reads Jeju's tides, swell, and wind in real time — so you stop guessing and start scoring, from Jungmun to Woljeong-ri.</p>
+      <div class="hero-ctas">
+        <a href="#download" class="btn-primary">Download Free</a>
+        <a href="#how" class="btn-ghost">See how it works</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong>18</strong><span>Jeju surf spots tracked</span></div>
+        <div><strong>10 min</strong><span>forecast refresh rate</span></div>
+        <div><strong>4.8★</strong><span>surfer rating</span></div>
+      </div>
+    </div>
+
+    <div class="phone-stage">
+      <div class="phone-glow"></div>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-top">
+            <div class="phone-loc">JUNGMUN BEACH<br><b>제주, Jeju-do</b></div>
+            <div class="swell-badge">Firing 🔥</div>
+          </div>
+          <div class="wave-big">1.2m</div>
+          <div class="wave-sub">Swell period 11s · SW wind 8kt · Rising tide</div>
+          <div class="chart">
+            <i style="height:30%"></i><i style="height:45%"></i><i style="height:38%"></i>
+            <i style="height:60%"></i><i style="height:80%"></i><i style="height:95%"></i>
+            <i style="height:70%"></i><i style="height:55%"></i><i style="height:40%"></i>
+            <i style="height:50%"></i><i style="height:65%"></i><i style="height:35%"></i>
+          </div>
+          <div class="mini-row">
+            <span>6AM</span><span>9AM</span><span>12PM</span><span>3PM</span><span>6PM</span><span>9PM</span>
+          </div>
+          <div class="card-row">
+            <div class="mini-card"><div class="lbl">Tide</div><div class="val">↑ High 3:40</div></div>
+            <div class="mini-card"><div class="lbl">Water</div><div class="val">21°C</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee">
+    <span>Jungmun</span><span>Iho Tewoo</span><span>Woljeong-ri</span><span>Sagye</span>
+    <span>Hamdeok</span><span>Gwakji</span><span>Pyoseon</span><span>Sinsan</span>
+    <span>Jungmun</span><span>Iho Tewoo</span><span>Woljeong-ri</span><span>Sagye</span>
+    <span>Hamdeok</span><span>Gwakji</span><span>Pyoseon</span><span>Sinsan</span>
+  </div>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Forecast Engine</div>
+      <h2>Everything you check before a session, in one glance.</h2>
+      <p>Mulmoe blends buoy data, satellite swell models, and local tide tables tuned specifically for Jeju's reef and beach breaks.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🌊</div>
+        <h3>Swell & Period</h3>
+        <p>Wave height, direction, and period broken down hour by hour — not just a daily average.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌙</div>
+        <h3>Tide Charts</h3>
+        <p>Full lunar tide curves for every Jeju harbor, with the best tide window highlighted per spot.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💨</div>
+        <h3>Wind Timing</h3>
+        <p>Onshore, offshore, or glassy — know exactly when the wind will turn before you drive out.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Session Alerts</h3>
+        <p>Set a spot and a minimum size — get pinged the moment conditions line up.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3>Spot Guides</h3>
+        <p>Local knowledge on bottom type, crowd levels, and ideal swell direction for 18 breaks.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📶</div>
+        <h3>Offline Mode</h3>
+        <p>Cell signal drops near the cliffs — cached forecasts keep working when you're off the grid.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="spots" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Spot Coverage</div>
+      <h2>From beginner beach breaks to reef barrels.</h2>
+      <p>Live conditions for every spot surfers actually check around the island.</p>
+    </div>
+    <div class="spots-grid">
+      <div class="spot-card">
+        <div class="spot-photo s1"><b>Jungmun</b></div>
+        <div class="spot-info"><span class="spot-wave">1.2m</span><span class="spot-tag">Reef · Advanced</span></div>
+      </div>
+      <div class="spot-card">
+        <div class="spot-photo s2"><b>Iho Tewoo</b></div>
+        <div class="spot-info"><span class="spot-wave">0.6m</span><span class="spot-tag">Beach · All levels</span></div>
+      </div>
+      <div class="spot-card">
+        <div class="spot-photo s3"><b>Woljeong-ri</b></div>
+        <div class="spot-info"><span class="spot-wave">0.9m</span><span class="spot-tag">Beach · Beginner</span></div>
+      </div>
+      <div class="spot-card">
+        <div class="spot-photo s4"><b>Sagye</b></div>
+        <div class="spot-info"><span class="spot-wave">1.5m</span><span class="spot-tag">Point · Intermediate</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head center">
+      <div class="eyebrow">How It Works</div>
+      <h2>Three checks, ten seconds, better sessions.</h2>
+      <p>No more juggling three different weather sites before a dawn patrol.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Pick your spot</h3>
+        <p>Choose from 18 tracked breaks around Jeju, or drop a pin anywhere on the coast.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Read the window</h3>
+        <p>See swell, tide, and wind overlaid on one timeline to spot the best hour to paddle out.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Set an alert</h3>
+        <p>Get notified the moment your spot hits the size and wind you're waiting for.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Local Surfers</div>
+      <h2>Trusted by the crew that surfs it daily.</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p>"I used to check three apps and still paddle out to mush. Mulmoe's tide overlay alone saved me a dozen wasted dawn patrols."</p>
+        <div class="testi-who"><div class="avatar"></div><div><b>Minjun Kang</b><span>Jungmun local, 6 years</span></div></div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p>"The offline cache is clutch out by Sagye where signal disappears. Forecast still loads right at the cliff edge."</p>
+        <div class="testi-who"><div class="avatar"></div><div><b>Soyeon Park</b><span>Longboarder</span></div></div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p>"Session alerts are scary accurate. Got pinged for a Woljeong-ri window and it was empty and perfect."</p>
+        <div class="testi-who"><div class="avatar"></div><div><b>Daniel Cho</b><span>Surf instructor</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>Your next good session starts with a check.</h2>
+      <p>Free to download. No account needed to see today's forecast.</p>
+      <div class="store-row">
+        <a href="#" class="store-btn"><span class="ic">🍎</span><span><small>Download on the</small>App Store</span></a>
+        <a href="#" class="store-btn"><span class="ic">▶</span><span><small>Get it on</small>Google Play</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <div class="logo" style="margin-bottom:12px;"><span class="dot"></span>Mulmoe</div>
+        <p style="color:var(--ink-mute);font-size:0.88rem;max-width:280px;">Tide and swell forecasting built for Jeju Island's surf community.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#spots">Spots</a>
+          <a href="#how">How it works</a>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+          <a href="#">Blog</a>
+        </div>
+        <div class="foot-col">
+          <h4>Legal</h4>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Mulmoe. Made on Jeju Island.</span>
+      <span>물목 · 물때를 아는 서퍼가 더 좋은 파도를 탄다</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
