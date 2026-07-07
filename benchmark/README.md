@@ -60,6 +60,35 @@ cd benchmark
 - 첫 실행은 프롬프트 캐시가 비어 있어 느릴 수 있다. `cache_read`/`cache_write` 값으로 확인 가능.
 - 샘플 과제 3개는 쉬운 편이라 baseline도 자주 통과한다. 스킬 효과는 **어려운 과제일수록** 커지므로, 실제 프로젝트의 까다로운 버그를 `tasks.json`에 추가해 보는 게 가장 의미 있다.
 
+## 스킬 효과 종합 (실측 기반)
+
+> 아래 실험 1~6 + 후속의 데이터를 압축한 결론. **객관 채점(테스트 통과)이 가능한 소~중형 코딩 과제**에 한함 — 판단형·디자인·대형 코드베이스는 미검증. 대부분 셀당 n=1이라 방향성 위주로 읽을 것. 통과율(품질) 격차가 실제로 측정된 곳은 두 군데뿐(Haiku expr-eval, OSS `&<>`)이며 나머지는 효율(토큰·시간) 지표다.
+
+**한 줄 결론: 효과는 "모델 × 과제 난이도"에 좌우된다. 스킬은 모델이 낭비하거나 실수하는 지점을 메우고, 그 지점이 없으면 비용만 든다.**
+
+측정된 4개 국면:
+
+| 국면 | 대표 실측 | 효과 |
+|---|---|---|
+| 약한 모델 + 능력 초과 스펙 | Haiku `expr-eval`: baseline **FAIL** → haiku-boost **PASS** (토큰 21.6k→32.6k, +50%) | **품질 반전** — 통과율을 뒤집은 유일한 국면 |
+| 장황한 모델 + 긴 과제 | Sonnet `csv-parser`: 42.2k→14.3k 토큰(**−66%**), 둘 다 PASS, 2.9배 빠름 | **효율** — 같은 품질을 1/3 토큰에 |
+| 정돈된 모델 / 능력 내 과제 | Opus `csv-parser` −12%; Haiku 쉬운 과제엔 skill이 턴 8→22 폭증 | 온건한 이득 ~ 순비용 |
+| 멀티에이전트 게이트 (객관채점) | gate-v1/v2: baseline 천장(전 셀 PASS) → 점수 불변, 토큰 +89~114% | 이 난이도선 순비용. 단 baseline이 실수하면 게이트가 실재 결함을 잡음(아래) |
+
+**모델별 처방 (3모델 기울기, 효율 기준):** Sonnet(낭비 큼) 토큰 −66% / Opus(정돈됨) −12% / Haiku(낭비 없음) 규율형(sonnet-boost)은 역효과 → 검증형(haiku-boost의 spec→assert)만 유효. **"스킬은 모델별 처방"** 이 세 모델로 확인됐다.
+
+**게이트가 실재 결함을 잡은 유일한 직접 증거 (실험 6, OSS 이슈 #495):** fresh-context 스켑틱이 **저자 컨텍스트·자동채점기 둘 다 놓친** `&<>` 버그를 잡았고(독립·업스트림 확인), Opus는 스트림상 `Edit→Agent→Edit`로 스켑틱-유발 수정까지 갔다. 단 baseline도 그 버그를 안 냈으므로 **최종 점수 격차로는 안 드러난다** — 게이트는 "모델이 실수하는" 조건에서만 값을 한다.
+
+**v-next 재설계로 얻은 것 (실험 6 후속):** 멀티에이전트 패널을 "spec→실행예시 + 셀 수 있는 트리거의 단일 프로브"로 교체 → gate-v2 토큰 **48~76%↓** 하며 점수 유지(Sonnet multiref 8.6k→4.5k, Opus audit 21.7k→5.1k), OSS는 구판 3-패널(Opus 46k)을 단일 프로브(31k)로 대체해 동일 5/5. 재설계가 완전성을 해친 회귀 3셀은 원인 규명 후 복원(양 OSS 5/5, Sonnet audit 7/7). 그 과정에서 나온 **약한 모델용 설계 원칙 3가지**(전부 실측): ① 트리거는 모델 외부에서 셀 수 있어야 한다(판단은 blind spot이 뚫음) ② 강제 신고는 사실을 정직하게 만들지만 행동을 강제하진 못한다(Sonnet은 조건 참을 적고도 서브에이전트 거부) ③ 완전성 메커니즘은 모델이 이미 따르는 것(자기-실행 테스트)이어야 한다.
+
+**언제 켜고 끌까 (실측 처방):**
+- Haiku로 어려운 스펙 구현 → **haiku-boost 켠다** (품질 반전, 유일하게 확실한 ON).
+- Sonnet으로 긴 작업 → **sonnet-boost 켠다** (품질이 아니라 토큰·시간을 산다; 쉬운 과제엔 소액 순비용).
+- Opus → 이득 온건. 규율·정직 보고가 목적이면 유지.
+- 멀티에이전트 게이트 → baseline이 실수할 만한 환경(약한 모델·대형 코드베이스)에서만 값을 한다. v-next는 그 비용을 단일 프로브로 낮췄다.
+
+세부 근거는 아래 실험 1~6 로그. 원시 데이터는 각 실험의 `results\<타임스탬프>\`.
+
 ## 실측 결과 (2026-07-06)
 
 `csv-parser` 과제(숨김 테스트 채점, 아래 참고) × `claude-sonnet-5` × `sonnet-boost`, 모드당 1회:
@@ -373,25 +402,29 @@ v-next(2726720) skill을 gate-tasks-v2 + oss-tasks로 재측정(신판 skill만,
 
 ## 디자인 벤치마크 (run-design-benchmark.ps1)
 
-`design-boost`용 별도 하네스. 디자인은 pass/fail 채점이 불가능하므로 **블라인드 LLM 심사** 방식을 쓴다.
+`design-boost`용 별도 하네스. 디자인은 pass/fail 채점이 불가능하므로 **블라인드 LLM 심사** 방식을 쓴다. (v2: 쌍대 비교 × 복수 심사자)
 
 ```powershell
-.\run-design-benchmark.ps1                                  # Sonnet 5, 3-arm 전부
-.\run-design-benchmark.ps1 -Arms baseline,design-boost      # 2-arm만
-.\run-design-benchmark.ps1 -Model claude-opus-4-8
+.\run-design-benchmark.ps1                                  # Sonnet 5 생성, 4-arm, 심사 Opus+Fable
+.\run-design-benchmark.ps1 -Model claude-opus-4-8           # Opus 생성
+.\run-design-benchmark.ps1 -Arms baseline,design-boost -JudgedArms baseline,design-boost
+.\run-design-benchmark.ps1 -Judges claude-opus-4-8          # 심사자 1명만
 ```
 
-작동 방식:
+작동 방식 (v2):
 
-1. **생성** — design-tasks.json의 브리프마다 3-arm 실행: `baseline`(브리프만) / `design-boost`(SKILL.md + DESIGN-SYSTEM.md 주입) / `frontend-design`(Anthropic 공식 스킬 주입). 각 에이전트는 파일 도구만 허용된 헤드리스 실행으로 self-contained `index.html`을 만든다.
-2. **스크린샷** — headless Edge로 데스크톱(1440px)·모바일(390px) PNG 캡처 (`--virtual-time-budget`으로 로드 애니메이션 완료 후 시점).
-3. **블라인드 심사** — arm 이름을 무작위 A/B/C로 치환한 스크린샷만 심사 에이전트(기본 Fable)에게 주고 5개 차원(distinctiveness / typography / layout / color / craft) 0-10 채점 + AI 티(ai_tells) 목록 + 순위를 JSON으로 받는다. 심사자는 어떤 arm이 어떤 라벨인지 모른다. 라벨↔arm 매핑은 `<과제>_judge\mapping.json`에 저장.
+1. **생성** — design-tasks.json의 브리프마다 4-arm: `baseline`(브리프만, Skill 차단) / `design-boost`(SKILL.md + DESIGN-SYSTEM.md 주입) / `frontend-design`(Anthropic 공식 스킬 주입) / `auto`(주입 없음 + **Skill 도구 개방** → 스트림에서 자가 발동 감지, fire 측정). 파일 도구만 허용된 헤드리스 실행.
+2. **스크린샷** — 데스크톱 1440px 직접 캡처. 모바일은 **390px iframe 래퍼**로 렌더 후 크롭 — Windows Chromium이 최소 창폭(~492px)을 강제하기 때문에 `--window-size=390` 직접 캡처는 492px 레이아웃의 왼쪽 390px만 잘라낸 가짜 "잘림"을 만든다 (v1의 버그, 아래 정정 참고).
+3. **객관 오버플로 판정** — 페이지에 프로브 JS를 주입해 텍스트 요소의 잉크 오버플로(`scrollWidth > clientWidth`)와 뷰포트 이탈을 세고, 결과를 빨강/초록 띠로 그린 뒤 스크린샷 픽셀로 읽는다 (`mobile_overflow` — 심사자 인상이 아닌 DOM 사실).
+4. **쌍대 블라인드 심사** — JudgedArms의 모든 쌍(3-arm이면 3쌍)을 X/Y 무작위 배정으로 익명화하고, **심사자 2모델**(기본 Opus 4.8 + Fable)이 각각 승자·마진(slight/clear)·한줄 사유를 JSON으로 낸다. 절대 점수보다 순위 신뢰도가 높고, **심사자 간 일치율**(agreement)이 심사 신뢰도 지표로 나온다. 매핑은 `<과제>_pair_*\mapping.json`.
 
-결과: `results\design-<타임스탬프>\design-summary.csv` (arm별 점수·순위·생성 비용), `runs.jsonl` (생성 메트릭), 과제별 폴더에 index.html + 스크린샷 원본.
+결과: `design-summary.csv`(arm별 승수·clear승·오버플로 수), `pairwise.jsonl`(심사 원장), `runs.jsonl`(생성 메트릭 + fire + overflow), 과제별 폴더에 index.html·스크린샷.
 
-주의: 심사자가 1명이라 편차가 있다 — 순위가 갈릴 때는 재심사(같은 스크린샷으로 스크립트의 judge 단계만 재실행)나 심사 모델 교체로 교차 확인. 심사자는 스크린샷만 보므로 인터랙션/모션 품질은 평가에서 빠진다.
+주의: 심사자는 스크린샷만 보므로 인터랙션/모션 품질은 평가에서 빠진다. auto arm은 품질 심사에서 제외(fire 측정 전용).
 
 ### 실측 결과 (2026-07-07)
+
+> **정정 (같은 날 발견):** 1·2라운드의 모바일 스크린샷은 v1 하네스 버그로 **492px 레이아웃을 390px로 크롭**한 이미지였다 (Windows Chromium 최소 창폭 클램프). 따라서 두 라운드 심사평의 "모바일 우측 잘림" 감점은 전부 무효 — 검증 결과 예: 2라운드 tide-app design-boost는 진짜 390px에서 정상 적응한다. 데스크톱 판정과 개성/타이포/컬러 축은 영향 없음. v2에서 iframe 렌더 + 객관 오버플로 프로브로 교정됨.
 
 브리프 2개(tide-app: 제주 서핑 조석 앱 랜딩 / type-foundry: 서울 한글 활자 주조소 홈) × 3-arm × 1회, 생성 Sonnet 5, 심사 Fable. 점수는 5차원 합계 (50점 만점):
 
