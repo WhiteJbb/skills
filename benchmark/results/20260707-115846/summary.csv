@@ -1,0 +1,3 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_agents","avg_out_tok","avg_cache_read","avg_cost_usd"
+"md-ref-backtick","baseline","1","100",,"535","528.4","41","0","42792","3104234","3.42"
+"md-ref-backtick","skill","1","100",,"1008.3","992.6","41","1","44619","2929316","6.01"

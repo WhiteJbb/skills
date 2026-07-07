@@ -231,6 +231,40 @@ opus-boost/sonnet-boost에 Fable식 멀티에이전트 패턴을 **조건부 게
 - **판정**: 결과는 "발동 + 격차 없음 + 비용 1.6~2.1배"로 계획서 기준표상 "조건 축소/제거 검토"에 해당하나, baseline 천장이 두 차례(v1·v2) 이어진 만큼 이 난이도 대역에서는 격차 검출 자체가 불가능하다고 보는 게 정확하다. 게이트 이득 입증은 (a) Haiku 등 약한 모델 조합, (b) 실제 대형 코드베이스 과제로 넘긴다. 현행 게이트는 비용이 유계(스켑틱/finder 1~3개)이고 실험 4 기준 오발동이 없으므로 **유지**.
 - 원시 데이터: `results\20260707-110940\`·`110942\`(문언 반복), `111244\`(회계 라인), `111706\`(v2 Sonnet — audit 두 런은 스펙 버그로 무효), `111711\`(v2 Opus), `113016\`(v2 Sonnet audit 재실행)
 
+### 실험 6: 실전 OSS — 게이트가 실제 결함을 잡은 첫 직접 증거 (2026-07-07)
+
+`md-ref-backtick` (Python-Markdown 이슈 #495, git 히스토리 회귀 방식) × 2모델 × baseline/skill, 셀당 1회. **채점기는 실행 후 강화됨** — 아래 참고.
+
+| 모델 | 모드 | 채점(강화 후) | agents | 턴 | 종료 | 시간(초) | 출력 토큰 | 비용 |
+|---|---|---|---|---|---|---|---|---|
+| Sonnet 5 | baseline | 5/5 | 0 | 41 | **max_turns** | 535 | 42,792 | $3.42 |
+| Sonnet 5 | skill | **3/5** | 1 | 41 | **max_turns** | 1008 | 44,619 | $6.01 |
+| Opus 4.8 | baseline | 5/5 | 0 | 39 | success | 1198 | 87,493 | $5.22 |
+| Opus 4.8 | skill | 5/5 | **3** | 32 | success | 952 | 46,044 | $6.08 |
+
+**핵심 발견 — 게이트가 저자·채점기 둘 다 놓친 진짜 버그를 잡았다.** 실험 4~5 내내 스켑틱은 전부 "no issues found"였는데, 여기서 처음으로 실재 결함을 잡았고 독립 검증됐다:
+
+- 두 모델 모두 업스트림(`07dfa4e`)과 **다른 독창적 수정**을 만들었다. Sonnet은 `blockprocessors.py`에 `_resolve_code_spans`로 참조 정의 측 id를 원문에서 정규화하는 방식.
+- **Sonnet skill의 스켑틱**(서브에이전트 55 도구호출·8만 토큰)이 지적: 코드 스팬에 `<`,`>`,`&`가 있으면(`` [`<div>`] ``) 여전히 링크가 안 된다 — 고치려던 바로 그 증상. 원인은 정의 측은 원문에서, 사용 측은 `code_escape`로 HTML 이스케이프된 텍스트에서 id를 뽑아 둘이 어긋나는 것.
+- **독립 확인**: 그 지적대로 Sonnet skill 해법은 `<p>[<code>&lt;div&gt;</code>]</p>`(깨짐), **업스트림 픽스와 두 baseline은 정상 링크**. 최초 채점기는 이 케이스가 없어 놓쳤다 — **게이트가 채점기의 사각지대를 가르쳐준 것**. 그래서 `test_oss_md_hidden.py`에 BUG4/5(`<div>`, `a&b`)를 추가했고, 이 강화 채점기로 재채점한 것이 위 표.
+
+**게이트 개입 → 수정의 기계적 증거 (Opus skill):**
+
+- opus-boost §4가 스켑틱 **3개**를 렌즈별(correctness / edge-cases / regression)로 띄웠다(완전 준수). 그중 correctness 스켑틱이 "REFUTED — `<>&` 비대칭 결함"을 지적.
+- 스트림상 스켑틱 3개 **이후** `inlinepatterns.py`에 Edit 1건 발생, 내용이 정확히 `content.replace('&lt;','<').replace('&gt;','>').replace('&amp;','&')` — **스켑틱이 지목한 그 결함의 수정**. Opus skill이 `&<>`를 통과하는 이유가 이 스켑틱-유발 수정이다.
+
+**그런데 Sonnet skill은 3/5로 baseline(5/5)보다 낮다 — 스킬이 해로운 게 아니라 하네스 턴 상한 아티팩트다:**
+
+- Sonnet skill의 스켑틱도 **같은 결함을 정확히 잡았고**, 모델은 파일 백업·테스트 셋업(Bash 2회)까지 착수했으나 **`--max-turns 40`에 걸려(41턴, error_max_turns) 수정을 적용하기 전에 잘렸다.** Sonnet baseline도 41턴 max_turns지만 애초에 견고한 수정을 써서 `&<>`를 통과.
+- 즉 두 skill 런 모두 게이트는 결함을 **포착**했고, 턴 여유가 있던 Opus는 **수정까지** 갔으나 Sonnet은 상한에 막혔다. 게이트 가치 실현에는 충분한 턴 예산이 필요하다는 것.
+
+**판정 및 다음 단계:**
+
+- **게이트 이득 = 입증됨(방향성).** "버그를 쓴 컨텍스트는 못 보고 신선한 눈은 본다"가 실제 OSS 결함에서, 저자·채점기가 둘 다 놓친 케이스로 확인됐다. 실험 5에서 미검출이던 것은 과제가 baseline 천장이라 잡을 게 없었기 때문 — 잡을 게 있으면 게이트가 잡는다.
+- **공정한 재측정 조건**: `--max-turns`를 60~80으로 올려 Sonnet skill이 스켑틱 수정을 완료할 수 있게 해야 한다(그러면 3/5 → 5/5 예상). 비용은 회당 $3~6.
+- n=1 주의: 독창적 해법이라 편차 큼. 다만 "스켑틱이 실재·업스트림 확인된 결함을 지목 → (턴 있으면) 수정"이라는 인과 사슬은 스트림에 기계적으로 남아 있어 방향성은 견고.
+- 원시 데이터: `results\20260707-115846\` (Sonnet), `results\20260707-115848\` (Opus)
+
 ### 숨김 테스트 패턴
 
 쉬운 과제는 모델이 보이는 테스트를 통과할 때까지 고치면 되므로 pass_pct 변별력이 없다. `csv-parser`처럼 **스펙은 프롬프트에 전부 명시하되, 보이는 테스트는 기본 케이스만 주고 채점은 `hidden\`의 숨김 테스트로** 하면 "보이는 테스트만 통과시키는 성급함"과 "스펙 전항목 구현"의 차이가 통과율로 드러난다. 숨김 테스트는 `check`에서 작업 폴더로 복사해 실행한다 (tasks.json의 csv-parser 항목 참고).
@@ -270,8 +304,9 @@ opus-boost/sonnet-boost에 Fable식 멀티에이전트 패턴을 **조건부 게
 
 ```powershell
 .\setup-oss.ps1        # 최초 1회 (oss\ 재생성)
-.\run-benchmark.ps1 -TasksFile .\oss-tasks.json -Model claude-sonnet-5 -Skill sonnet-boost
-.\run-benchmark.ps1 -TasksFile .\oss-tasks.json -Model claude-opus-4-8 -Skill opus-boost
+# OSS 과제는 크고 게이트가 발동하므로 턴 상한을 올린다 (기본 40이면 Sonnet skill이 잘림 — 실험 6 참고)
+.\run-benchmark.ps1 -TasksFile .\oss-tasks.json -Model claude-sonnet-5 -Skill sonnet-boost -MaxTurns 80
+.\run-benchmark.ps1 -TasksFile .\oss-tasks.json -Model claude-opus-4-8 -Skill opus-boost -MaxTurns 80
 ```
 
 주시할 지표: pass 격차(부분 수정·회귀 유발이 나오는지), `agents_spawned`(멀티파일 픽스이므로 게이트 발동 대상), 그리고 **스켑틱 개입 후 diff가 추가 수정됐는지**(스트림에서 Agent 결과 이후 Edit 발생 여부 — 게이트가 실제 결함을 잡았는지의 가장 예민한 신호).

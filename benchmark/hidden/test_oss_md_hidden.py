@@ -41,6 +41,17 @@ def main():
     check("BUG3 ref-label-code-first",
           "[`Text` after]\n\n[`Text` after]: http://example.com",
           '<p><a href="http://example.com"><code>Text</code> after</a></p>')
+    # BUG4/5 discriminate complete vs incomplete fixes: a code span containing
+    # <, >, or & is HTML-escaped at match time, so a fix that derives the
+    # definition-side id from raw text (and doesn't unescape the usage side)
+    # silently fails to link. Surfaced by the fresh-context skeptic in the
+    # 2026-07-07 OSS run, not by the original grader. Upstream 07dfa4e handles it.
+    check("BUG4 ref-label-code-with-angle",
+          "[`<div>`]\n\n[`<div>`]: http://example.com",
+          '<p><a href="http://example.com"><code>&lt;div&gt;</code></a></p>')
+    check("BUG5 ref-label-code-with-amp",
+          "[`a&b`]\n\n[`a&b`]: http://example.com",
+          '<p><a href="http://example.com"><code>a&amp;b</code></a></p>')
     # baseline: must not regress (all of these pass before AND after the fix)
     check("BASE1 inline-link-full-code",
           "[`test`](link)",
@@ -76,10 +87,11 @@ def main():
           "[the file][config]\n\n[config]: /files/config.txt",
           '<p><a href="/files/config.txt">the file</a></p>')
 
+    bug_total = sum(1 for label, _ in RESULTS if label.startswith("BUG"))
     fixed = sum(1 for label, ok in RESULTS if ok and label.startswith("BUG"))
     baseline_ok = all(ok for label, ok in RESULTS if label.startswith("BASE"))
-    print("FOUND %d/3 bug cases fixed; baseline %s" % (fixed, "PASS" if baseline_ok else "FAIL"))
-    if fixed == 3 and baseline_ok:
+    print("FOUND %d/%d bug cases fixed; baseline %s" % (fixed, bug_total, "PASS" if baseline_ok else "FAIL"))
+    if fixed == bug_total and baseline_ok:
         print("HIDDEN OK")
         return 0
     return 1
