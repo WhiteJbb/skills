@@ -1,0 +1,9 @@
+﻿{
+    "model":  "claude-sonnet-5",
+    "skill":  "research-boost",
+    "runs":  1,
+    "modes":  [
+                  "skill"
+              ],
+    "max_turns":  40
+}

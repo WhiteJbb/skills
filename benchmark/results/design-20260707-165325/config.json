@@ -1,0 +1,16 @@
+﻿{
+    "model":  "claude-fable-5",
+    "judges":  [
+                   "claude-opus-4-8",
+                   "claude-fable-5"
+               ],
+    "arms":  [
+                 "baseline"
+             ],
+    "judged_arms":  [
+                        "baseline",
+                        "design-boost",
+                        "frontend-design"
+                    ],
+    "max_turns":  25
+}

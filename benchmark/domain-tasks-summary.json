@@ -1,0 +1,8 @@
+[
+  {
+    "id": "summary-brief",
+    "source": "fixtures\\summary-brief",
+    "prompt": "Read document.md in the working directory. Write summary.md: an executive summary of the briefing in English, at most 220 words, for the CFO who must decide at the January board meeting whether to approve the Meridian expansion. Requirements: every fact material to that decision must be included — the current operational constraint that motivates the project, the commercial demand and its conditions, the full cost picture, the schedule, all hard risks, the considered alternative, the financial returns and their sensitivity, and the specific structure of the recommendation. Numbers must match the document exactly; do not add claims that are not in the document. Do not modify document.md. Your summary will be graded by a hidden checker on decision-relevant coverage, numeric fidelity, and length.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\grade_summary_hidden.py' .\\grade_summary_hidden.py; python grade_summary_hidden.py"
+  }
+]

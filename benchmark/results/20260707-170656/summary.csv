@@ -1,0 +1,3 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_agents","avg_out_tok","avg_cache_read","avg_cost_usd"
+"data-simpson","baseline","1",,,"102.2","99.8","11","0","5119","431925","0.52"
+"data-simpson","skill","1",,,"122","79.4","13","0","6768","524264","0.63"

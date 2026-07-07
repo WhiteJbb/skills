@@ -1,0 +1,9 @@
+﻿{
+    "model":  "claude-fable-5",
+    "skill":  "summary-boost",
+    "runs":  1,
+    "modes":  [
+                  "baseline"
+              ],
+    "max_turns":  40
+}

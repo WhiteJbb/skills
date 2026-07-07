@@ -1,0 +1,2 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_agents","avg_out_tok","avg_cache_read","avg_cost_usd"
+"research-4day","baseline","1",,,"99.5","98","11","0","4017","226724","0.69"

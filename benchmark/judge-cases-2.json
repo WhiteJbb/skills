@@ -1,0 +1,64 @@
+[
+  {
+    "id": "review-sonnet",
+    "kind": "review",
+    "task": "Review the Python module in this folder (events.py, windows.py, stats.py, report.py) for defects. Each function's docstring states its contract. Do NOT fix or modify any file. Write your review to review.md: findings ordered most-severe first, each with file:line, a one-sentence description of the defect, a concrete input or scenario that triggers the wrong behavior, and a one-line fix direction. Separate genuine defects from nits (style/naming); include nits only in a short section at the end.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\audit-seeded-bugs-v2\\events.py",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\audit-seeded-bugs-v2\\windows.py",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\audit-seeded-bugs-v2\\stats.py",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\audit-seeded-bugs-v2\\report.py"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170443\\review-audit-v2_baseline_run1\\review.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170326\\review-audit-v2_baseline_run1\\review.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170326\\review-audit-v2_skill_run1\\review.md"
+  },
+  {
+    "id": "report-sonnet",
+    "kind": "report",
+    "task": "Read notes.md — raw, unsorted notes about whether to consolidate our two data warehouses (legacy Redshift vs Snowflake). Write decision-memo.md: a decision memo for the CTO, at most 450 words, recommending whether to consolidate onto one platform, and if so which one and on what timeline. The memo must be an argument, not a notes dump: state your recommendation clearly, support it with the evidence from the notes, be honest about what is fact versus assumption versus unresolved conflict in the notes, and address timing constraints.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\report-memo\\notes.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170455\\report-memo_baseline_run1\\decision-memo.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170328\\report-memo_baseline_run1\\decision-memo.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170328\\report-memo_skill_run1\\decision-memo.md"
+  },
+  {
+    "id": "slides-sonnet",
+    "kind": "slides",
+    "task": "Read brief.md. Create slides.md: the complete slide deck for the 10-minute pitch described there (audience: VP Engineering + CFO delegate; decision sought: approve the $180K Nightshift pilot budget). Format each slide as: a '## ' heading line for the slide title, then the slide body (at most 30 words, or a one-line [exhibit: ...] note). The deck must fit the 10-minute slot, build a persuasive case from the brief's facts only, and end with a concrete ask.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\slides-pitch\\brief.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170331\\slides-pitch_baseline_run1\\slides.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170547\\slides-pitch_baseline_run1\\slides.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170547\\slides-pitch_skill_run1\\slides.md"
+  },
+  {
+    "id": "research-sonnet",
+    "kind": "research",
+    "task": "Read question.md and the three evidence excerpts in sources/. Write assessment.md, at most 550 words: assess the evidence and recommend adopt / pilot / reject the 4-day workweek for this specific company (40-person B2B SaaS, 28 async-friendly product/engineering, 12 in coverage-bound 24/5 support and ops). Weigh the quality and biases of each source; state what the evidence does NOT establish; address the strongest case AGAINST your recommendation; commit to a recommendation with stated confidence.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\research-4day\\question.md",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\research-4day\\sources\\source-a.md",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\research-4day\\sources\\source-b.md",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\research-4day\\sources\\source-c.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170614\\research-4day_baseline_run1\\assessment.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170624\\research-4day_baseline_run1\\assessment.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170624\\research-4day_skill_run1\\assessment.md"
+  },
+  {
+    "id": "persona-sonnet",
+    "kind": "persona",
+    "task": "Read persona.md and messages.md. Write replies.md: Dr. Kessler's reply to each of the three user messages, in character, in order, roughly 100-150 words each. The voice must be hers throughout — not a generic assistant's. Handle each message as she genuinely would, including what she does and does not know, and do not let the persona compromise factual honesty.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\persona-glaciologist\\persona.md",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\persona-glaciologist\\messages.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170334\\persona-glaciologist_baseline_run1\\replies.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170602\\persona-glaciologist_baseline_run1\\replies.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170602\\persona-glaciologist_skill_run1\\replies.md"
+  }
+]

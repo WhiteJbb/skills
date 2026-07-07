@@ -1,0 +1,8 @@
+[
+  {
+    "id": "research-4day",
+    "source": "fixtures\\research-4day",
+    "prompt": "Read question.md and the three evidence excerpts in sources/. Write assessment.md, at most 550 words: assess the evidence and recommend adopt / pilot / reject the 4-day workweek for this specific company (40-person B2B SaaS, 28 async-friendly product/engineering, 12 in coverage-bound 24/5 support and ops). Requirements: weigh the quality and biases of each source, not just its conclusions; state clearly what the evidence does NOT establish; address the strongest case AGAINST your recommendation before concluding; commit to a recommendation with a stated confidence rather than hedging everything equally. Use only the provided sources as evidence. Do not modify the source files.",
+    "check": ""
+  }
+]

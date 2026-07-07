@@ -1,0 +1,13 @@
+[
+  {
+    "id": "data-sonnet",
+    "kind": "data",
+    "task": "Our pricing change took effect on 2026-03-01. The leadership question: did signup conversion improve after the change? Analyze sales.csv (python available; columns: date, segment, visitors, signups; conversion = signups/visitors). Write findings.md, at most 400 words: your answer with supporting numbers, any data-quality issues found and how handled, and a recommendation. Every number must come from computation actually run.",
+    "materials": [
+      "C:\\Users\\admin\\AppData\\Local\\Temp\\claude\\c--Users-admin-Desktop-skills\\5fe2d19f-7d60-4da1-b457-cbf786f94b38\\scratchpad\\GROUND-TRUTH-for-judges.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170626\\data-simpson_baseline_run1\\findings.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170656\\data-simpson_baseline_run1\\findings.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170656\\data-simpson_skill_run1\\findings.md"
+  }
+]

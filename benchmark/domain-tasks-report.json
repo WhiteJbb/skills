@@ -1,0 +1,8 @@
+[
+  {
+    "id": "report-memo",
+    "source": "fixtures\\report-memo",
+    "prompt": "Read notes.md — raw, unsorted notes about whether to consolidate our two data warehouses (legacy Redshift vs Snowflake). Write decision-memo.md: a decision memo for the CTO, at most 450 words, recommending whether to consolidate onto one platform, and if so which one and on what timeline. The memo must be an argument, not a notes dump: state your recommendation clearly, support it with the evidence from the notes, be honest about what is fact versus assumption versus unresolved conflict in the notes, and address timing constraints. Do not invent facts that are not in the notes. Do not modify notes.md.",
+    "check": ""
+  }
+]

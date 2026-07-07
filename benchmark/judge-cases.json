@@ -1,0 +1,36 @@
+[
+  {
+    "id": "summary-sonnet",
+    "kind": "summary",
+    "source": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\summary-brief\\document.md",
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-164018\\summary-brief_baseline_run1\\summary.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-160843\\summary-brief_baseline_run1\\summary.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-163015\\summary-brief_skill_run1\\summary.md"
+  },
+  {
+    "id": "summary-opus",
+    "kind": "summary",
+    "source": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\summary-brief\\document.md",
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-164018\\summary-brief_baseline_run1\\summary.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-160353\\summary-brief_baseline_run1\\summary.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-164023\\summary-brief_skill_run1\\summary.md"
+  },
+  {
+    "id": "translate-sonnet",
+    "kind": "translate",
+    "source": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\translate-notes\\source.md",
+    "extra": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\translate-notes\\GLOSSARY.md",
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-164020\\translate-notes_baseline_run1\\translation.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-160350\\translate-notes_baseline_run1\\translation.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-160350\\translate-notes_skill_run1\\translation.md"
+  },
+  {
+    "id": "translate-opus",
+    "kind": "translate",
+    "source": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\translate-notes\\source.md",
+    "extra": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\translate-notes\\GLOSSARY.md",
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-164020\\translate-notes_baseline_run1\\translation.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-155725\\translate-notes_baseline_run1\\translation.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-155725\\translate-notes_skill_run1\\translation.md"
+  }
+]

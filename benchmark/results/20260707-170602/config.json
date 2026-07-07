@@ -1,0 +1,10 @@
+﻿{
+    "model":  "claude-sonnet-5",
+    "skill":  "persona-boost",
+    "runs":  1,
+    "modes":  [
+                  "baseline",
+                  "skill"
+              ],
+    "max_turns":  40
+}

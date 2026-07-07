@@ -1,0 +1,7 @@
+The Meridian line is the binding constraint: 92% utilization (industry benchmark ~78%), no maintenance slack, and $310K/quarter overtime, unsustainable beyond another year.
+
+Helix Retail's letter of intent anchors demand: 2,400 tons/year of private-label broth (~$11.2M/year revenue) from Q2 2027, with an exit clause at month 18 (90 days' notice); Danvers Mills' capacity addition (breaking ground H1 2027) may bring regional price pressure up to 7%.
+
+A second 3,100-ton/year line is quoted turnkey at $18.4M against the $15.0M approved envelope, a $3.4M gap requiring board approval; first production 14 months after approval (six months fabrication lead). Key risks: wastewater permit renewal (decision March 2027)—denial (low but not negligible) would bar operation; hiring 24 operators at 2.1% county unemployment (agency bridge ~$480K/year); euro exposure on ~60% of equipment cost until hedged at signing (10% adverse move adds ~$1.1M). Northgate co-packing ($2.9M/year, six-point margin compression) was rejected as permanent but viable as a construction bridge.
+
+Base case: 3.8-year payback, 16.5% IRR; a Helix exit at month 18, unreplaced, stretches payback to 6.9 years; Danvers price pressure alone stays within five-year guidance. Recommendation: release $6.2M now for fabrication slots, the sole capital at risk on permit denial; defer the balance until the April board, after the permit decision; approve the $3.4M gap and phasing as one package.

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "report-sonnet-v2",
+    "kind": "report",
+    "task": "Read notes.md — raw, unsorted notes about whether to consolidate our two data warehouses (legacy Redshift vs Snowflake). Write decision-memo.md: a decision memo for the CTO, at most 450 words, recommending whether to consolidate onto one platform, and if so which one and on what timeline. The memo must be an argument, not a notes dump: state your recommendation clearly, support it with the evidence from the notes, be honest about what is fact versus assumption versus unresolved conflict in the notes, and address timing constraints.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\report-memo\\notes.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170455\\report-memo_baseline_run1\\decision-memo.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170328\\report-memo_baseline_run1\\decision-memo.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-171342\\report-memo_skill_run1\\decision-memo.md"
+  },
+  {
+    "id": "slides-sonnet-v2",
+    "kind": "slides",
+    "task": "Read brief.md. Create slides.md: the complete slide deck for the 10-minute pitch described there (audience: VP Engineering + CFO delegate; decision sought: approve the $180K Nightshift pilot budget). Format each slide as: a '## ' heading line for the slide title, then the slide body (at most 30 words, or a one-line [exhibit: ...] note). The deck must fit the 10-minute slot, build a persuasive case from the brief's facts only, and end with a concrete ask.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\slides-pitch\\brief.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170331\\slides-pitch_baseline_run1\\slides.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170547\\slides-pitch_baseline_run1\\slides.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-171339\\slides-pitch_skill_run1\\slides.md"
+  },
+  {
+    "id": "research-sonnet-v2",
+    "kind": "research",
+    "task": "Read question.md and the three evidence excerpts in sources/. Write assessment.md, at most 550 words: assess the evidence and recommend adopt / pilot / reject the 4-day workweek for this specific company (40-person B2B SaaS, 28 async-friendly product/engineering, 12 in coverage-bound 24/5 support and ops). Weigh the quality and biases of each source; state what the evidence does NOT establish; address the strongest case AGAINST your recommendation; commit to a recommendation with stated confidence.",
+    "materials": [
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\research-4day\\question.md",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\research-4day\\sources\\source-a.md",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\research-4day\\sources\\source-b.md",
+      "c:\\Users\\admin\\Desktop\\skills\\benchmark\\fixtures\\research-4day\\sources\\source-c.md"
+    ],
+    "reference": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170614\\research-4day_baseline_run1\\assessment.md",
+    "baseline": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-170624\\research-4day_baseline_run1\\assessment.md",
+    "skill": "c:\\Users\\admin\\Desktop\\skills\\benchmark\\results\\20260707-171345\\research-4day_skill_run1\\assessment.md"
+  }
+]

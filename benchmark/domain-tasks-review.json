@@ -1,0 +1,8 @@
+[
+  {
+    "id": "review-audit-v2",
+    "source": "fixtures\\audit-seeded-bugs-v2",
+    "prompt": "Review the Python module in this folder (events.py, windows.py, stats.py, report.py) for defects. Each function's docstring states its contract. Do NOT fix or modify any file. Write your review to review.md: findings ordered most-severe first, each with file:line, a one-sentence description of the defect, a concrete input or scenario that triggers the wrong behavior, and a one-line fix direction. Separate genuine defects from nits (style/naming); include nits only in a short section at the end. Do not pad the review with restating what the code does.",
+    "check": ""
+  }
+]

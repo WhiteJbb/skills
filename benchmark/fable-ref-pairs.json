@@ -1,0 +1,50 @@
+[
+  {
+    "task": "tide-app",
+    "brief": "Build a landing page for 'Mulmoe', a tide and swell forecast app for surfers on Jeju island, Korea. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page.",
+    "label_a": "fable-baseline",
+    "dir_a": "results\\design-20260707-165325\\tide-app_baseline",
+    "label_b": "sonnet-design-boost",
+    "dir_b": "results\\design-20260707-150338\\tide-app_design-boost"
+  },
+  {
+    "task": "tide-app",
+    "brief": "Build a landing page for 'Mulmoe', a tide and swell forecast app for surfers on Jeju island, Korea. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page.",
+    "label_a": "fable-baseline",
+    "dir_a": "results\\design-20260707-165325\\tide-app_baseline",
+    "label_b": "sonnet-baseline",
+    "dir_b": "results\\design-20260707-150338\\tide-app_baseline"
+  },
+  {
+    "task": "type-foundry",
+    "brief": "Build the homepage for 'Hwalja House', a 40-year-old family-run type foundry in Seoul that still hand-casts Hangul metal type and sells digital revivals of its classic faces. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page.",
+    "label_a": "fable-baseline",
+    "dir_a": "results\\design-20260707-165325\\type-foundry_baseline",
+    "label_b": "sonnet-design-boost",
+    "dir_b": "results\\design-20260707-150338\\type-foundry_design-boost"
+  },
+  {
+    "task": "type-foundry",
+    "brief": "Build the homepage for 'Hwalja House', a 40-year-old family-run type foundry in Seoul that still hand-casts Hangul metal type and sells digital revivals of its classic faces. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page.",
+    "label_a": "fable-baseline",
+    "dir_a": "results\\design-20260707-165325\\type-foundry_baseline",
+    "label_b": "sonnet-baseline",
+    "dir_b": "results\\design-20260707-150338\\type-foundry_baseline"
+  },
+  {
+    "task": "seller-dashboard",
+    "brief": "Build the seller admin dashboard for 'Haenyeo Market', an online marketplace where Jeju fishermen and haenyeo divers sell same-day catch. It must show: today's orders and revenue, a weekly revenue trend, top 5 products, fulfillment pipeline status, and low-stock alerts. Use realistic Korean sample data. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page.",
+    "label_a": "fable-baseline",
+    "dir_a": "results\\design-20260707-165325\\seller-dashboard_baseline",
+    "label_b": "sonnet-design-boost",
+    "dir_b": "results\\design-20260707-150338\\seller-dashboard_design-boost"
+  },
+  {
+    "task": "seller-dashboard",
+    "brief": "Build the seller admin dashboard for 'Haenyeo Market', an online marketplace where Jeju fishermen and haenyeo divers sell same-day catch. It must show: today's orders and revenue, a weekly revenue trend, top 5 products, fulfillment pipeline status, and low-stock alerts. Use realistic Korean sample data. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page.",
+    "label_a": "fable-baseline",
+    "dir_a": "results\\design-20260707-165325\\seller-dashboard_baseline",
+    "label_b": "sonnet-baseline",
+    "dir_b": "results\\design-20260707-150338\\seller-dashboard_baseline"
+  }
+]

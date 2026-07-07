@@ -1,0 +1,8 @@
+[
+  {
+    "id": "translate-notes",
+    "source": "fixtures\\translate-notes",
+    "prompt": "Translate source.md from English into Korean and write the complete translation to translation.md. Requirements: 1. Use the renderings in GLOSSARY.md for every occurrence of the listed terms, with no variation anywhere in the document. 2. Preserve the document structure exactly: the same number of headings and the same number of bullet items, in the same order — do not merge, split, drop, or add bullets. 3. Keep placeholder variables in curly braces (like {ticket_id}) byte-identical, never translated. 4. Preserve every number, date, version, percentage, and unit exactly. 5. Write natural, formal business Korean with a consistent register throughout; the meaning must be faithful, including negations and exceptions. 6. The product name RelayDesk stays in English. Do not modify source.md or GLOSSARY.md. Your translation will be graded by a hidden checker on structure counts, glossary consistency, placeholder integrity, and number preservation.",
+    "check": "Copy-Item 'c:\\Users\\admin\\Desktop\\skills\\benchmark\\hidden\\grade_translate_hidden.py' .\\grade_translate_hidden.py; python grade_translate_hidden.py"
+  }
+]

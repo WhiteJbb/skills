@@ -1,0 +1,8 @@
+[
+  {
+    "id": "data-simpson",
+    "source": "fixtures\\data-simpson",
+    "prompt": "Our pricing change took effect on 2026-03-01. The leadership question: did signup conversion improve after the change? Analyze sales.csv in this folder (python is available; columns: date, segment, visitors, signups; conversion = signups/visitors). Write findings.md, at most 400 words: your answer to the question with the supporting numbers, any data-quality issues you found and how you handled them, and a recommendation. Every number you report must come from computation you actually ran. Do not modify sales.csv.",
+    "check": ""
+  }
+]

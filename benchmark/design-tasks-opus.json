@@ -1,0 +1,10 @@
+[
+  {
+    "id": "tide-app",
+    "prompt": "Build a landing page for 'Mulmoe', a tide and swell forecast app for surfers on Jeju island, Korea. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page."
+  },
+  {
+    "id": "seller-dashboard",
+    "prompt": "Build the seller admin dashboard for 'Haenyeo Market', an online marketplace where Jeju fishermen and haenyeo divers sell same-day catch. It must show: today's orders and revenue, a weekly revenue trend, top 5 products, fulfillment pipeline status, and low-stock alerts. Use realistic Korean sample data. The page must be a single self-contained index.html in the current directory (inline CSS/JS; a Google Fonts <link> tag is allowed). Do not ask questions - make all decisions yourself and finish the page."
+  }
+]

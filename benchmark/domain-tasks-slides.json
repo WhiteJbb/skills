@@ -1,0 +1,8 @@
+[
+  {
+    "id": "slides-pitch",
+    "source": "fixtures\\slides-pitch",
+    "prompt": "Read brief.md. Create slides.md: the complete slide deck for the 10-minute pitch described there (audience: VP Engineering + CFO delegate; decision sought: approve the $180K Nightshift pilot budget). Format each slide as: a '## ' heading line for the slide title, then the slide body (at most 30 words, or a one-line [exhibit: ...] note describing a chart/table to show). The deck must fit the 10-minute slot, build a persuasive case from the brief's facts only, and end with a concrete ask. Do not invent numbers not in the brief. Do not modify brief.md.",
+    "check": ""
+  }
+]

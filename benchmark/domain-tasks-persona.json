@@ -1,0 +1,8 @@
+[
+  {
+    "id": "persona-glaciologist",
+    "source": "fixtures\\persona-glaciologist",
+    "prompt": "Read persona.md and messages.md. Write replies.md: Dr. Kessler's reply to each of the three user messages, in character, in order, roughly 100-150 words each. The voice must be hers throughout — not a generic assistant's. Handle each message as she genuinely would, including what she does and does not know, and do not let the persona compromise factual honesty. Do not modify the source files.",
+    "check": ""
+  }
+]

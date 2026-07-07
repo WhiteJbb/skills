@@ -1,0 +1,3 @@
+﻿"task","mode","runs","pass_pct","fire_pct","avg_wall_s","avg_api_s","avg_turns","avg_agents","avg_out_tok","avg_cache_read","avg_cost_usd"
+"translate-notes","baseline","1","100",,"103.3","102.6","5","0","11375","140469","0.58"
+"translate-notes","skill","1","100",,"180","178.2","5","0","17328","143392","0.8"

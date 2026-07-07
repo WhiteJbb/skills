@@ -6,7 +6,9 @@ $ErrorActionPreference = "Stop"
 $dest = Join-Path $env:USERPROFILE ".claude\skills"
 New-Item -ItemType Directory -Force $dest | Out-Null
 
-foreach ($name in @("opus-boost", "sonnet-boost", "haiku-boost", "fresh-eyes-done-gate", "design-boost")) {
+foreach ($name in @("opus-boost", "sonnet-boost", "haiku-boost", "fresh-eyes-done-gate", "design-boost",
+                    "summary-boost", "code-review-boost", "report-boost", "slides-boost",
+                    "research-boost", "data-boost", "translate-boost", "persona-boost")) {
   $link = Join-Path $dest $name
   $target = Join-Path $PSScriptRoot $name
   if (-not (Test-Path $target)) { throw "skill folder not found: $target" }
